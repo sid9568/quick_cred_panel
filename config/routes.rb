@@ -155,6 +155,7 @@ Rails.application.routes.draw do
     post "admins/create", to: "admins#create", as: :admins_create
     post "admins/:id/admin_update_stauts", to: "admins#admin_update_stauts", as: :admin_update_status
 
+    resources :roles
     resources :admins
     resources :banks
     resources :services
@@ -180,7 +181,7 @@ Rails.application.routes.draw do
     resources :retailers
     post "retailers/create", to: "retailers#create", as: :retailer_create
     post "retailers/:id/update_status", to: "retailers#update_status", as: :retailer_update_status
-    resources :roles
+   
   end
 
 
