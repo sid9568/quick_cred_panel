@@ -30,12 +30,12 @@ class User < ApplicationRecord
   end
 
 
-  #  enum kyc_status: {
-  #   not_started: "not_started",
-  #   send_by: "send_by",
-  #   pending: "pending",
-  #   verified: "verified",
-  #   rejected: "rejected"
-  # }
+   enum kyc_status: {
+    not_started: "not_started",
+    send_by: "send_by",
+    pending: "pending",
+    verified: "verified",
+    rejected: "rejected"
+  }
 
 end
