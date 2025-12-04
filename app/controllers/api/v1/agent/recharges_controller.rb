@@ -1,171 +1,238 @@
-class Api::V1::Agent::RechargesController < Api::V1::Agent::BaseController
-  protect_from_forgery with: :null_session
+class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
+  # protect_from_forgery with: :null_session
 
   def verify_pin
+    p current_user
+
     if params[:pin].blank?
       return render json: { success: false, message: "PIN is required" }, status: :bad_request
+    end
+
+    if current_user.set_pin.blank?
+      return render json: { success: false, message: "Please create your PIN before verification" }, status: :unprocessable_entity
     end
 
     if current_user.set_pin == params[:pin]
       render json: { code: "200", message: "PIN verified successfully", pin: current_user.set_pin }, status: :ok
     else
-      render json: { success: false, message: "Invalid PIN" }
+      render json: { success: false, message: "Invalid PIN" }, status: :unauthorized
     end
+  end
+
+  def fetch_eko_operators
+    type = params[:category] || "prepaid"  # default prepaid
+
+    result = Eko::OperatorListService.fetch(type)
+
+    render json: {
+      success: true,
+      category: type,
+      data: result
+    }
+  end
+
+  def fetch_eko_locations
+    begin
+      result = Eko::OperatorLocationService.fetch
+      render json: { success: true, data: result }, status: 200
+    rescue => e
+      render json: { success: false, message: e.message }, status: :bad_request
+    end
+  end
+
+
+  def activate_eko_service
+    result = EkoApiClient.activate_service(
+      service_code: 53,
+      initiator_id: 9212094999,
+      user_code: "38130001",
+      latlong: "28.613939,77.209023"
+    )
+    render json: result
+  end
+
+  def create
+    mobile = params[:utility_acc_no] || params[:mobile]
+    amount = params[:amount]
+    operator_id = params[:operator_id]
+
+    if mobile.blank? || amount.blank? || operator_id.blank?
+      return render json: { code: 400, message: "mobile, amount & operator_id required", data: [] }
+    end
+
+    result = Eko::EkoRechargeService.pay_recharge(mobile, amount, operator_id)
+
+    render json: {
+      code: result["status"],
+      message: result["message"],
+      data: result
+    }
+  end
+
+  def fetch_bill
+    response = EkoMobilePlanService.fetch_bill(
+      operator_id:       params[:operator_id],
+      utility_acc_no:    params[:utility_acc_no],
+      mobile_no:         params[:confirmation_mobile_no],
+      sender_name:       params[:sender_name],
+      client_ref_id:     SecureRandom.hex(8)
+    )
+
+    render json: response
+  end
+
+  def paybill
+    mobile      = params[:mobile]
+    amount      = params[:amount]
+    operator_id = params[:operator_id]
+
+    if mobile.blank? || amount.blank? || operator_id.blank?
+      return render json: { status: false, message: "mobile, amount & operator_id required" }, status: 400
+    end
+
+    client_ref_id = "TXN#{rand(100000..999999)}"
+
+    response = EkoMobileRechargeService.recharge(
+      mobile: mobile,
+      amount: amount,
+      operator_id: operator_id.to_s,
+      client_ref_id: client_ref_id
+    )
+
+    render json: response
   end
 
 
   def recharge_list
     subcategory_id = params[:subcategory_id] || params.dig(:params, :subcategory_id)
-   p "========subcategory_id========="
-   p subcategory_id
+    p "========subcategory_id========="
+    p subcategory_id
     recharg_lists = Transaction.where(service_product_id: subcategory_id).order(created_at: :desc)
-   p "=============recharg_lists============="
-   p recharg_lists
+    p "=============recharg_lists============="
+    p recharg_lists
     render json: { code: 200, message: "Successfully fetched data", list: recharg_lists }
   end
 
 
   def recharge
+    Rails.logger.info "================= current_user: #{current_user.id} (#{current_user.role.title})"
     hierarchy = current_user.find_hierarchy
 
-    required = %i[transaction_type recharge_type mobile_number operator amount service_product_id]
+    required = %i[transaction_type recharge_type operator amount service_product_id]
     missing = required.select { |p| params[p].blank? }
 
-    if missing.any?
-      return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request
-    end
+    return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request if missing.any?
 
     amount = params[:amount].to_f
+
     wallet = Wallet.find_by(user_id: current_user.id)
-    parent_wallet = Wallet.find_by(user_id: current_user.parent_id)
+    return render json: { success: false, message: "Wallet not found" }, status: :not_found unless wallet
 
-    unless wallet
-      return render json: { success: false, message: "Wallet not found" }, status: :not_found
-    end
-
-    if wallet.balance < amount
-      return render json: { success: false, message: "Insufficient wallet balance" }, status: :unprocessable_entity
-    end
+    return render json: { success: false, message: "Insufficient wallet balance" }, status: :unprocessable_entity if wallet.balance < amount
 
     txn_id = "TXN#{rand(100000..999999)}"
 
+    service_product_item = ServiceProductItem.find_by(name: params[:operator])
+    return render json: { success: false, message: "Commission not found" }, status: :not_found unless service_product_item
+
+    # === Call EKO Recharge API ===
+    # response = EkoMobileRechargeService.recharge(
+    #   mobile: params[:mobile_number],
+    #   amount: amount,
+    #   operator_id: params[:operator_id],
+    #   client_ref_id: txn_id
+    # )
+
+    # puts "🔍 EKO RESPONSE:"
+    # pp response
+
+    # # Extract values
+    # tx_status_desc = response.dig("data", "txstatus_desc")
+    # eko_message    = response["message"]
+    # response_status = response["response_status_id"]
+
+    # # Final message priority
+    # # 1️⃣ If tx_status_desc present, use that
+    # # 2️⃣ Else use direct eko message
+    # # 3️⃣ Else use generic fallback
+    # failure_message = tx_status_desc.presence || eko_message.presence || "Recharge Failed"
+
+    # # Success check (use response_status or tx_status_desc)
+    # if response_status == 0 || tx_status_desc&.casecmp("Success") == 0
+    #   # SUCCESS
+    #   # ... save transaction or respond success
+    # else
+    #   return render json: { success: false, message: failure_message }
+    # end
+    # === Call EKO Recharge API ===
+
+
+
+    recharge_transaction = nil
+
     ActiveRecord::Base.transaction do
-      # Deduct amount from user's wallet
+
+      # Deduct wallet balance
       wallet.update!(balance: wallet.balance - amount)
 
-      # Create recharge transaction
       recharge_transaction = Transaction.create!(
         tx_id: txn_id,
         operator: params[:operator],
-        account_or_mobile: params[:mobile_number],
+        mobile: params[:mobile_number],
         amount: amount,
         transaction_type: params[:transaction_type],
         user_id: current_user.id,
         status: "SUCCESS",
         service_product_id: params[:service_product_id],
-        consumer_name: params[:consumer_name],
-        subscriber_or_vc_number: params[:subscriber_or_vc_number],
-        bill_no: params[:bill_no],
-        landline_no: params[:landline_no]
+        # tid: response.dig("data", "tid"),
+        # tds: response.dig("data", "tds").to_f,
+        # commission: response.dig("data", "commission").to_f,
+        # status_text: response.dig("data", "status_text"),
+        # txstatus_desc: tx_status_desc
       )
 
-      # ==== Commission for hierarchy users (admin & superadmin) ====
+
+      # === Commission Calculation ===
+      scheme = Scheme.find(current_user.scheme_id)
+      scheme_commission = scheme.commision_rate.to_f
+
+      commission_values = Commission.joins(:service_product_item)
+      .where(scheme_id: scheme.id, service_product_items: { name: params[:operator] })
+      .pluck(:to_role, :value).to_h.transform_keys(&:to_sym)
+
+      commission_map = {
+        superadmin: ((scheme_commission - commission_values[:admin].to_f) / 100) * amount,
+        admin:      ((commission_values[:admin].to_f - commission_values[:master].to_f) / 100) * amount,
+        master:     ((commission_values[:master].to_f - commission_values[:dealer].to_f) / 100) * amount,
+        dealer:     ((commission_values[:dealer].to_f - commission_values[:retailer].to_f) / 100) * amount,
+        retailer:   ((commission_values[:retailer].to_f) / 100) * amount
+      }
+
+      Rails.logger.info "Commission Breakdown: #{commission_map}"
+
+      # === Distribute Commission ===
       hierarchy.each do |user|
-        Rails.logger.info "Hierarchy user: #{user.id} (#{user.role.title})"
+        role = user.role.title.downcase.to_sym
+        next unless commission_map[role]
 
-        # Get admin commission %
+        commission_amount = commission_map[role]
+        next if commission_amount <= 0
 
-        admin_commission = Commission.where(scheme_id: current_user.scheme_id)
-        .joins(:service_product_item).where( service_product_item: { name: params[:operator] }, to_role: "admin").pluck(:value).last.to_f
+        user_wallet = Wallet.find_by(user_id: user.id)
+        next unless user_wallet
 
+        user_wallet.update!(balance: user_wallet.balance + commission_amount)
 
-        scheme = Scheme.where(id: current_user.scheme_id)
+        TransactionCommission.create!(
+          transaction_id: recharge_transaction.id,
+          user_id: user.id,
+          commission_amount: commission_amount,
+          role: role,
+          service_product_item_id: service_product_item.id
+        )
 
-
-        scheme_commission = scheme.last.commision_rate.to_f
-        p "===========scheme_commission"
-        p scheme_commission
-
-
-        superadmin_commission = scheme_commission - admin_commission
-        p "=========superadmin_admin_first=========="
-        p superadmin_commission
-        p "======================params[:operator]    =  #{params[:operator]}"
-       p params[:operator]
-
-        retailer_commission = Commission.where(scheme_id: current_user.scheme_id)
-        .joins(:service_product_item).where( service_product_item: { name: params[:operator] }, to_role: "retailer").pluck(:value).last.to_f
-
-        p "=======retailer_commission_for_schemeretailer_commission_for_scheme====="
-        p retailer_commission
-
-        admin_commission_first = admin_commission - retailer_commission
-        p "============admin_commission_first==========="
-        p admin_commission_first
-
-
-
-        admin_commission_result = (admin_commission_first / 100) * amount
-        superadmin_commission_result = (superadmin_commission / 100) * amount
-
-        p "------------===========-superadmin_commission result------------------"
-        p superadmin_commission_result
-        p "============admin_commission_resultadmin_commission_result================"
-        p admin_commission_result
-
-        # ==== Admin Commission ====
-        if user.role.title == "admin"
-          TransactionCommission.create!(
-            transaction_id: recharge_transaction.id,
-            user_id: user.id,
-            commission_amount: admin_commission_result,
-            role: "admin",
-            service_product_item_id: 1
-          )
-
-          # Update admin wallet (only if direct parent)
-          if user.id == current_user.parent_id
-            parent_wallet.update!(balance: parent_wallet.balance + admin_commission_result)
-          end
-        end
-
-        # ==== Superadmin Commission (static) ====
-        if user.role.title == "superadmin"
-          TransactionCommission.create!(
-            transaction_id: recharge_transaction.id,
-            user_id: user.id,
-            commission_amount: superadmin_commission_result,
-            role: "superadmin",
-            service_product_item_id: 1
-          )
-
-          # Update superadmin wallet (agar chaiye to)
-          superadmin_wallet = Wallet.find_by(user_id: user.id)
-          superadmin_wallet.update!(balance: superadmin_wallet.balance + superadmin_commission_result) if superadmin_wallet
-        end
+        Rails.logger.info "[Commission] #{role.upcase} (User #{user.id}) credited ₹#{commission_amount.round(2)}"
       end
-
-      # ==== Retailer Commission for current user ====
-      retailer_commission = Commission.where(scheme_id: current_user.scheme_id)
-      .joins(:service_product_item)
-      .where(service_product_item: { name: params[:operator] }, to_role: "retailer")
-      .pluck(:value)
-      .last.to_f
-
-      retailer_commission_result = (retailer_commission / 100) * amount
-      p "==============retailer_commissionretailer_commission==============="
-      p retailer_commission_result
-
-      transaction_commission = TransactionCommission.create!(
-        transaction_id: recharge_transaction.id,
-        user_id: current_user.id,
-        commission_amount: retailer_commission_result,
-        role: "retailer",
-        service_product_item_id: 1
-      )
-
-      # Add retailer commission to current user's wallet
-      wallet.update!(balance: wallet.balance + transaction_commission.commission_amount)
     end
 
     render json: {
@@ -173,10 +240,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Agent::BaseController
       message: "Recharge successful",
       data: {
         transaction_id: txn_id,
-        transaction_type: params[:transaction_type],
-        recharge_type: params[:recharge_type],
         mobile_number: params[:mobile_number],
-        state: params[:state],
         operator: params[:operator],
         amount: amount,
         status: "SUCCESS",

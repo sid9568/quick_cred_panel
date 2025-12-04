@@ -1,8 +1,10 @@
-class Superadmin::SchemeController < ApplicationController
-   before_action :set_scheme, only: [:show, :edit, :update, :destroy]
+class Superadmin::SchemeController < Superadmin::BaseController
+  # before_action :authenticate_user!
+
+  before_action :set_scheme, only: [:show, :edit, :update, :destroy]
 
   def index
-    @schemes = Scheme.all.order(created_at: :desc)
+    @schemes = Scheme.where(user_id: current_superadmin.id).order(created_at: :desc)
   end
 
   def show
@@ -14,11 +16,11 @@ class Superadmin::SchemeController < ApplicationController
 
   # POST /admin/schemes
   def create
-    @scheme = Scheme.new(scheme_params)
+    @scheme = Scheme.new(scheme_params.merge(user_id: current_superadmin.id))
     if @scheme.save
       redirect_to superadmin_scheme_index_path, notice: "Scheme created successfully."
     else
-      render :new, status: :unprocessable_entity
+      redirect_to superadmin_scheme_index_path, notice: "Scheme created Not successfully."
     end
   end
 
@@ -28,7 +30,7 @@ class Superadmin::SchemeController < ApplicationController
 
   # PATCH/PUT /admin/schemes/:id
   def update
-    if @scheme.update(scheme_params)
+    if @scheme.update(params.permit(:scheme_name, :scheme_type, :commision_rate))
       redirect_to superadmin_scheme_index_path, notice: "Scheme updated successfully."
     else
       render :edit, status: :unprocessable_entity
@@ -48,6 +50,6 @@ class Superadmin::SchemeController < ApplicationController
   end
 
   def scheme_params
-    params.require(:scheme).permit(:scheme_name, :scheme_type, :commision_rate)
+    params.permit(:scheme_name, :scheme_type, :commision_rate)
   end
 end

@@ -1,22 +1,70 @@
-<div class="pl-8 p-4 bg-blue-50">
-	<div class="flex justify-between items-center mb-6 mt-4">
-        <div>
-          <h1 class="text-2xl font-bold">Users List</h1>
-          <p class="text-gray-500 text-sm">
-            Manage administrator and their permission
-          </p>
-        </div>
-        <div class="flex gap-3">
-          <button class="flex items-center gap-2 border px-4 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300">
-            📄 Export List
-          </button>
-          <a href ="<%=new_superadmin_retailer_path%>" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer">Create New User
-         </a>
-        </div>
-      </div>
+<div class="w-full  mx-auto px-6 py-5 bg-blue-50 min-h-screen">
+	<div class="flex justify-between items-center mb-6">
+		<div>
+			<h1 class="text-2xl font-bold">Users List</h1>
+			<p class="text-gray-500 text-sm">
+				Manage administrator and their permission
+			</p>
+		</div>
+		<div class="flex gap-3">
+			<%= link_to "📄 Export List",
+			superadmin_retailers_export_path(format: :csv),
+			class: "flex items-center gap-2 border px-4 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300" %>
+			<%= link_to "Create New User",
+			new_superadmin_retailer_path,
+			class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer" %>
+		</div>
+	</div>
+
+
+	<div class="bg-white p-4 rounded-lg shadow mb-6">
+		<h2 class="text-lg font-bold mb-4">Filter Users</h2>
+		<%= form_with url: superadmin_retailers_path, method: :get, local: true do %>
+		<!-- ROW 1 -->
+		<div class="flex flex-wrap gap-4 mb-4">
+			<!-- Full Name -->
+			<div class="flex flex-col w-56">
+				<label class="text-sm font-medium mb-1">Serach</label>
+				<%= text_field_tag :search, params[:search],
+				class: "border px-3 py-2 rounded w-full",
+				placeholder: "Search with Full name, mobile or email" %>
+			</div>
+			<!-- Status -->
+			<div class="flex flex-col w-56">
+				<label class="text-sm font-medium mb-1">Status</label>
+				<%= select_tag :status,
+				options_for_select([["Active", "active"], ["Inactive", "inactive"]], params[:status]),
+				include_blank: "Select Status",
+				class: "border px-3 py-2 rounded w-full" %>
+			</div>
+			
+			<!-- ROW 2 -->
+			<!-- Start Date -->
+			<div class="flex flex-col w-56">
+				<label class="text-sm font-medium mb-1">Start Date</label>
+				<%= date_field_tag :start_date, params[:start_date],
+				class: "border px-3 py-2 rounded w-full" %>
+			</div>
+			<!-- End Date -->
+			<div class="flex flex-col w-56">
+				<label class="text-sm font-medium mb-1">End Date</label>
+				<%= date_field_tag :end_date, params[:end_date],
+				class: "border px-3 py-2 rounded w-full" %>
+			</div>
+			<!-- BUTTONS -->
+			<div class="flex gap-3 mt-6">
+				<%= submit_tag "Filter",
+				class: "px-7 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 h-10 cursor-pointer" %>
+				<%= link_to "Clear", superadmin_retailers_path,
+				class: "px-7 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 h-10 cursor-pointer" %>
+			</div>
+		</div>
+		<% end %>
+	</div>
+	
 	<div class="w-[1477px] relative overflow-x-auto shadow-md sm:rounded-lg pr-5 mt-8">
 		<table class="w-full text-sm text-left text-gray-600">
-      <thead class="text-xs uppercase bg-gray-100 text-gray-700">
+			<thead class="text-xs uppercase bg-gray-100 text-gray-700">
 				<tr>
 					<th scope="col" class="px-6 py-3">
 						Id
@@ -118,38 +166,54 @@
 					<td class="px-6 py-4"><%= retailer.account_holder_name %></td>
 					<!-- Actions -->
 					<td class="flex gap-3 px-6 py-4">
-					  <!-- Status Badge -->
-					<% if retailer.status %>
-					  <%= button_to superadmin_retailer_update_status_path(id: retailer.id),
-					              onclick: "return confirm('Are you sure you want to deactivate this retailer?');" do %>
-					    <p class="font-medium text-white font-bold hover:underline bg-green-500 py-1 px-2 rounded-lg cursor-pointer">
-					      Active
-					    </p>
-					  <% end %>
-					<% else %>
-					  <%= button_to superadmin_retailer_update_status_path(id: retailer.id),
-					              onclick: "return confirm('Are you sure you want to activate this retailer?');" do %>
-					    <p class="font-medium text-white font-bold hover:underline bg-blue-500 py-1 px-2 rounded-lg cursor-pointer">
-					      Inactive
-					    </p>
-					  <% end %>
-					<% end %>
-					  <!-- Edit Link -->
-					  <%= link_to "Edit", edit_superadmin_retailer_path(retailer),
-					      class: "font-medium text-blue-600 hover:underline bg-yellow-400 py-1 px-2 rounded-lg" %>
-
-					  <!-- Delete Button -->
-					  <%= button_to "Delete", 
-            superadmin_retailer_path(retailer), 
-            method: :delete, 
-            data: { turbo_confirm: "Are you sure?" }, 
-            class: "px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition" %>
-
+						<!-- Status Badge -->
+						<% if retailer.status %>
+						<%= button_to superadmin_retailer_update_status_path(id: retailer.id),
+						onclick: "return confirm('Are you sure you want to deactivate this retailer?');" do %>
+						<p class="font-medium text-white font-bold hover:underline bg-green-500 py-1 px-2 rounded-lg cursor-pointer">
+							Active
+						</p>
+						<% end %>
+						<% else %>
+						<%= button_to superadmin_retailer_update_status_path(id: retailer.id),
+						onclick: "return confirm('Are you sure you want to activate this retailer?');" do %>
+						<p class="font-medium text-white font-bold hover:underline bg-blue-500 py-1 px-2 rounded-lg cursor-pointer">
+							Inactive
+						</p>
+						<% end %>
+						<% end %>
+						<!-- Edit Link -->
+						<%= link_to "Edit", edit_superadmin_retailer_path(retailer),
+						class: "font-medium text-blue-600 hover:underline bg-yellow-400 py-1 px-2 rounded-lg" %>
+						<!-- Delete Button -->
+						<%= button_to "Delete",
+						superadmin_retailer_path(retailer),
+						method: :delete,
+						data: { turbo_confirm: "Are you sure?" },
+						class: "px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition" %>
 					</td>
-
 				</tr>
 				<% end %>
 			</tbody>
 		</table>
 	</div>
 </div>
+<% if flash.any? %>
+<div id="flashModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+	<div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 relative">
+		<!-- Close Button -->
+		<% flash.each do |key, message| %>
+		<div class="mb-4 p-4 rounded-lg
+			<%= key == 'notice' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+			<%= message %>
+		</div>
+		<% end %>
+		<div class="flex justify-center">
+			<button onclick="document.getElementById('flashModal').remove()"
+			class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+			OK
+			</button>
+		</div>
+	</div>
+</div>
+<% end %>

@@ -59,6 +59,101 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      namespace :auth do
+
+        # LOGIN (Admin / Master / Dealer / Agent)
+        post "login", to: "sessions#login"
+
+        # VERIFY OTP
+        post "verify_email", to: "sessions#verify_email"
+
+        # CREATE USER (Retailer / Agent / Dealer)
+        post "register", to: "sessions#create"
+
+        # ROLE LIST
+        get "roles", to: "sessions#role"
+
+      end
+    end
+  end
+
+  namespace :api do
+    namespace :v1 do
+      namespace :admin do
+        get "dashboards/index"
+
+        get  "accounts/credit_logs", to: "accounts#credit_logs"
+        post "accounts/add_credit",  to: "accounts#add_credit"
+
+        get  "accounts/debit_logs",  to: "accounts#debit_logs"
+        post "accounts/add_debit",   to: "accounts#add_debit"
+
+        resources :user_services do
+
+          member do
+            put :update_status
+          end
+          collection do
+            get :service_list
+            get :scheme_list
+            get :role_list
+          end
+        end
+
+        resources :schemes
+        resources :banks
+        resources :wallets, only: [:index, :create] do
+          collection do
+            get :bank
+            get :bank_details
+          end
+        end
+
+        resources :admin_profiles do
+          collection do
+            post "set_pin"
+            post "reset_transaction_pin"
+            post "forget_transaction_pin"
+            post "verfiy_transaction_pin"
+
+            post "set_password"
+            post "forgot_password"
+            post "verify_password_otp"
+            post "forget_password"
+            post "main_forget_password"
+            post "set_mpin"
+          end
+        end
+
+        resources :commissions do
+          collection do
+            post "index"
+            post "show_commission"
+            post "commission_set"
+          end
+        end
+
+        resources :payments do
+          collection do
+            post "index"
+            post "approved"
+            post "reject_payment_request"
+          end
+        end
+
+        post "reports/index"
+        # resources :reports , only: [:index]
+
+
+      end
+    end
+  end
+
+
+
+
+  namespace :api do
+    namespace :v1 do
       namespace :customer do
         post "kycs/user_details"
         post "kycs/aadhaar_otp", to: "kycs#aadhaar_otp"
@@ -85,7 +180,9 @@ Rails.application.routes.draw do
         post "sessions/login"
         post "sessions/create"
         get "sessions/role"
+        post "sessions/verify_email"
         post "enquires/create"
+        get "enquires/role"
 
         get "user_services/index"
         post "user_services/service_category"
@@ -96,16 +193,49 @@ Rails.application.routes.draw do
         post "recharges/recharge"
         post "recharges/recharge_list"
         post "recharges/verify_pin"
+        post "fetch_eko_operators", to: "recharges#fetch_eko_operators"
+        get "fetch_eko_locations", to: "recharges#fetch_eko_locations"
+        post "fetch_eko_plans", to: "recharges#fetch_eko_plans"
+        post "eko_mobile_recharge", to: "recharges#eko_mobile_recharge"
+        get "activate_eko_service", to: "recharges#activate_eko_service"
+        post "activate_eko_service_ar", to: "recharges#activate_eko_service_ar"
+        post "activate_bbps_service", to: "recharges#activate_bbps_service"
+        post "create", to: "recharges#create"
+        post "paybill", to: "recharges#paybill"
+        post "fetch_bill", to: "recharges#fetch_bill"
+
+        post "fetch_plans", to: "recharges#fetch_plans"
+        post "recharges/fetch_eko_user_info"
 
         get "wallets/balance"
         post "wallets/create"
+        post "wallets/bank_list"
+        post "wallets/fund_request_list"
+        get "wallets/bank_list"
+        post "wallets/bank_details"
 
         post "filters/category_filter"
         post "filters/service_category_filter"
         post "filters/service_product"
 
+        get "dmts/dmt_transactions_list"
+        post "dmts/sender_details"
+        post "dmts/verify_aadhaar_otp"
+        post "dmts/dmt_transactions"
+        post "dmts/dmt_transaction_verify"
+        post "dmts/update_dmt_transaction"
+        post "dmts/benfisries_dmt_transaction"
+        post "dmts/beneficiary_fetch"
+        get "dmts/beneficiary_list"
+
         resources :reatailer_profiles, only: [:index]
         post "reatailer_profiles/set_pin"
+        post "reatailer_profiles/reset_password"
+        post "reatailer_profiles/forgot_password"
+        post "reatailer_profiles/verify_password_otp"
+        post "reatailer_profiles/forget_password"
+        post "reatailer_profiles/main_forget_password"
+
       end
 
     end
@@ -115,6 +245,19 @@ Rails.application.routes.draw do
   root "superadmin/dashboards#index"
 
   namespace :superadmin do
+    get "sessions/login"
+    post "sessions/create"
+    delete "sessions/destroy"
+    get "sessions/forgot_page"
+    post "sessions/forgot_email"
+    get "sessions/opt_page"
+    post "sessions/verify_otp"
+    get "sessions/set_password"
+    post "sessions/set_password"
+    get "sessions/otp"
+    post "sessions/verify_otp_login"
+
+    get "financial_services/index"
     get "customer/index"
     post "customer/verify_status"
 
@@ -133,14 +276,28 @@ Rails.application.routes.draw do
     get "payments/index"
     get "payments/set_pin"
     post "payments/set_pin_update"
+    get "payments/forgot_mpin"
+    post "payments/send_mpin_otp"
+    get "payments/verify_mpin"
+    post "payments/verify_mpin_otp"
+    get "payments/set_pin_agin"
+    post "payments/set_pin_agin_update"
+    post "payments/reject_payment_request"
+
+    get "reset_passwords/reset_page"
+    post "reset_passwords/reset_password"
+    post "reset_passwords/forget_password"
+    post "reset_passwords/main_forget_password"
 
     get "blance/index"
     get "categories/index"
     get "recharge_and_bill/index"
+    get "recharge_and_bill/bbps_commission"
     get "recharge_and_bill/transaction"
     get "recharge_and_bill/view"
     post "recharge_and_bill/commission_set"
 
+    get "retailers/export"
 
     get "service/index"
     get "enqueries/index"
@@ -155,7 +312,8 @@ Rails.application.routes.draw do
     post "admins/create", to: "admins#create", as: :admins_create
     post "admins/:id/admin_update_stauts", to: "admins#admin_update_stauts", as: :admin_update_status
 
-    resources :roles
+    get  "travel_and_stay_report/travel_report"
+
     resources :admins
     resources :banks
     resources :services
@@ -163,6 +321,11 @@ Rails.application.routes.draw do
     resources :service_products do
       member do
         get :view_product_item
+        get :new_prodcut_item
+        post :prodcut_item_create
+        get :prodcut_item_edit
+        post :prodcut_item_update
+        delete :prodcut_item_destroy
       end
     end
 
@@ -181,7 +344,7 @@ Rails.application.routes.draw do
     resources :retailers
     post "retailers/create", to: "retailers#create", as: :retailer_create
     post "retailers/:id/update_status", to: "retailers#update_status", as: :retailer_update_status
-   
+    resources :roles
   end
 
 

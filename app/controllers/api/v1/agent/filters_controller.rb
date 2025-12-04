@@ -1,5 +1,5 @@
-class Api::V1::Agent::FiltersController < Api::V1::Agent::BaseController
-  protect_from_forgery with: :null_session
+class Api::V1::Agent::FiltersController <  Api::V1::Auth::BaseController
+  # protect_from_forgery with: :null_session
 
   def category_filter
     service_id = params[:service_id]
@@ -22,7 +22,9 @@ class Api::V1::Agent::FiltersController < Api::V1::Agent::BaseController
 
     # Filter by service_product_id
     if params[:service_product_id].present? && params[:service_product_id] != "ALL"
+      p "+==================="
       transactions = transactions.where(service_product_id: params[:service_product_id])
+      p transactions
     end
 
     # Filter by status

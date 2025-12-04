@@ -1,5 +1,10 @@
-class Api::V1::Agent::EnquiresController < Api::V1::Agent::BaseController
-  skip_before_action :verify_authenticity_token
+class Api::V1::Agent::EnquiresController < Api::V1::Auth::BaseController
+  skip_before_action :authorize_request
+
+  def role
+    roles = Role.where(title: ["admin", "master", "dealer", "retailer"])
+    render json: {code: 200, message: "Successfully role fetch", roles: roles}
+  end
 
   def create
     enquiry = Enquiry.new(enquiry_params)

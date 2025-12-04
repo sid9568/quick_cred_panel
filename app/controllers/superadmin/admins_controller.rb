@@ -1,8 +1,27 @@
-class Superadmin::AdminsController < ApplicationController
+class Superadmin::AdminsController < Superadmin::BaseController
 
   def index
-    @users = User.joins(:role).where(roles:{title: "admin"}).order(updated_at: :desc, created_at: :desc)
+    @balance = Wallet.where(user_id: current_superadmin.id).sum(:balance)
+
+    @users = User
+    .joins(:role)
+    .where(roles: { title: "admin" })
+    .order(updated_at: :desc, created_at: :desc)
+
+    if params[:q].present?
+      # Split search text like "sid gautam" into ["sid", "gautam"]
+      search_terms = params[:q].strip.split
+
+      search_conditions = search_terms.map do |term|
+        "(users.first_name ILIKE :t#{term.object_id} OR users.last_name ILIKE :t#{term.object_id} OR users.email ILIKE :t#{term.object_id})"
+      end.join(" AND ")
+
+      query_params = search_terms.map { |term| ["t#{term.object_id}".to_sym, "%#{term}%"] }.to_h
+
+      @users = @users.where(search_conditions, query_params)
+    end
   end
+
 
   def new
   end
@@ -78,6 +97,17 @@ class Superadmin::AdminsController < ApplicationController
     # if @retailer.status
     #   UserMailer.status_updated(@retailer).deliver_later
     # end
+
+    if @admin.status
+      Thread.new do
+        begin
+          UserMailer.status_updated(@admin).deliver_now
+        rescue => e
+          Rails.logger.error "Mailer thread error: #{e.message}"
+        end
+      end
+    end
+
     redirect_to superadmin_admins_path, notice: "Admin status updated successfully."
   end
 

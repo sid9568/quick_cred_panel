@@ -15,7 +15,10 @@ class User < ApplicationRecord
 
   has_one :wallet, dependent: :destroy
   has_many :transaction_commissions, dependent: :destroy
-  has_many :user_services, foreign_key: :assignee_id
+  has_many :user_services, foreign_key: :assignee_id, dependent: :destroy
+  has_many :banks, dependent: :destroy
+  has_many :schemes, dependent: :destroy
+
 
   def find_hierarchy
     hierarchy = []
@@ -30,7 +33,7 @@ class User < ApplicationRecord
   end
 
 
-   enum kyc_status: {
+  enum kyc_status: {
     not_started: "not_started",
     send_by: "send_by",
     pending: "pending",

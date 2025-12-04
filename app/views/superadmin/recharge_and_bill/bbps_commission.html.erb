@@ -1,0 +1,195 @@
+<!-- Wrapper that stacks all category tables vertically -->
+<div class="w-full flex flex-col gap-6">
+
+  <div class="flex items-center gap-4 mb-6">
+
+ <%= form_with url: superadmin_recharge_and_bill_bbps_commission_path, method: :get, id: "filterForm", local: true do %>
+
+  <select id="serviceSelect" name="service_id" class="border rounded px-3 py-2">
+    <option value="">Select Service</option>
+    <% Category.all.each do |service| %>
+      <option value="<%= service.id %>" <%= "selected" if params[:service_id].to_i == service.id %>>
+        <%= service.title %>
+      </option>
+    <% end %>
+  </select>
+
+  <select id="serviceProductSelect" name="product_id" class="border rounded px-3 py-2">
+    <option value="">Select Service Product</option>
+    <% @service_products&.each do |product| %>
+      <option value="<%= product.id %>" <%= "selected" if params[:product_id].to_i == product.id %>>
+        <%= product.company_name %>
+      </option>
+    <% end %>
+  </select>
+
+  <button type="submit" id="submitFilter"
+    class="bg-blue-600 text-white px-3 py-2 rounded cursor-pointer">
+    Filter
+  </button>
+
+<% end %>
+
+
+</div>
+
+
+
+  <% @grouped_commissions.each do |category_name, items| %>
+
+    <div class="bg-white p-6 rounded-lg shadow-md w-full">
+
+      <h2 class="text-lg font-semibold mb-4"><%= category_name %></h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+
+          <thead>
+            <tr class="bg-gray-100 text-left text-sm font-medium text-gray-700">
+              <th class="px-4 py-2 border">Service Name</th>
+              <th class="px-4 py-2 border">Company Name</th>
+              <th class="px-4 py-2 border">Commission Type</th>
+              <th class="px-4 py-2 border">Scheme</th>
+              <th class="px-4 py-2 border">Admin</th>
+              <th class="px-4 py-2 border">Master</th>
+              <th class="px-4 py-2 border">Dealer</th>
+              <th class="px-4 py-2 border">Retailer</th>
+              <th class="px-4 py-2 border text-center">Action</th>
+            </tr>
+          </thead>
+
+          <tbody class="text-sm text-gray-700">
+
+            <% items.each do |product| %>
+              <% product.service_product_items.each do |item| %>
+
+              <%= form_with url: superadmin_recharge_and_bill_commission_set_path,
+              method: :post,
+              local: true,
+              data: { turbo: false } do %>
+
+                  <input type="hidden" name="item_id" value="<%= item.id %>">
+
+                  <tr>
+
+                    <td class="px-4 py-2 border"><%= product.company_name %></td>
+                    <td class="px-4 py-2 border"><%= item.name %></td>
+
+                    <td class="px-4 py-2 border">
+                      <select name="commission_type" class="border rounded px-2 py-1 w-full text-sm">
+                        <option value="commission">Comm</option>
+                        <option value="flat">Flat</option>
+                      </select>
+                    </td>
+
+                     <td class="px-4 py-2 border">
+                      <select name="scheme" class="border rounded px-2 py-1 w-full text-sm">
+                        <%=@schemes.each do |scheme|%>
+                        <option value="<%=scheme.id%>"><%=scheme.scheme_name%></option>
+                       <%end%>
+                      </select>
+                    </td>
+
+                  <td class="px-4 py-2 border">
+                      <%= text_field_tag "commissions[#{item.id}][admin_commission]",
+                        (@existing_commissions[item.id]&.find { |c| c.to_role == "admin" }&.value || ""),
+                        class: "w-full border rounded px-2 py-1 text-sm" %>
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                      <%= text_field_tag "commissions[#{item.id}][master_commission]",
+                        (@existing_commissions[item.id]&.find { |c| c.to_role == "master" }&.value || ""),
+                        class: "w-full border rounded px-2 py-1 text-sm" %>
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                      <%= text_field_tag "commissions[#{item.id}][dealer_commission]",
+                        (@existing_commissions[item.id]&.find { |c| c.to_role == "dealer" }&.value || ""),
+                        class: "w-full border rounded px-2 py-1 text-sm" %>
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                      <%= text_field_tag "commissions[#{item.id}][retailer_commission]",
+                        (@existing_commissions[item.id]&.find { |c| c.to_role == "retailer" }&.value || ""),
+                        class: "w-full border rounded px-2 py-1 text-sm" %>
+                    </td>
+
+                    <td class="px-4 py-2 border text-center">
+                      <%= submit_tag "Submit", class: "bg-blue-600 text-white px-3 py-2 rounded cursor-pointer" %>
+                    </td>
+
+                  </tr>
+
+                <% end %>
+
+              <% end %>
+            <% end %>
+
+          </tbody>
+        </table>
+
+      </div>
+
+    </div>
+
+  <% end %>
+
+</div>
+
+
+
+<!-- Flash Popup -->
+<% if flash.any? %>
+  <div id="flashModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 relative">
+
+      <% flash.each do |key, message| %>
+        <div class="mb-4 p-4 rounded-lg 
+          <%= key == 'notice' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+          <%= message %>
+        </div>
+      <% end %>
+
+      <div class="flex justify-center">
+        <button onclick="document.getElementById('flashModal').remove()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          OK
+        </button>
+      </div>
+
+    </div>
+  </div>
+<% end %>
+
+
+
+<% if flash.any? %>
+  <div id="flashModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 relative">
+      <% flash.each do |key, message| %>
+        <div class="mb-4 p-4 rounded-lg 
+          <%= key == 'notice' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+          <%= message %>
+        </div>
+      <% end %>
+
+      <div class="flex justify-center">
+        <button onclick="document.getElementById('flashModal').remove()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("serviceSelect").addEventListener("change", () => {
+      document.getElementById("filterForm").submit();
+    });
+  });
+</script>

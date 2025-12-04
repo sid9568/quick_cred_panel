@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_26_060343) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -45,6 +45,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
     t.decimal "initial_balance"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_banks_on_user_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -59,15 +61,52 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
 
   create_table "commissions", force: :cascade do |t|
     t.string "commission_type"
-    t.string "from_role"
-    t.string "to_role"
-    t.decimal "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "service_product_item_id", null: false
     t.bigint "scheme_id"
+    t.decimal "value"
+    t.string "to_role"
+    t.string "from_role"
+    t.string "set_by_role"
+    t.string "set_for_role"
     t.index ["scheme_id"], name: "index_commissions_on_scheme_id"
     t.index ["service_product_item_id"], name: "index_commissions_on_service_product_item_id"
+  end
+
+  create_table "dmt_transactions", force: :cascade do |t|
+    t.integer "dmt_id"
+    t.integer "user_id"
+    t.string "status"
+    t.string "txn_id"
+    t.string "sender_mobile_number"
+    t.string "bank_name"
+    t.string "account_number"
+    t.decimal "amount"
+    t.integer "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "dmts", force: :cascade do |t|
+    t.string "account_number"
+    t.string "confirm_account_number"
+    t.string "sender_mobile_number"
+    t.string "receiver_name"
+    t.string "receiver_mobile_number"
+    t.string "sender_full_name"
+    t.string "bank_name"
+    t.string "ifsc_code"
+    t.string "branch_name"
+    t.decimal "amount"
+    t.integer "parent_id"
+    t.integer "user_id"
+    t.boolean "beneficiaries_status"
+    t.string "status"
+    t.string "aadhaar_number_otp"
+    t.datetime "aadhaar_number_otp_expiry"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "enquiries", force: :cascade do |t|
@@ -101,6 +140,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
     t.string "your_bank"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "account_number"
+    t.string "reject_note"
     t.index ["user_id"], name: "index_fund_requests_on_user_id"
   end
 
@@ -116,6 +157,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
     t.decimal "commision_rate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_schemes_on_user_id"
   end
 
   create_table "service_product_items", force: :cascade do |t|
@@ -178,6 +221,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
     t.string "bill_no"
     t.string "landline_no"
     t.string "std_code"
+    t.string "tid"
+    t.decimal "tds"
+    t.string "sender_id"
+    t.string "payment_mode_desc"
+    t.decimal "totalamount"
+    t.string "status_text"
+    t.string "txstatus_desc"
+    t.string "commission"
+    t.string "mobile"
     t.index ["service_product_id"], name: "index_transactions_on_service_product_id"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
@@ -269,6 +321,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
     t.boolean "kyc_verifications", default: false
     t.datetime "kyc_verified_at"
     t.jsonb "kyc_data", default: {}, null: false
+    t.string "set_mpin"
+    t.boolean "status_mpin"
+    t.boolean "email_otp_status", default: false, null: false
+    t.string "email_otp"
+    t.datetime "email_otp_verified_at"
+    t.boolean "set_pin_status", default: false
+    t.datetime "email_otp_sent_at"
     t.index ["email"], name: "index_users_on_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["role_id"], name: "index_users_on_role_id"
@@ -301,11 +360,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_26_121901) do
 
   add_foreign_key "account_transactions", "users"
   add_foreign_key "account_transactions", "wallets"
+  add_foreign_key "banks", "users"
   add_foreign_key "categories", "services"
   add_foreign_key "commissions", "schemes"
   add_foreign_key "commissions", "service_product_items"
   add_foreign_key "enquiries", "roles"
   add_foreign_key "fund_requests", "users"
+  add_foreign_key "schemes", "users"
   add_foreign_key "service_product_items", "service_products"
   add_foreign_key "service_products", "categories"
   add_foreign_key "transaction_commissions", "service_product_items"

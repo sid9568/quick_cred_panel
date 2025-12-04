@@ -62,3 +62,10 @@ end
 gem "tailwindcss-ruby", "~> 4.1"
 
 gem "tailwindcss-rails", "~> 4.3"
+gem 'rack-cors'
+gem 'jwt'
+gem 'groupdate'
+gem "chartkick"
+gem "cloudinary"
+gem 'httparty'
+gem "dotenv-rails", groups: [:development, :test]

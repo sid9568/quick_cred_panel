@@ -1,9 +1,78 @@
-class Superadmin::RetailersController < ApplicationController
+class Superadmin::RetailersController < Superadmin::BaseController
   before_action :set_retailer, only: [:show, :edit, :update, :destroy]
 
   def index
-     @retailers = User.joins(:role).where(roles: { title: ["retailer", "master", "dealer"] }).order(created_at: :desc)
+    @retailers = User.joins(:role).where(roles: { title: ["retailer", "master", "dealer"] }).order(created_at: :desc)
+
+    # 🔍 Unified Search (name + email + mobile)
+    if params[:search].present?
+      q = "%#{params[:search].downcase}%"
+
+      @retailers = @retailers.where(
+        "LOWER(CONCAT_WS(' ', first_name, last_name)) LIKE :q
+     OR LOWER(email) LIKE :q
+     OR phone_number LIKE :q",
+        q: q
+      )
+    end
+
+
+    # 🟢 Status filter
+    if params[:status].present?
+      @retailers = @retailers.where(status: params[:status] == "active")
+    end
+
+    # 📅 Date range
+    if params[:start_date].present?
+      @retailers = @retailers.where("created_at >= ?", params[:start_date].to_date.beginning_of_day)
+    end
+
+    if params[:end_date].present?
+      @retailers = @retailers.where("created_at <= ?", params[:end_date].to_date.end_of_day)
+    end
+
+    @retailers = @retailers.order(created_at: :desc)
   end
+
+
+  def index
+    @retailers = User.joins(:role).where(roles: { title: ["retailer", "master", "dealer"] }).order(created_at: :desc)
+
+    # 🔍 Full Name filter
+    if params[:full_name].present?
+      search = params[:full_name].downcase
+      @retailers = @retailers.where(
+        "LOWER(first_name || ' ' || last_name) LIKE ?", "%#{search}%"
+      )
+    end
+
+    # 📞 Mobile filter
+    if params[:phone_number].present?
+      @retailers = @retailers.where("phone_number LIKE ?", "%#{params[:phone_number]}%")
+    end
+
+    # 📧 Email filter
+    if params[:email].present?
+      @retailers = @retailers.where("email LIKE ?", "%#{params[:email]}%")
+    end
+
+    # 🟢 Status filter
+    if params[:status].present?
+      @retailers = @retailers.where(status: params[:status] == "active")
+    end
+
+    # 📅 Date Range filter
+    if params[:start_date].present?
+      @retailers = @retailers.where("created_at >= ?", params[:start_date].to_date.beginning_of_day)
+    end
+
+    if params[:end_date].present?
+      @retailers = @retailers.where("created_at <= ?", params[:end_date].to_date.end_of_day)
+    end
+
+    @retailers = @retailers.order(created_at: :desc)
+  end
+
 
   def show
   end
@@ -25,12 +94,39 @@ class Superadmin::RetailersController < ApplicationController
     end
   end
 
-  def edit
+
+   def edit
+    @retailer = User.find(params[:id])
   end
 
   def update
+    @retailer = User.find(params[:id])
     if @retailer.update(retailer_params)
-      redirect_to superadmin_retailers_path, notice: "Retailer updated successfully."
+
+      service_ids = Array(params[:user][:service_ids]).map(&:to_i)
+      assigner = User.find(136) # ya phir current_admin_user agar login se aa raha ho
+
+      existing_ids = @retailer.user_services.pluck(:service_id)
+
+      # Unchecked services delete karo
+      (existing_ids - service_ids).each do |sid|
+        UserService.where(
+          assigner: assigner,
+          assignee: @retailer,
+          service_id: sid
+        ).destroy_all
+      end
+
+      # Naye checked services add karo
+      (service_ids - existing_ids).each do |sid|
+        UserService.create!(
+          assigner: assigner,
+          assignee: @retailer,
+          service_id: sid
+        )
+      end
+
+      redirect_to superadmin_admins_path, notice: "Admin updated successfully."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -45,9 +141,16 @@ class Superadmin::RetailersController < ApplicationController
     @retailer.update!(status: !@retailer.status)
 
     # Send mail only if the account is active now
-    # if @retailer.status
-    #   UserMailer.status_updated(@retailer).deliver_later
-    # end
+    if @retailer.status
+      Thread.new do
+        begin
+          UserMailer.status_updated(@retailer).deliver_now
+        rescue => e
+          Rails.logger.error "Mailer thread error: #{e.message}"
+        end
+      end
+    end
+
 
     redirect_to superadmin_retailers_path, notice: "Retailer status updated successfully."
   end
@@ -57,6 +160,17 @@ class Superadmin::RetailersController < ApplicationController
   def destroy
     @retailer.destroy
     redirect_to superadmin_retailers_path, notice: "Retailer deleted successfully."
+  end
+
+  def export
+    @retailers = User.all
+
+    respond_to do |format|
+      format.csv do
+        headers['Content-Disposition'] = "attachment; filename=\"retailers-#{Date.today}.csv\""
+        headers['Content-Type'] ||= 'text/csv'
+      end
+    end
   end
 
   private
