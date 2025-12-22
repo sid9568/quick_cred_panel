@@ -7,15 +7,17 @@ module Eko
     BASE_URL = "https://api.eko.in:25002/ekoicici/v2/billpayments/operators"
 
     CATEGORY_MAP = {
-      prepaid:   5,   # Mobile prepaid
+       prepaid:   5,   # Mobile prepaid
       postpaid: 10,   # Mobile postpaid
-      dth:       4,  # ← **Assumption**
       dth:       4,   # ← **Assumption**:
       broaband: 1,
       electricity: 8,
       loan: 21,
       gas: 2,
-      credit: 7
+      credit: 7,
+      water: 11,
+      fastag: 22,
+      house: 12   
     }
 
     def self.fetch(category_name)

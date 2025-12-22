@@ -73,7 +73,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     response = EkoMobilePlanService.fetch_bill(
       operator_id:       params[:operator_id],
       utility_acc_no:    params[:utility_acc_no],
-      mobile_no:         params[:confirmation_mobile_no],
+      mobile_no:         params[:mobile_number],
       sender_name:       params[:sender_name],
       client_ref_id:     SecureRandom.hex(8)
     )
@@ -107,7 +107,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     subcategory_id = params[:subcategory_id] || params.dig(:params, :subcategory_id)
     p "========subcategory_id========="
     p subcategory_id
-    recharg_lists = Transaction.where(service_product_id: subcategory_id).order(created_at: :desc)
+    recharg_lists = Transaction.where(service_product_id: subcategory_id, user_id: current_user.id).order(created_at: :desc)
     p "=============recharg_lists============="
     p recharg_lists
     render json: { code: 200, message: "Successfully fetched data", list: recharg_lists }
@@ -118,7 +118,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     Rails.logger.info "================= current_user: #{current_user.id} (#{current_user.role.title})"
     hierarchy = current_user.find_hierarchy
 
-    required = %i[transaction_type recharge_type operator amount service_product_id]
+    required = %i[transaction_type recharge_type mobile_number operator operator_id amount service_product_id]
     missing = required.select { |p| params[p].blank? }
 
     return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request if missing.any?
@@ -137,19 +137,31 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
 
     # === Call EKO Recharge API ===
     # response = EkoMobileRechargeService.recharge(
+    #   utility_acc_no: params[:vehicle_no] || params[:card_number],
     #   mobile: params[:mobile_number],
     #   amount: amount,
     #   operator_id: params[:operator_id],
-    #   client_ref_id: txn_id
+    #   client_ref_id: txn_id,
+    #   card_number: params[:card_number],
+    #   vehicle_no: params[:vehicle_no]
     # )
 
-    # puts "🔍 EKO RESPONSE:"
-    # pp response
+    # puts "======== RAW EKO RESPONSE ========"
+    # puts "Status Code: #{response.code}"
+    # puts "Body: #{response.body}"
 
-    # # Extract values
-    # tx_status_desc = response.dig("data", "txstatus_desc")
-    # eko_message    = response["message"]
-    # response_status = response["response_status_id"]
+    # parsed = response.parsed_response rescue nil
+
+    # if parsed.is_a?(Hash)
+    #   tx_status_desc = parsed.dig("data", "txstatus_desc")
+    #   eko_message    = parsed["message"]
+    #   response_status = parsed["response_status_id"]
+    # else
+    #   return render json: {
+    #     success: false,
+    #     message: "Invalid response from provider (#{response.code})"
+    #   }, status: :bad_gateway
+    # end
 
     # # Final message priority
     # # 1️⃣ If tx_status_desc present, use that
@@ -164,6 +176,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     # else
     #   return render json: { success: false, message: failure_message }
     # end
+
     # === Call EKO Recharge API ===
 
 
@@ -184,6 +197,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
         user_id: current_user.id,
         status: "SUCCESS",
         service_product_id: params[:service_product_id],
+        vehicle_no: params[:vehicle_no],
         # tid: response.dig("data", "tid"),
         # tds: response.dig("data", "tds").to_f,
         # commission: response.dig("data", "commission").to_f,

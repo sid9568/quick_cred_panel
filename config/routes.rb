@@ -127,9 +127,12 @@ Rails.application.routes.draw do
 
         resources :commissions do
           collection do
-            post "index"
+            post "commission_operator"
             post "show_commission"
-            post "commission_set"
+            get "scheme_list"
+            post "set_commission"
+            post "service_category"
+            post "service_product"
           end
         end
 
@@ -220,15 +223,25 @@ Rails.application.routes.draw do
 
         get "dmts/dmt_transactions_list"
         post "dmts/sender_details"
-        post "dmts/verify_aadhaar_otp"
+        post "dmts/verify_eko_otp"
         post "dmts/dmt_transactions"
         post "dmts/dmt_transaction_verify"
         post "dmts/update_dmt_transaction"
         post "dmts/benfisries_dmt_transaction"
         post "dmts/beneficiary_fetch"
         get "dmts/beneficiary_list"
+        post "dmts/user_onboard"
+        post "dmts/check_profile"
+        post "dmts/create_customer"
+        post "dmts/verify_otp"
+        get "dmts/bank_list"
+        post "dmts/send_ekodmt_otp"
+        post "biometric_ekyc_otp_verify", to: "dmts#biometric_ekyc_otp_verify"
+        post "biometric", to: "dmts#biometric"
+        post "biometric_kyc", to: "dmts#biometric_kyc"
 
         resources :reatailer_profiles, only: [:index]
+        get "reatailer_profiles/user_profile"
         post "reatailer_profiles/set_pin"
         post "reatailer_profiles/reset_password"
         post "reatailer_profiles/forgot_password"
@@ -264,7 +277,8 @@ Rails.application.routes.draw do
     get "reports/index"
 
     get "commissions/index"
-    post "commissions/commission_set"
+    get "commissions/commission_filter"
+    post "commissions/set_commission"
 
     get "accounts/index"
     get "accounts/new"

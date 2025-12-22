@@ -8,7 +8,8 @@ class EkoMobilePlanService
   BASE_URL = "https://api.eko.in:25002/ekoicici/v2/billpayments"
 
   def self.fetch_bill(operator_id:, utility_acc_no:, mobile_no:, sender_name:, client_ref_id: SecureRandom.hex(6))
-
+    p "============mobile_no"
+    p mobile_no
     user_code     = ENV["EKO_USER_CODE"]
     developer_key = ENV["EKO_DEV_KEY"]
     access_key    = ENV["EKO_SECRET_KEY"]
@@ -53,19 +54,35 @@ class EkoMobilePlanService
     # ---------------------------------------------------
     # Payload
     # ---------------------------------------------------
+    # payload = {
+    #   source_ip: "121.121.1.1",
+    #   user_code: user_code,
+    #   client_ref_id: client_ref_id,
+    #   utility_acc_no: utility_acc_no,
+    #   confirmation_mobile_no: mobile_no,
+    #   sender_name: sender_name,
+    #   operator_id: operator_id,
+    #   latlong: "28.6139,77.2090",
+    #   hc_channel: "1"
+    # }
+
     payload = {
       source_ip: "121.121.1.1",
       user_code: user_code,
       client_ref_id: client_ref_id,
+      consumer_number: utility_acc_no,
       utility_acc_no: utility_acc_no,
-      confirmation_mobile_no: mobile_no,
+      mobile_number: mobile_no,
+      confirmation_mobile_no: mobile_no,        # <---- required duplicate field
       sender_name: sender_name,
       operator_id: operator_id,
       latlong: "28.6139,77.2090",
-      hc_channel: "1"
+      hc_channel: "0"
     }
 
-    puts "\nPAYLOAD:"
+    puts "====== HEADERS ======"
+    puts headers
+    puts "====== PAYLOAD ======"
     puts payload.to_json
 
     # ---------------------------------------------------

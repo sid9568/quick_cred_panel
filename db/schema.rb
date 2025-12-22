@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_26_060343) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_19_053801) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -105,6 +105,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_060343) do
     t.string "status"
     t.string "aadhaar_number_otp"
     t.datetime "aadhaar_number_otp_expiry"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "customer_id"
+    t.bigint "recipient_id"
+  end
+
+  create_table "eko_banks", force: :cascade do |t|
+    t.string "bank_id"
+    t.string "name"
+    t.string "ifsc_prefix"
+    t.string "bank_code"
+    t.boolean "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -230,6 +242,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_060343) do
     t.string "txstatus_desc"
     t.string "commission"
     t.string "mobile"
+    t.string "vehicle_no"
     t.index ["service_product_id"], name: "index_transactions_on_service_product_id"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
@@ -328,6 +341,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_060343) do
     t.datetime "email_otp_verified_at"
     t.boolean "set_pin_status", default: false
     t.datetime "email_otp_sent_at"
+    t.string "user_code"
+    t.boolean "eko_onboard_first_step", default: false
+    t.boolean "eko_profile_second_step", default: false
+    t.boolean "eko_status_otp", default: false
+    t.boolean "eko_verify_otp", default: false
+    t.boolean "eko_biometric_kyc", default: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["role_id"], name: "index_users_on_role_id"

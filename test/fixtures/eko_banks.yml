@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  bank_id: MyString
+  name: MyString
+  ifsc_prefix: MyString
+  bank_code: MyString
+  status: false
+
+two:
+  bank_id: MyString
+  name: MyString
+  ifsc_prefix: MyString
+  bank_code: MyString
+  status: false

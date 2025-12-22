@@ -4,16 +4,20 @@ module Api
     module Agent
       class ReatailerProfilesController < Api::V1::Auth::BaseController
         # protect_from_forgery with: :null_session
-        skip_before_action :authorize_request
+        skip_before_action :authorize_request, only: [:reset_password, :forgot_password, :verify_password_otp, :forget_password, :main_forget_password]
 
         def index
+          render json: { code: 200,message: "Users fetched successfully",users: current_user }, status: :ok
+        end
+
+        def user_profile
           render json: { code: 200,message: "Users fetched successfully",users: current_user }, status: :ok
         end
 
         def set_pin
           if params[:set_pin].present? && params[:confirm_pin].present?
             if params[:set_pin] == params[:confirm_pin]
-              current_user.update!(set_pin: params[:set_pin], confirm_pin: params[:confirm_pin])
+              current_user.update!(set_pin: params[:set_pin], confirm_pin: params[:confirm_pin], status_mpin: true)
               render json: { code: 200, message: "Successfully set pin" }
             else
               render json: { code: 422, message: "Pin and confirm pin do not match" }
