@@ -10,16 +10,22 @@ module EkoDmt
     BASE_URL = "https://api.eko.in:25002/ekoicici"
 
     def initialize(customer_id:, aadhar:, piddata:, user_code:, initiator_id:)
-      @customer_id = customer_id
-      @aadhar      = aadhar
-      @piddata     = piddata
+      @customer_id  = customer_id
+      @aadhar       = aadhar
+      @piddata      = piddata
+      @user_code    = user_code
+      @initiator_id = initiator_id
     end
 
     def call
+      log_start
+
       response = Faraday.post(api_url) do |req|
         req.headers = headers
         req.body    = URI.encode_www_form(payload)
       end
+
+      log_response(response)
 
       {
         status: response.status,
@@ -27,23 +33,22 @@ module EkoDmt
         parsed: parse(response.body)
       }
     rescue => e
+      Rails.logger.error "[EKO BIOMETRIC EKYC ERROR] #{e.class} - #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
       { status: 500, error: e.message }
     end
 
     private
 
-    # 🔗 SAME URL AS CURL
     def api_url
       "#{BASE_URL}/v3/customer/account/#{@customer_id}/dmt-fino/ekyc"
     end
 
-    # 1️⃣ TIMESTAMP (milliseconds)
     def timestamp
       @timestamp ||= (Time.now.to_f * 1000).to_i.to_s
     end
 
-    # 2️⃣ SECRET KEY (EXACT EKO LOGIC)
-    # Base64( HMAC_SHA256( Base64(secret_key), timestamp ) )
     def secret_key
       access_key = ENV["EKO_SECRET_KEY"]
 
@@ -53,7 +58,6 @@ module EkoDmt
       Base64.strict_encode64(hmac)
     end
 
-    # 3️⃣ HEADERS (EXACT SAME AS CURL)
     def headers
       {
         "developer_key"        => ENV["EKO_DEV_KEY"],
@@ -63,11 +67,10 @@ module EkoDmt
       }
     end
 
-    # 4️⃣ PAYLOAD (FORM URL ENCODED – SAME AS CURL)
     def payload
       {
-        user_code:    ENV["EKO_USER_CODE"],
-        initiator_id: ENV["EKO_INITIATOR_ID"],
+        user_code:    @user_code,
+        initiator_id: @initiator_id,
         aadhar:       @aadhar,
         piddata:      @piddata
       }
@@ -77,6 +80,35 @@ module EkoDmt
       JSON.parse(body)
     rescue
       body
+    end
+
+    # ================= LOGGER METHODS =================
+
+    def log_start
+      Rails.logger.info "================ EKO BIOMETRIC EKYC START ================"
+      Rails.logger.info "[URL] #{api_url}"
+      Rails.logger.info "[TIMESTAMP] #{timestamp}"
+      Rails.logger.info "[HEADERS] #{masked_headers}"
+      Rails.logger.info "[PAYLOAD] #{masked_payload}"
+    end
+
+    def log_response(response)
+      Rails.logger.info "================ EKO BIOMETRIC EKYC RESPONSE ================"
+      Rails.logger.info "[HTTP STATUS] #{response.status}"
+      Rails.logger.info "[BODY] #{response.body}"
+    end
+
+    def masked_headers
+      headers.merge(
+        "secret-key" => "****MASKED****"
+      )
+    end
+
+    def masked_payload
+      payload.merge(
+        aadhar: "****MASKED****",
+        piddata: "****PID XML****"
+      )
     end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_19_053801) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_22_084332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -109,6 +109,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_19_053801) do
     t.datetime "updated_at", null: false
     t.string "customer_id"
     t.bigint "recipient_id"
+    t.index ["user_id"], name: "index_dmts_on_user_id"
   end
 
   create_table "eko_banks", force: :cascade do |t|
@@ -383,6 +384,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_19_053801) do
   add_foreign_key "categories", "services"
   add_foreign_key "commissions", "schemes"
   add_foreign_key "commissions", "service_product_items"
+  add_foreign_key "dmts", "users"
   add_foreign_key "enquiries", "roles"
   add_foreign_key "fund_requests", "users"
   add_foreign_key "schemes", "users"

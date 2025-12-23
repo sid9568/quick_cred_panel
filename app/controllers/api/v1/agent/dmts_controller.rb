@@ -1,7 +1,7 @@
 class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # protect_from_forgery with: :null_session
 
-   def user_onboard
+  def user_onboard
     required_params = %i[
     initiator_id
     pan_number
@@ -123,17 +123,41 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   def biometric
     p "===============customer_id"
     csss =current_user.phone_number
+    p "-----csss---------"
+    p csss
+
+    p "============current_user.user_code"
+    p current_user.user_code
+
+    p "======current_user.aadhaar_number======"
+    p current_user.aadhaar_number
+
     result = Eko::BiometricEkycService.new(
-      customer_id: params[:customer_id],
-      user_code: "38130006",
+      customer_id: current_user.phone_number,
+      user_code: current_user.user_code,
       initiator_id: "9212094999",
-      aadhar: "514204004154",
+      aadhar: current_user.aadhaar_number,
       piddata: params[:piddata] # RAW XML
     ).call
     render json: result
     p "===========result"
     p result
   end
+
+  # def biometric
+  #   p "===============customer_id"
+  #   csss = current_user.phone_number
+  #   result = Eko::BiometricEkycService.new(
+  #     customer_id: params[:customer_id],
+  #     user_code: "38130006",
+  #     initiator_id: "9212094999",
+  #     aadhar: "514204004154",
+  #     piddata: params[:piddata] # RAW XML
+  #   ).call
+  #   render json: result
+  #   p "===========result"
+  #   p result
+  # end
 
   def verify_otp
     required = %i[
@@ -155,16 +179,28 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
 
     resp = EkoDmt::DmtOtpVerifyService.new(
-      customer_id:     "8936016877",
-      user_code:       "38130009",
+      customer_id:     current_user.phone_number,
+      user_code:       current_user.user_code,
       initiator_id:    "9212094999",
       otp:             params[:otp],
       otp_ref_id:      params[:otp_ref_id],
       kyc_request_id:  params[:kyc_request_id]
     ).call
 
-    p "-----------resp"
+    p "--------===========================---resp"
     p resp
+
+    status = resp.dig("data", "status") || resp["status"]
+    p "=========status=============="
+    p status
+
+    if status == 0
+      current_user.update!(eko_biometric_kyc: true)
+      user_wallet = current_user.wallet
+      p  "========user_wallet======"
+      p user_wallet
+      user_wallet.update(balance: user_wallet.balance.to_f-10)
+    end
 
     render json: {
       status: resp["status"] || resp["response_status_id"],
@@ -172,6 +208,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       data: resp
     }
   end
+
 
 
   def biometric_kyc
