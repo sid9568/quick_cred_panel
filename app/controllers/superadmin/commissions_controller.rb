@@ -48,6 +48,7 @@ class Superadmin::CommissionsController < Superadmin::BaseController
 
     @service_product = ServiceProduct.find_by(id: 11)
     p "=================i am commissions"
+    
     p @service_product
     if @service_product.nil?
       redirect_to service_products_path, alert: "Service product not found"
