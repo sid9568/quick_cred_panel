@@ -69,3 +69,4 @@ gem "chartkick"
 gem "cloudinary"
 gem 'httparty'
 gem "dotenv-rails", groups: [:development, :test]
+gem "twilio-ruby"

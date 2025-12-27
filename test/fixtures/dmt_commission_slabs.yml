@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  min_amount: 9.99
+  max_amount: 9.99
+  bank_fee_percent: 9.99
+  eko_fee: 9.99
+  surcharge: 9.99
+  tds_percent: 9.99
+  active: false
+
+two:
+  min_amount: 9.99
+  max_amount: 9.99
+  bank_fee_percent: 9.99
+  eko_fee: 9.99
+  surcharge: 9.99
+  tds_percent: 9.99
+  active: false

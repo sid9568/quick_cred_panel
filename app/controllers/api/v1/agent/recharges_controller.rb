@@ -103,15 +103,58 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
   end
 
 
+  # def recharge_list
+  #   subcategory_id = params[:subcategory_id]
+
+  #   recharg_lists = Transaction
+  #   .where(service_product_id: subcategory_id, user_id: current_user.id)
+  #   .order(created_at: :desc)
+
+  #   p "=======recharg_lists========"
+  #   p recharg_lists
+
+  #   data = recharg_lists.map do |txn|
+  #     {
+  #       transaction: txn,
+  #       commissions: txn.transaction_commissions
+  #     }
+  #   end
+
+  #   render json: {
+  #     code: 200,
+  #     message: "Successfully fetched data",
+  #     list: recharg_lists
+  #   }
+  # end
+
   def recharge_list
     subcategory_id = params[:subcategory_id] || params.dig(:params, :subcategory_id)
-    p "========subcategory_id========="
-    p subcategory_id
-    recharg_lists = Transaction.where(service_product_id: subcategory_id, user_id: current_user.id).order(created_at: :desc)
-    p "=============recharg_lists============="
-    p recharg_lists
-    render json: { code: 200, message: "Successfully fetched data", list: recharg_lists }
+
+    transactions = Transaction
+    .where(
+      service_product_id: subcategory_id,
+      user_id: current_user.id
+    )
+    .includes(:transaction_commissions)
+    .order(created_at: :desc)
+
+    recharg_lists = transactions.map do |tx|
+      tx.as_json.except("transaction_commissions").merge(
+        transaction_commissions: tx.transaction_commissions
+        .where(user_id: current_user.id)
+        .as_json
+      )
+    end
+
+    render json: {
+      code: 200,
+      message: "Successfully fetched data",
+      list: recharg_lists
+    }
   end
+
+
+
 
 
   def recharge
@@ -136,46 +179,46 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     return render json: { success: false, message: "Commission not found" }, status: :not_found unless service_product_item
 
     # === Call EKO Recharge API ===
-    # response = EkoMobileRechargeService.recharge(
-    #   utility_acc_no: params[:vehicle_no] || params[:card_number],
-    #   mobile: params[:mobile_number],
-    #   amount: amount,
-    #   operator_id: params[:operator_id],
-    #   client_ref_id: txn_id,
-    #   card_number: params[:card_number],
-    #   vehicle_no: params[:vehicle_no]
-    # )
+    response = EkoMobileRechargeService.recharge(
+      utility_acc_no: params[:vehicle_no] || params[:card_number],
+      mobile: params[:mobile_number],
+      amount: amount,
+      operator_id: params[:operator_id],
+      client_ref_id: txn_id,
+      card_number: params[:card_number],
+      vehicle_no: params[:vehicle_no]
+    )
 
-    # puts "======== RAW EKO RESPONSE ========"
-    # puts "Status Code: #{response.code}"
-    # puts "Body: #{response.body}"
+    puts "======== RAW EKO RESPONSE ========"
+    puts "Status Code: #{response.code}"
+    puts "Body: #{response.body}"
 
-    # parsed = response.parsed_response rescue nil
+    parsed = response.parsed_response rescue nil
 
-    # if parsed.is_a?(Hash)
-    #   tx_status_desc = parsed.dig("data", "txstatus_desc")
-    #   eko_message    = parsed["message"]
-    #   response_status = parsed["response_status_id"]
-    # else
-    #   return render json: {
-    #     success: false,
-    #     message: "Invalid response from provider (#{response.code})"
-    #   }, status: :bad_gateway
-    # end
+    if parsed.is_a?(Hash)
+      tx_status_desc = parsed.dig("data", "txstatus_desc")
+      eko_message    = parsed["message"]
+      response_status = parsed["response_status_id"]
+    else
+      return render json: {
+        success: false,
+        message: "Invalid response from provider (#{response.code})"
+      }, status: :bad_gateway
+    end
 
-    # # Final message priority
-    # # 1️⃣ If tx_status_desc present, use that
-    # # 2️⃣ Else use direct eko message
-    # # 3️⃣ Else use generic fallback
-    # failure_message = tx_status_desc.presence || eko_message.presence || "Recharge Failed"
+    # Final message priority
+    # 1️⃣ If tx_status_desc present, use that
+    # 2️⃣ Else use direct eko message
+    # 3️⃣ Else use generic fallback
+    failure_message = tx_status_desc.presence || eko_message.presence || "Recharge Failed"
 
-    # # Success check (use response_status or tx_status_desc)
-    # if response_status == 0 || tx_status_desc&.casecmp("Success") == 0
-    #   # SUCCESS
-    #   # ... save transaction or respond success
-    # else
-    #   return render json: { success: false, message: failure_message }
-    # end
+    # Success check (use response_status or tx_status_desc)
+    if response_status == 0 || tx_status_desc&.casecmp("Success") == 0
+      # SUCCESS
+      # ... save transaction or respond success
+    else
+      return render json: { success: false, message: failure_message }
+    end
 
     # === Call EKO Recharge API ===
 
@@ -198,38 +241,143 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
         status: "SUCCESS",
         service_product_id: params[:service_product_id],
         vehicle_no: params[:vehicle_no],
-        # tid: response.dig("data", "tid"),
-        # tds: response.dig("data", "tds").to_f,
-        # commission: response.dig("data", "commission").to_f,
-        # status_text: response.dig("data", "status_text"),
-        # txstatus_desc: tx_status_desc
+        consumer_name: params[:consumer_name],
+        tid: response.dig("data", "tid"),
+        tds: response.dig("data", "tds").to_f,
+        commission: response.dig("data", "commission").to_f,
+        status_text: response.dig("data", "status_text"),
+        txstatus_desc: tx_status_desc
       )
 
 
       # === Commission Calculation ===
       scheme = Scheme.find(current_user.scheme_id)
+      p "=======current_user scheme======="
+      p scheme
       scheme_commission = scheme.commision_rate.to_f
+      p "=========scheme_commission======="
+      p scheme_commission
 
-      commission_values = Commission.joins(:service_product_item)
-      .where(scheme_id: scheme.id, service_product_items: { name: params[:operator] })
-      .pluck(:to_role, :value).to_h.transform_keys(&:to_sym)
+      retailer_commission = Commission
+      .joins(:service_product_item)
+      .where(
+        scheme_id: scheme.id,
+        to_role: "retailer",
+        service_product_items: { name: "Airtel Prepaid" }
+      )
+      .pick(:value)
+      .to_f
+
+
+      p "==========retailer_commission=========="
+      p retailer_commission
+
+      admin_scheme_id = User.find_by(id: current_user.parent_id)
+
+      admin_commission = Commission.joins(:service_product_item)
+      .where(
+        scheme_id: admin_scheme_id.scheme_id,
+        to_role: "admin",
+        service_product_items: { name: params[:operator] }
+      )
+      .pluck(:value)
+      .first
+      .to_f
+      p "==========admin_commission=========="
+      p admin_commission
+
+      p "=======admin_scheme_id.idadmin_scheme_id.idadmin_scheme_id.id======="
+      p admin_scheme_id.id
+
+      master_schemes = Scheme.where(user_id: admin_scheme_id.id)  # returns array
+      p "======master_schemes===="
+      p master_schemes
+
+      user_masters = User.find_by(scheme_id: master_schemes&.pluck(:id), role_id: 6)
+      p "========user_masters=========="
+      p user_masters
+
+      p "=========user_master===user_masters==user_masters=="
+      p user_masters
+
+      master_commission = Commission.joins(:service_product_item)
+      .where(
+        scheme_id: user_masters&.scheme_id,
+        to_role: "master",
+        service_product_items: { name: params[:operator] }
+      )
+      .pluck(:value)
+      .first
+      .to_f
+
+      p "==========master_commission=========="
+      p master_commission
+
+      dealer_commission = Commission.joins(:service_product_item)
+      .where(
+        scheme_id: user_masters&.scheme_id,
+        to_role: "dealer",
+        service_product_items: { name: params[:operator] }
+      )
+      .pluck(:value)
+      .first
+      .to_f
+
+      p "========dealer_commission=========="
+      p dealer_commission
+
+      commission_eko = response.dig("data", "commission").to_f
+
+      # commission_map = {
+      #   superadmin: ((scheme_commission - admin_commission.to_f) / 100) * commission_eko,
+      #   admin:      ((admin_commission.to_f - master_commission.to_f) / 100) * commission_eko,
+      #   master:     ((master_commission.to_f - dealer_commission.to_f) / 100) * commission_eko,
+      #   dealer:     ((dealer_commission.to_f - retailer_commission.to_f) / 100) * commission_eko,
+      #   retailer:   ((retailer_commission.to_f) / 100) * commission_eko
+      # }
+
+      # commission_map = {
+      #   superadmin: scheme_commission - ((admin_commission.to_f / 100) * commission_eko),
+
+      #   admin:      calculate_commission(admin_commission, master_commission, commission_eko),
+      #   master:     calculate_commission(master_commission, dealer_commission, commission_eko),
+      #   dealer:     calculate_commission(dealer_commission, retailer_commission, commission_eko),
+
+      #   retailer:   retailer_commission.present? ?
+      #   (retailer_commission.to_f / 100) * commission_eko : 0
+      # }
+
+      remaining_percent = scheme_commission.to_f - admin_commission.to_f
+      remaining_percent = 0 if remaining_percent.negative?
 
       commission_map = {
-        superadmin: ((scheme_commission - commission_values[:admin].to_f) / 100) * amount,
-        admin:      ((commission_values[:admin].to_f - commission_values[:master].to_f) / 100) * amount,
-        master:     ((commission_values[:master].to_f - commission_values[:dealer].to_f) / 100) * amount,
-        dealer:     ((commission_values[:dealer].to_f - commission_values[:retailer].to_f) / 100) * amount,
-        retailer:   ((commission_values[:retailer].to_f) / 100) * amount
+        superadmin: (remaining_percent / 100) * commission_eko,
+
+        admin:      calculate_commission(admin_commission, master_commission, commission_eko),
+        master:     calculate_commission(master_commission, dealer_commission, commission_eko),
+        dealer:     calculate_commission(dealer_commission, retailer_commission, commission_eko),
+
+        retailer:   retailer_commission.present? ?
+        (retailer_commission.to_f / 100) * commission_eko : 0
       }
+
+
 
       Rails.logger.info "Commission Breakdown: #{commission_map}"
 
-      # === Distribute Commission ===
-      hierarchy.each do |user|
+      # === Add current_user into distribution as well ===
+      ([current_user] + hierarchy).each do |user|
         role = user.role.title.downcase.to_sym
+
+        Rails.logger.info "=========role============="
+        Rails.logger.info role.inspect
+
         next unless commission_map[role]
 
         commission_amount = commission_map[role]
+        Rails.logger.info "===============commission_amount"
+        Rails.logger.info commission_amount.inspect
+
         next if commission_amount <= 0
 
         user_wallet = Wallet.find_by(user_id: user.id)
@@ -263,6 +411,14 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     }, status: :ok
   end
 
+
+  def calculate_commission( )
+    return 0 if parent.nil?
+    return (parent.to_f / 100) * base if child.nil?
+
+    diff = parent.to_f - child.to_f
+    diff.positive? ? (diff / 100) * base : 0
+  end
 
   # private
 

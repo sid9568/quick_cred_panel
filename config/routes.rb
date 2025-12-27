@@ -136,6 +136,15 @@ Rails.application.routes.draw do
           end
         end
 
+        resources :dmts do
+          collection do
+            get "scheme_list"
+            post "dmt_commissions"
+            post "commission_list"
+            post "show_dmt_commission"
+          end
+        end
+
         resources :payments do
           collection do
             post "index"
@@ -236,9 +245,19 @@ Rails.application.routes.draw do
         post "dmts/verify_otp"
         get "dmts/bank_list"
         post "dmts/send_ekodmt_otp"
+        post "dmts/bank_verify"
         post "biometric_ekyc_otp_verify", to: "dmts#biometric_ekyc_otp_verify"
         post "biometric", to: "dmts#biometric"
         post "biometric_kyc", to: "dmts#biometric_kyc"
+
+
+        resources :beneficiaries do
+          collection do
+            post "send_otp"
+            post "verify_otp"
+          end
+        end
+
 
         resources :reatailer_profiles, only: [:index]
         get "reatailer_profiles/user_profile"
@@ -279,6 +298,10 @@ Rails.application.routes.draw do
     get "commissions/index"
     get "commissions/commission_filter"
     post "commissions/set_commission"
+
+    get "dmt_commissions/index"
+    get "dmt_commissions/new"
+    resources :dmt_commissions
 
     get "accounts/index"
     get "accounts/new"

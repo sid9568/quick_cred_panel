@@ -1,62 +1,52 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="superadmindropdown"
 export default class extends Controller {
   static targets = [
-    "menu", "bankmenu", "rechargemenu",
-    "payment", "account", "collectmoney", "admin"
+    "menu",
+    "bankmenu",
+    "payment",
+    "rechargemenu"
   ]
 
   connect() {
-    // store a single bound function so we can remove it later
-    this.boundDocumentClick = this._onDocumentClick.bind(this)
-    document.addEventListener("click", this.boundDocumentClick)
+    this.boundClick = this.handleOutsideClick.bind(this)
+    document.addEventListener("click", this.boundClick)
   }
 
   disconnect() {
-    document.removeEventListener("click", this.boundDocumentClick)
+    document.removeEventListener("click", this.boundClick)
   }
 
   toggle(event) {
-    event.stopPropagation() // prevent document click from firing
+    event.stopPropagation()
+
     const menuName = event.currentTarget.dataset.menu
     if (!menuName) return
+
+    this.hideAll()
 
     const target = this[`${menuName}Target`]
     if (target) {
       target.classList.toggle("hidden")
-    } else {
-      console.warn(`superadmindropdown: no target found for '${menuName}'`)
     }
   }
 
-  close(event) {
-    if (event) event.stopPropagation()
-    const menuName = event?.currentTarget?.dataset?.menu
-    if (menuName && this[`${menuName}Target`]) {
-      this[`${menuName}Target`].classList.add("hidden")
-    }
-  }
-
-  // ✅ Now this closes dropdowns only when you click OUTSIDE the controller
-  _onDocumentClick(event) {
-    // If click is OUTSIDE the controller element → close all menus
+  handleOutsideClick(event) {
     if (!this.element.contains(event.target)) {
-      this._hideAll()
+      this.hideAll()
     }
   }
 
-  _hideAll() {
-    const menuNames = [
-      "menu", "bankmenu", "rechargemenu",
-      "payment", "account", "collectmoney", "admin"
+  hideAll() {
+    const allTargets = [
+      ...this.menuTargets,
+      ...this.bankmenuTargets,
+      ...this.paymentTargets,
+      ...this.rechargemenuTargets
     ]
 
-    menuNames.forEach((name) => {
-      const target = this[`${name}Target`]
-      if (target && !target.classList.contains("hidden")) {
-        target.classList.add("hidden")
-      }
+    allTargets.forEach((el) => {
+      el.classList.add("hidden")
     })
   }
 }

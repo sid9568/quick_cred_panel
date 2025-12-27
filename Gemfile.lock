@@ -151,7 +151,7 @@ GEM
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
     json (2.14.1)
-    jwt (3.1.2)
+    jwt (2.10.2)
       base64
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
@@ -335,6 +335,10 @@ GEM
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
+    twilio-ruby (7.9.0)
+      faraday (>= 0.9, < 3.0)
+      jwt (>= 1.5, < 4.0)
+      nokogiri (>= 1.6, < 2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -394,6 +398,7 @@ DEPENDENCIES
   tailwindcss-rails (~> 4.3)
   tailwindcss-ruby (~> 4.1)
   turbo-rails
+  twilio-ruby
   tzinfo-data
   web-console
 
