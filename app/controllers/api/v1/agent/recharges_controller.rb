@@ -412,7 +412,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
   end
 
 
-  def calculate_commission( )
+   def calculate_commission(parent, child, base)
     return 0 if parent.nil?
     return (parent.to_f / 100) * base if child.nil?
 
