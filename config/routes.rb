@@ -298,6 +298,9 @@ Rails.application.routes.draw do
     get "commissions/index"
     get "commissions/commission_filter"
     post "commissions/set_commission"
+    get "commissions/new"
+    get "commissions/service_list"
+    resources :commissions
 
     get "dmt_commissions/index"
     get "dmt_commissions/new"

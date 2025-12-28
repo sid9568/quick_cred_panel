@@ -49,7 +49,19 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
     )
 
     # Send OTP
-    UserMailer.send_email_otp(user, otp).deliver_now
+    if user
+      Thread.new do
+        begin
+          # ✅ Ensure DB connection inside thread
+          ActiveRecord::Base.connection_pool.with_connection do
+            UserMailer.send_email_otp(user, otp).deliver_now
+          end
+        rescue => e
+          Rails.logger.error("Failed to send status update email: #{e.message}")
+        end
+      end
+    end
+
 
     render json: {
       code: 200,

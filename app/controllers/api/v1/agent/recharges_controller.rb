@@ -176,7 +176,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     txn_id = "TXN#{rand(100000..999999)}"
 
     service_product_item = ServiceProductItem.find_by(name: params[:operator])
-    return render json: { success: false, message: "Commission not found" }, status: :not_found unless service_product_item
+    return render json: { success: false, message: "Commission not Added please before added commission" }, status: :not_found unless service_product_item
 
     # === Call EKO Recharge API ===
     response = EkoMobileRechargeService.recharge(

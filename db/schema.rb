@@ -61,13 +61,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_064454) do
 
   create_table "commissions", force: :cascade do |t|
     t.string "commission_type"
+    t.string "from_role"
+    t.string "to_role"
+    t.decimal "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "service_product_item_id", null: false
     t.bigint "scheme_id"
-    t.decimal "value"
-    t.string "to_role"
-    t.string "from_role"
     t.string "set_by_role"
     t.string "set_for_role"
     t.index ["scheme_id"], name: "index_commissions_on_scheme_id"
