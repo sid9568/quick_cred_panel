@@ -160,11 +160,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # end
 
   def verify_otp
-    required = %i[
-    otp
-    otp_ref_id
-    kyc_request_id
-  ]
+    required = %i[otp otp_ref_id kyc_request_id]
 
     missing = required.select { |k| params[k].blank? }
     if missing.any?
@@ -174,40 +170,54 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
-    p "========phone_number======="
-    p current_user.phone_number
+    Rails.logger.info "========phone_number======="
+    Rails.logger.info current_user.phone_number
 
+    # ✅ WALLET CHECK (before API call)
+    user_wallet = current_user.wallet
+    unless user_wallet
+      return render json: {
+        status: false,
+        message: "Wallet not found"
+      }, status: :not_found
+    end
 
+    if user_wallet.balance.to_f < 10
+      return render json: {
+        status: false,
+        message: "Insufficient wallet balance"
+      }, status: :unprocessable_entity
+    end
+
+    # 🔹 Call EKO OTP Verify API
     resp = EkoDmt::DmtOtpVerifyService.new(
-      customer_id:     current_user.phone_number,
-      user_code:       current_user.user_code,
-      initiator_id:    "9212094999",
-      otp:             params[:otp],
-      otp_ref_id:      params[:otp_ref_id],
-      kyc_request_id:  params[:kyc_request_id]
+      customer_id:    current_user.phone_number,
+      user_code:      current_user.user_code,
+      initiator_id:   "9212094999",
+      otp:            params[:otp],
+      otp_ref_id:     params[:otp_ref_id],
+      kyc_request_id: params[:kyc_request_id]
     ).call
 
-    p "--------===========================---resp"
-    p resp
+    Rails.logger.info "========EKO OTP VERIFY RESPONSE========"
+    Rails.logger.info resp.inspect
 
     status = resp.dig("data", "status") || resp["status"]
-    p "=========status=============="
-    p status
-
+    # ✅ SUCCESS CASE
     if status == 0
-      current_user.update!(eko_biometric_kyc: true)
-      user_wallet = current_user.wallet
-      p  "========user_wallet======"
-      p user_wallet
-      user_wallet.update(balance: user_wallet.balance.to_f-10)
+      ActiveRecord::Base.transaction do
+        current_user.update!(eko_biometric_kyc: true)
+        user_wallet.update!(balance: user_wallet.balance.to_f - 10)
+      end
     end
 
     render json: {
-      status: resp["status"] || resp["response_status_id"],
-      message: resp["message"],
+      status: status,
+      message: resp["message"] || "OTP verification completed",
       data: resp
     }
   end
+
 
 
 
