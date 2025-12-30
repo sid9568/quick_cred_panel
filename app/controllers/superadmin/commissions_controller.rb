@@ -10,7 +10,7 @@ class Superadmin::CommissionsController < Superadmin::BaseController
     @services = Category.where(service_id: @services_id)
     p "==================="
     p @services
-    @commissions = Commission.all.includes(:scheme, :service_product_item).order(created_at: :desc)
+    @commissions = Commission.all.where(from_role: current_superadmin.role.title).includes(:scheme, :service_product_item).order(created_at: :desc)
 
     p "========@commissions======"
     p @commissions

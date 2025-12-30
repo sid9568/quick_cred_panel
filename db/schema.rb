@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_27_064454) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_30_083122) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -61,13 +61,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_064454) do
 
   create_table "commissions", force: :cascade do |t|
     t.string "commission_type"
-    t.string "from_role"
-    t.string "to_role"
-    t.decimal "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "service_product_item_id", null: false
     t.bigint "scheme_id"
+    t.decimal "value"
+    t.string "to_role"
+    t.string "from_role"
     t.string "set_by_role"
     t.string "set_for_role"
     t.index ["scheme_id"], name: "index_commissions_on_scheme_id"
@@ -159,7 +159,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_064454) do
     t.string "customer_id"
     t.bigint "recipient_id"
     t.boolean "bank_verify_status", default: false
+    t.integer "vendor_id"
     t.index ["user_id"], name: "index_dmts_on_user_id"
+    t.index ["vendor_id"], name: "index_dmts_on_vendor_id"
   end
 
   create_table "eko_banks", force: :cascade do |t|
@@ -294,6 +296,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_064454) do
     t.string "commission"
     t.string "mobile"
     t.string "vehicle_no"
+    t.string "card_number"
     t.index ["service_product_id"], name: "index_transactions_on_service_product_id"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
@@ -398,6 +401,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_064454) do
     t.boolean "eko_status_otp", default: false
     t.boolean "eko_verify_otp", default: false
     t.boolean "eko_biometric_kyc", default: false
+    t.string "vendor_otp"
+    t.datetime "vendor_expiry_otp"
+    t.boolean "vendor_verify_status", default: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["role_id"], name: "index_users_on_role_id"

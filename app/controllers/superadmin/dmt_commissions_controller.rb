@@ -20,14 +20,30 @@ class Superadmin::DmtCommissionsController < Superadmin::BaseController
   def create
     @commission_slab = DmtCommissionSlabRange.new(commission_params)
 
-    if @commission_slab.save
-      redirect_to superadmin_dmt_commissions_path,
-                  notice: "Commission slab created successfully"
-    else
-      @schemes = Scheme.where(user_id: current_superadmin.id)
-      render :new, status: :unprocessable_entity
+    ActiveRecord::Base.transaction do
+      @commission_slab.save!
+
+      DmtCommissionSlab.create!(
+        dmt_commission_slab_range_id: @commission_slab.id,
+        min_amount:  @commission_slab.min_amount,
+        max_amount:  @commission_slab.max_amount,
+        eko_fee:     @commission_slab.eko_fee,
+        surcharge:   @commission_slab.surcharge,
+        from_role:   current_superadmin.role.title,
+        to_role:     "admin",
+        scheme_id:   @commission_slab.scheme_id
+      )
     end
+
+    redirect_to superadmin_dmt_commissions_path,
+      notice: "Commission slab created successfully"
+
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error e.message
+    @schemes = Scheme.where(user_id: current_superadmin.id)
+    render :new, status: :unprocessable_entity
   end
+
 
   # EDIT FORM
   def edit
@@ -38,7 +54,7 @@ class Superadmin::DmtCommissionsController < Superadmin::BaseController
   def update
     if @commission_slab.update(commission_params)
       redirect_to superadmin_dmt_commissions_path,
-                  notice: "Commission slab updated successfully"
+        notice: "Commission slab updated successfully"
     else
       @schemes = Scheme.where(user_id: current_superadmin.id)
       render :edit, status: :unprocessable_entity
@@ -49,7 +65,7 @@ class Superadmin::DmtCommissionsController < Superadmin::BaseController
   def destroy
     @commission_slab.destroy
     redirect_to superadmin_dmt_commissions_path,
-                notice: "Commission slab deleted successfully"
+      notice: "Commission slab deleted successfully"
   end
 
   private

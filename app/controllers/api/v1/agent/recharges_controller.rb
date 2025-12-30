@@ -77,7 +77,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       sender_name:       params[:sender_name],
       client_ref_id:     SecureRandom.hex(8)
     )
-
+    
     render json: response
   end
 
@@ -238,6 +238,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
         service_product_id: params[:service_product_id],
         vehicle_no: params[:vehicle_no],
         consumer_name: params[:consumer_name],
+        card_number: params[:card_number],
         tid: response.dig("data", "tid"),
         tds: response.dig("data", "tds").to_f,
         commission: response.dig("data", "commission").to_f,
@@ -247,7 +248,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
 
       # === Commission Calculation ===
       scheme = Scheme.find(current_user.scheme_id)
-      scheme_commission = scheme.commision_rate.to_f
+      scheme_commission = 100
       commission_eko = response.dig("data", "commission").to_f # Fixed EKO commission
 
       Rails.logger.info "=========scheme_commission======= #{scheme_commission}"

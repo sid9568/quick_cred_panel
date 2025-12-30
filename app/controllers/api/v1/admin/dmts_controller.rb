@@ -84,7 +84,7 @@ class Api::V1::Admin::DmtsController < Api::V1::Auth::BaseController
   end
 
   def show_dmt_commission
-    scheme_id = params[:scheme_id] || 5
+    scheme_id = params[:scheme_id]
     commissions_slabs = DmtCommissionSlab.where(scheme_id: scheme_id).order(created_at: :desc)
 
     grouped_data = commissions_slabs.group_by(&:dmt_commission_slab_range_id)

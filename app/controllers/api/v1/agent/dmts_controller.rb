@@ -523,29 +523,169 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   end
 
 
+  # def dmt_transactions
+  #   p "===========dmt_transactions============"
+  #   required = %i[
+  #   receiver_mobile_number account_number
+  #   ifsc_code bank_name id
+  # ]
+  #   missing = required.select { |p| params[p].blank? }
+
+  #   if missing.any?
+  #     return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request
+  #   end
+
+  #   # Validate account number
+  #   # if params[:account_number].to_s.strip != params[:confirm_account_number].to_s.strip
+  #   #   return render json: { success: false, message: "Account number and confirm account number do not match." }, status: :unprocessable_entity
+  #   # end
+
+  #   amount = params[:amount].to_f
+  #   # beneficiaries_status = params[:beneficiary].present? && params[:beneficiary].to_s == "true"
+  #   p "===================here======="
+
+  #   ActiveRecord::Base.transaction do
+  #     # ✅ Create DMT record
+  #     dmt = Dmt.create!(
+  #       sender_full_name: params[:sender_name],
+  #       sender_mobile_number: params[:sender_mobile_number],
+  #       receiver_name: params[:receiver_name],
+  #       receiver_mobile_number: params[:receiver_mobile_number],
+  #       account_number: params[:account_number],
+  #       confirm_account_number: params[:confirm_account_number],
+  #       ifsc_code: params[:ifsc_code],
+  #       bank_name: params[:bank_name],
+  #       branch_name: params[:branch_name],
+  #       status: "pending",
+  #       parent_id: current_user.parent_id,
+  #       amount: amount,
+  #       beneficiaries_status: true,
+  #       bank_verify_status: false,
+  #       vendor_id: params[:id],
+  #     )
+
+  #     # eko dmt transaction
+  #     response = EkoDmt::AddRecipientService.call(
+  #       sender_mobile: current_user.phone_number,
+  #       initiator_id: "9212094999",
+  #       user_code: current_user.user_code,
+  #       recipient_mobile: params[:receiver_mobile_number],
+  #       recipient_type: 3,
+  #       recipient_name: params[:receiver_name],
+  #       ifsc: params[:ifsc_code],
+  #       account: params[:account_number],
+  #       bank_id: params[:bank_id],
+  #       account_type: 1
+  #     )
+  #     Rails.logger.info "========== EKO RESPONSE =========="
+  #     Rails.logger.info response
+
+  #     # ❗ Fail transaction if EKO failed
+
+
+  #     status = response.dig("data", "status") || response["status"]
+  #     p "=========status=============="
+  #     p status
+
+  #     recipient_id = response.dig("data", "recipient_id") || response["recipient_id"]
+
+
+  #     if status != 0
+  #       raise ActiveRecord::Rollback, "EKO recipient creation failed"
+  #     end
+
+  #     dmt.update!(
+  #       recipient_id: recipient_id,
+  #       status:       "recipient_added"
+  #     )
+
+  #     # ✅ Generate unique transaction ID
+  #     txn_id = "TXN#{SecureRandom.hex(6).upcase}"
+
+  #     # ✅ Create related DMT Transaction
+  #     dmt_transaction = DmtTransaction.create!(
+  #       dmt_id: dmt.id,
+  #       user_id: current_user.id,
+  #       txn_id: txn_id,
+  #       sender_mobile_number: params[:sender_mobile_number],
+  #       bank_name: params[:bank_name],
+  #       account_number: params[:account_number],
+  #       amount: amount,
+  #       status: "pending"
+  #     )
+
+  #     render json: {
+  #       success: true,
+  #       message: "Beneficiary DMT transaction created successfully.",
+  #       data: {
+  #         dmt: dmt,
+  #         dmt_transaction: dmt_transaction
+  #       }
+  #     }, status: :created
+
+  #   rescue => e
+  #     render json: { success: false, message: "Transaction failed: #{e.message}" }, status: :unprocessable_entity
+  #   end
+  # end
+
   def dmt_transactions
-    p "===========dmt_transactions============"
+    p "========quick cred"
     required = %i[
-    receiver_mobile_number account_number confirm_account_number
-    ifsc_code bank_name
+    receiver_mobile_number account_number 
+    ifsc_code bank_name id
   ]
+
     missing = required.select { |p| params[p].blank? }
-
     if missing.any?
-      return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request
-    end
-
-    # Validate account number
-    if params[:account_number].to_s.strip != params[:confirm_account_number].to_s.strip
-      return render json: { success: false, message: "Account number and confirm account number do not match." }, status: :unprocessable_entity
+      return render json: {
+        success: false,
+        message: "Missing: #{missing.join(', ')}"
+      }, status: :bad_request
     end
 
     amount = params[:amount].to_f
-    beneficiaries_status = params[:beneficiary].present? && params[:beneficiary].to_s == "true"
-    p "===================here======="
 
+    if current_user.user_code.blank?
+      return render json: {
+        success: false,
+        message: "User code not found. Please contact support."
+      }, status: :unprocessable_entity
+    end
+
+    # 🔹 1️⃣ CALL EKO FIRST
+    response = EkoDmt::AddRecipientService.call(
+      sender_mobile: current_user.phone_number,
+      initiator_id: "9212094999",
+      user_code: current_user.user_code,
+      recipient_mobile: params[:receiver_mobile_number],
+      recipient_type: 3,
+      recipient_name: params[:receiver_name],
+      ifsc: params[:ifsc_code],
+      account: params[:account_number],
+      bank_id: params[:bank_id],
+      account_type: 1
+    )
+
+    Rails.logger.info "========== EKO RESPONSE =========="
+    Rails.logger.info response
+
+    status = response.dig("data", "status") || response["status"]
+
+    p "=========status=========="
+    p status
+
+    # ❌ 2️⃣ STOP EXECUTION IF EKO FAILED
+    if status != 0
+      return render json: {
+        success: false,
+        message: response.dig("data", "message") || "EKO recipient creation failed"
+      }, status: :unprocessable_entity
+    end
+
+    recipient_id = response.dig("data", "recipient_id") || response["recipient_id"]
+
+    # 🔹 3️⃣ DB TRANSACTION ONLY AFTER SUCCESS
     ActiveRecord::Base.transaction do
-      # ✅ Create DMT record
       dmt = Dmt.create!(
         sender_full_name: params[:sender_name],
         sender_mobile_number: params[:sender_mobile_number],
@@ -556,54 +696,17 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         ifsc_code: params[:ifsc_code],
         bank_name: params[:bank_name],
         branch_name: params[:branch_name],
-        status: "pending",
+        status: "recipient_added",
         parent_id: current_user.parent_id,
         amount: amount,
-        beneficiaries_status: beneficiaries_status,
-        bank_verify_status: false
+        beneficiaries_status: true,
+        bank_verify_status: false,
+        vendor_id: params[:id],
+        recipient_id: recipient_id
       )
 
-      # eko dmt transaction
-      # response = EkoDmt::AddRecipientService.call(
-      #   sender_mobile: current_user.phone_number,
-      #   initiator_id: "9212094999",
-      #   user_code: current_user.user_code,
-      #   recipient_mobile: params[:receiver_mobile_number],
-      #   recipient_type: 3,
-      #   recipient_name: params[:receiver_name],
-      #   ifsc: params[:ifsc_code],
-      #   account: params[:account_number],
-      #   bank_id: params[:bank_id],
-      #   account_type: 1
-      # )
-      # Rails.logger.info "========== EKO RESPONSE =========="
-      # Rails.logger.info response
-
-      # # ❗ Fail transaction if EKO failed
-
-
-
-      # status = response.dig("data", "status") || response["status"]
-      # p "=========status=============="
-      # p status
-
-      # recipient_id = response.dig("data", "recipient_id") || response["recipient_id"]
-
-
-      # if status != 0
-      #   raise ActiveRecord::Rollback, "EKO recipient creation failed"
-      # end
-
-      # ✅ Update SAME DMT record
-      # dmt.update!(
-      #   recipient_id: recipient_id,
-      #   status:       "recipient_added"
-      # )
-
-      # ✅ Generate unique transaction ID
       txn_id = "TXN#{SecureRandom.hex(6).upcase}"
 
-      # ✅ Create related DMT Transaction
       dmt_transaction = DmtTransaction.create!(
         dmt_id: dmt.id,
         user_id: current_user.id,
@@ -617,17 +720,22 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
       render json: {
         success: true,
-        message: beneficiaries_status ? "Beneficiary DMT transaction created successfully." : "DMT transaction created successfully.",
+        message: "Beneficiary added & DMT transaction created successfully",
         data: {
           dmt: dmt,
           dmt_transaction: dmt_transaction
         }
       }, status: :created
-
-    rescue => e
-      render json: { success: false, message: "Transaction failed: #{e.message}" }, status: :unprocessable_entity
     end
+
+  rescue => e
+    render json: {
+      success: false,
+      message: "Transaction failed: #{e.message}"
+    }, status: :unprocessable_entity
   end
+
+
 
   def send_otp
 
