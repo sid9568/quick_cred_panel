@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_02_101032) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_02_133455) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -135,6 +135,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_02_101032) do
     t.integer "parent_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "fee", precision: 10, scale: 2, default: "0.0"
+    t.string "tid"
+    t.decimal "tds", precision: 10, scale: 2, default: "0.0"
+    t.decimal "service_tax", precision: 10, scale: 2, default: "0.0"
+    t.decimal "commission", precision: 10, scale: 2, default: "0.0"
+    t.string "txstatus_desc"
+    t.decimal "collectable_amount", precision: 12, scale: 2, default: "0.0"
   end
 
   create_table "dmts", force: :cascade do |t|

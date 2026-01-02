@@ -846,13 +846,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     p "==========dmt"
     dmt.update!(
       status: "Success",
-      fee: response.dig("data", "fee"),
-      tid: response.dig("data", "tid"),
-      tds: response.dig("data", "tds"),
-      service_tax: response.dig("data", "service_tax"),
-      commission: response.dig("data", "commission"),
-      txstatus_desc: response.dig("data", "txstatus_desc"),
-      collectable_amount: response.dig("data", "collectable_amount")
     )
     #======================Dmt===============
 
@@ -1048,7 +1041,14 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         bank_name: params[:bank_name],
         account_number: params[:account_number],
         amount: amount,
-        status: "success"
+        status: "success",
+        fee: response.dig("data", "fee"),
+        tid: response.dig("data", "tid"),
+        tds: response.dig("data", "tds"),
+        service_tax: response.dig("data", "service_tax"),
+        commission: response.dig("data", "commission"),
+        txstatus_desc: response.dig("data", "txstatus_desc"),
+        collectable_amount: response.dig("data", "collectable_amount")
       )
     end
 
