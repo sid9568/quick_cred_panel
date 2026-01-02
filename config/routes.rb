@@ -72,6 +72,8 @@ Rails.application.routes.draw do
 
         # ROLE LIST
         get "roles", to: "sessions#role"
+        
+        post "resend_otp", to: "sessions#resend_otp"
 
       end
     end
@@ -238,7 +240,7 @@ Rails.application.routes.draw do
         post "dmts/update_dmt_transaction"
         post "dmts/benfisries_dmt_transaction"
         post "dmts/beneficiary_fetch"
-        get "dmts/beneficiary_list"
+        post "dmts/beneficiary_list"
         post "dmts/user_onboard"
         post "dmts/check_profile"
         post "dmts/create_customer"

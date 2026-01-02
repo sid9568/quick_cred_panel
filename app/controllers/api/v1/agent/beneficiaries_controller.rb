@@ -1,7 +1,7 @@
 class Api::V1::Agent::BeneficiariesController < Api::V1::Auth::BaseController
 
   def send_otp
-    result = Otp::SmsDealNowProvider.send_otp(params[:mobile])
+    result = Otp::SmsDealNowProvider.send_otp(params[:mobile], params[:full_name])
     p "========result============"
     p result
     render json: result

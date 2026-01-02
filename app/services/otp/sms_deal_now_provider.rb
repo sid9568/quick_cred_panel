@@ -10,24 +10,39 @@ module Otp
     # ===========================
     # SEND OTP
     # ===========================
-    def self.send_otp(mobile)
+    def self.send_otp(mobile, full_name)
+      Rails.logger.info "📩 [OTP-SEND] Request received for mobile: #{mobile}"
+
       mobile = mobile.to_s.last(10)
+
+      user = VendorUser.find_or_initialize_by(phone_number: mobile) do |u|
+        u.full_name = full_name
+      end
+
+      # ✅ BLOCK OTP IF ALREADY VERIFIED
+      if user.persisted? && user.vendor_verify_status == true
+        Rails.logger.info "ℹ️ [OTP-SEND] Vendor already verified for #{mobile}"
+
+        return {
+          success: true,
+          message: "Sender already verified",
+          vendor_verify_status: true,
+          user: user
+        }
+      end
+
+      # 🔹 Generate OTP
       otp = rand(100_000..999_999).to_s
 
-      role = Role.find_by(title: "vendor")
-      return { success: false, error: "Vendor role missing" } unless role
+      user.update!(
+        otp: otp,
+        vendor_expiry_otp: 10.minutes.from_now,
+        vendor_verify_status: false
+      )
 
-      user = User.find_or_initialize_by(phone_number: mobile)
+      Rails.logger.info "✅ [OTP-SEND] OTP saved for user #{mobile}"
 
-      user.role_id = role.id
-      user.vendor_otp = otp
-      user.vendor_expiry_otp = 10.minutes.from_now
-      user.vendor_verify_status = false
-      user.save!
-
-      message = "#{otp} is your OTP to add a new beneficiary. " \
-        "This OTP is valid for 10 minutes. Do not share it. KWIKPE"
-
+      message = "#{otp} is your OTP to add a new beneficiary. This OTP is valid for 10 minutes. Please do not share it. KWIKPE"
       encoded_msg = URI.encode_www_form_component(message)
 
       url = URI.parse(
@@ -42,8 +57,12 @@ module Otp
         "&rpt=1"
       )
 
+      Rails.logger.info "📡 [OTP-SEND] Sending SMS via SmsDealNow to #{mobile}"
+
       response = Net::HTTP.get_response(url)
       body = JSON.parse(response.body) rescue {}
+
+      Rails.logger.info "📬 [OTP-SEND] Provider response: #{body}"
 
       code   = body.dig("RESPONSE", "CODE")
       status = body["STATUS"]
@@ -52,12 +71,14 @@ module Otp
 
       {
         success: success,
+        message: success ? "OTP sent successfully" : "OTP sending failed",
+        vendor_verify_status: false,
         provider: "smsdealnow",
         uid: body.dig("RESPONSE", "UID")
       }
 
     rescue => e
-      Rails.logger.error "❌ OTP SEND ERROR => #{e.message}"
+      Rails.logger.error "❌ [OTP-SEND] ERROR => #{e.message}"
       { success: false, error: e.message }
     end
 
@@ -66,38 +87,42 @@ module Otp
     # VERIFY OTP
     # ===========================
     def self.verify_otp(mobile, otp)
+      Rails.logger.info "🔐 [OTP-VERIFY] Request received for mobile: #{mobile}"
+
       mobile = mobile.to_s.last(10)
       otp    = otp.to_s.strip
-      p "=======mobile========"
-      p mobile
-      user = User.find_by(phone_number: mobile)
-      p "======user==========="
-      p user.vendor_otp
-      p "====otp========"
-      p otp
 
-      return { success: false, error: "Invalid OTP" } unless user
-      return { success: false, error: "Invalid OTP" } unless user.vendor_otp.present?
-      return { success: false, error: "Invalid OTP" } unless user.vendor_otp == otp
+      user = VendorUser.find_by(phone_number: mobile)
 
-      # # 🔐 Safe expiry check
-      # if user.otp_expires_at.nil? || user.otp_expires_at < Time.current
-      #   return { success: false, error: "OTP expired" }
-      # end
+      unless user
+        Rails.logger.warn "⚠️ [OTP-VERIFY] User not found for #{mobile}"
+        return { success: false, error: "Invalid OTP" }
+      end
+
+      unless user.otp.present?
+        Rails.logger.warn "⚠️ [OTP-VERIFY] OTP missing for #{mobile}"
+        return { success: false, error: "Invalid OTP" }
+      end
+
+      unless user.otp == otp
+        Rails.logger.warn "❌ [OTP-VERIFY] OTP mismatch for #{mobile}"
+        return { success: false, error: "Invalid OTP" }
+      end
 
       user.update!(
-        vendor_otp: nil,
+        otp: nil,
         vendor_expiry_otp: nil,
         vendor_verify_status: true
       )
 
+      Rails.logger.info "✅ [OTP-VERIFY] OTP verified successfully for #{mobile}"
+
       { success: true, user: user }
 
     rescue => e
-      Rails.logger.error "❌ OTP VERIFY ERROR => #{e.message}"
+      Rails.logger.error "❌ [OTP-VERIFY] ERROR => #{e.message}"
       { success: false, error: e.message }
     end
-
 
   end
 end

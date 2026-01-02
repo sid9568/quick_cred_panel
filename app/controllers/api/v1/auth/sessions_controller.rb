@@ -1,7 +1,7 @@
 class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
   # protect_from_forgery with: :null_session
   # skip_before_action :verify_authenticity_token
-  skip_before_action :authorize_request, only: [:login, :verify_email, :create]
+  skip_before_action :authorize_request, only: [:login, :verify_email, :create, :resend_otp]
 
   # ------------------------------------
   # LOGIN (Admin + Master + Dealer + Agent)
@@ -67,6 +67,42 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
       code: 200,
       message: "OTP sent to your email",
       user: user
+    }
+  end
+
+  def resend_otp
+    user = User.find_by(email: params[:email].to_s.strip)
+
+    unless user
+      return render json: {
+        code: 404,
+        message: "User not found",
+        success: false
+      }
+    end
+
+    # Generate new OTP
+    otp = rand(100000..999999).to_s
+
+    # Reset old OTP & save new one
+    user.update!(
+      email_otp: otp,
+      email_otp_status: false,
+      email_otp_verified_at: 10.minutes.from_now
+    )
+
+    # Send OTP asynchronously (Rails way)
+    UserMailer.send_email_otp(user, otp).deliver_later
+
+    render json: {
+      code: 200,
+      message: "New OTP sent to your email",
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        email_otp_verified_at: user.email_otp_verified_at
+      }
     }
   end
 

@@ -18,7 +18,7 @@ class Superadmin::DmtCommissionsController < Superadmin::BaseController
 
   # CREATE
   def create
-    @commission_slab = DmtCommissionSlabRange.new(commission_params)
+    @commission_slab = DmtCommissionSlabRange.new(commission_params.merge(from_role: current_superadmin.role.title, to_role: "admin"))
 
     ActiveRecord::Base.transaction do
       @commission_slab.save!
@@ -31,7 +31,8 @@ class Superadmin::DmtCommissionsController < Superadmin::BaseController
         surcharge:   @commission_slab.surcharge,
         from_role:   current_superadmin.role.title,
         to_role:     "admin",
-        scheme_id:   @commission_slab.scheme_id
+        scheme_id:   @commission_slab.scheme_id,
+        value: @commission_slab.value
       )
     end
 

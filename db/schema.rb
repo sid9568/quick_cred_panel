@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_30_083122) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_02_101032) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -159,9 +159,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_30_083122) do
     t.string "customer_id"
     t.bigint "recipient_id"
     t.boolean "bank_verify_status", default: false
-    t.integer "vendor_id"
+    t.bigint "vendor_user_id"
+    t.string "txn_id"
+    t.boolean "transaction_status", default: false
     t.index ["user_id"], name: "index_dmts_on_user_id"
-    t.index ["vendor_id"], name: "index_dmts_on_vendor_id"
+    t.index ["vendor_user_id"], name: "index_dmts_on_vendor_user_id"
   end
 
   create_table "eko_banks", force: :cascade do |t|
@@ -411,6 +413,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_30_083122) do
     t.index ["service_id"], name: "index_users_on_service_id"
   end
 
+  create_table "vendor_users", force: :cascade do |t|
+    t.string "full_name"
+    t.string "phone_number"
+    t.string "otp"
+    t.datetime "vendor_expiry_otp"
+    t.boolean "vendor_verify_status", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["phone_number"], name: "index_vendor_users_on_phone_number", unique: true
+  end
+
   create_table "wallet_transactions", force: :cascade do |t|
     t.bigint "wallet_id", null: false
     t.string "tx_id", limit: 50, null: false
@@ -444,6 +457,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_30_083122) do
   add_foreign_key "dmt_commission_slabs", "dmt_commission_slab_ranges"
   add_foreign_key "dmt_commission_slabs", "schemes"
   add_foreign_key "dmts", "users"
+  add_foreign_key "dmts", "vendor_users"
   add_foreign_key "enquiries", "roles"
   add_foreign_key "fund_requests", "users"
   add_foreign_key "schemes", "users"

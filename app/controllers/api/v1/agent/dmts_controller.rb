@@ -219,8 +219,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   end
 
 
-
-
   def biometric_kyc
     customer_id = params[:customer_id]
     aadhar      = params[:aadhar]
@@ -297,8 +295,12 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     # 🔴 STEP 1: Already verified check
     existing_dmt = Dmt.find_by(
       account_number: params[:account_number],
-      bank_verify_status: true
+      bank_verify_status: true,
+      vendor_user_id: params[:id]
     )
+
+    p "======existing_dmt========"
+    p existing_dmt
 
     if existing_dmt.present?
       return render json: {
@@ -327,7 +329,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     parsed = JSON.parse(raw_body) rescue nil
 
     if parsed && parsed["status"] == 0
-      fee = parsed.dig("data", "fee").to_f
+      fee = 3
 
       # 🔵 STEP 3: Wallet deduct
       wallet = current_user.wallet
@@ -340,6 +342,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         message: "Bank account verified successfully",
         data: parsed["data"],
         fee_deducted: fee,
+        bank_verify: true,
         wallet_balance: wallet.balance
       }, status: :ok
     else
@@ -352,15 +355,12 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   end
 
 
-
-
-
   def dmt_transactions_list
     dmt_transactions = DmtTransaction
-    .includes(:dmt)
     .where(user_id: current_user.id)
     .order(created_at: :desc)
-
+    p "-=------------"
+    p dmt_transactions
     render json: {
       code: 200,
       message: "Successfully fetched DMT transactions",
@@ -370,37 +370,56 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
           id: txn.id,
           txn_id: txn.txn_id,
           status: txn.status,
-          created_at: txn.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-          # 🔹 DmtTransaction fields
-          sender_mobile_number: txn.sender_mobile_number,
-          account_number: txn.account_number,
-          bank_name: txn.bank_name,
+          amount: txn.amount,
+          created_at: txn.created_at,
 
-          # 🔹 Linked Dmt fields
           receiver_name: dmt&.receiver_name,
           receiver_mobile_number: dmt&.receiver_mobile_number,
+          sender_mobile_number: dmt&.sender_mobile_number,
           sender_full_name: dmt&.sender_full_name,
           ifsc_code: dmt&.ifsc_code,
           branch_name: dmt&.branch_name,
           beneficiaries_status: dmt&.beneficiaries_status,
           parent_id: dmt&.parent_id,
-          amount: dmt.amount,
+          bank_name: dmt&.bank_name,
+          account_number: dmt&.account_number,
         }
       end
     }, status: :ok
   end
 
+
+  def sender_beneficiary
+    user = User.find_by(phone_number: params[:customer_id])
+  end
+
   def beneficiary_list
-    baneficiaries = Dmt.where(beneficiaries_status: true).order(created_at: :desc)
+    user = VendorUser.find_by(phone_number: params[:customer_id])
+    p "=========user======"
+    p user
+    beneficiaries =
+    if user.present?
+      Dmt.where(
+        vendor_user_id: user.id,
+        beneficiaries_status: true
+      )
+    else
+      Dmt.where(beneficiaries_status: true)
+    end.order(created_at: :desc)
+
     resp = EkoDmt::ListRecipientsService.call(
       sender_mobile: current_user.phone_number,
       initiator_id: "9212094999",
       user_code: current_user.user_code
     )
 
-    puts resp
-    render json: {code: 200, message: "Successfully list show",  baneficiaries: baneficiaries}
+    render json: {
+      code: 200,
+      message: "Successfully list show",
+      beneficiaries: beneficiaries
+    }
   end
+
 
 
   def sender_details
@@ -424,7 +443,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     )
 
     Rails.logger.info "========== EKO TRANSFER RESPONSE =========="
-    Rails.logger.info resp.inspect
+    Rails.logger.info
 
     # 🔹 Safely extract status
     status = resp.dig("data", "status") || resp[:status] || resp["status"]
@@ -643,6 +662,11 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
+    bank = EkoBank.find_by(name: params[:bank_name])
+    p "===========bank============="
+    p bank
+
+
     amount = params[:amount].to_f
 
     if current_user.user_code.blank?
@@ -662,7 +686,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       recipient_name: params[:receiver_name],
       ifsc: params[:ifsc_code],
       account: params[:account_number],
-      bank_id: params[:bank_id],
+      bank_id: bank.bank_id,
       account_type: 1
     )
 
@@ -682,40 +706,34 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :unprocessable_entity
     end
 
+    vendor_user = VendorUser.find_by(id: params[:id])
+
     recipient_id = response.dig("data", "recipient_id") || response["recipient_id"]
+
+    bank_verify_status = params[:bank_verify].to_s == "true"
+    txn_id = "TXN#{rand(100000..999999)}"
 
     # 🔹 3️⃣ DB TRANSACTION ONLY AFTER SUCCESS
     ActiveRecord::Base.transaction do
       dmt = Dmt.create!(
-        sender_full_name: params[:sender_name],
-        sender_mobile_number: params[:sender_mobile_number],
+        sender_full_name: vendor_user.full_name,
+        sender_mobile_number: vendor_user.phone_number,
         receiver_name: params[:receiver_name],
         receiver_mobile_number: params[:receiver_mobile_number],
         account_number: params[:account_number],
         confirm_account_number: params[:confirm_account_number],
         ifsc_code: params[:ifsc_code],
         bank_name: params[:bank_name],
+        user_id: current_user.id,
         branch_name: params[:branch_name],
         status: "recipient_added",
         parent_id: current_user.parent_id,
         amount: amount,
         beneficiaries_status: true,
-        bank_verify_status: false,
-        vendor_id: params[:id],
-        recipient_id: recipient_id
-      )
-
-      txn_id = "TXN#{SecureRandom.hex(6).upcase}"
-
-      dmt_transaction = DmtTransaction.create!(
-        dmt_id: dmt.id,
-        user_id: current_user.id,
-        txn_id: txn_id,
-        sender_mobile_number: params[:sender_mobile_number],
-        bank_name: params[:bank_name],
-        account_number: params[:account_number],
-        amount: amount,
-        status: "pending"
+        bank_verify_status: bank_verify_status,
+        vendor_user_id: vendor_user.id,
+        recipient_id: recipient_id,
+        txn_id: txn_id
       )
 
       render json: {
@@ -723,7 +741,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         message: "Beneficiary added & DMT transaction created successfully",
         data: {
           dmt: dmt,
-          dmt_transaction: dmt_transaction
+          dmt_transaction: dmt
         }
       }, status: :created
     end
@@ -786,33 +804,33 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     p "======hierarchy==========="
     p hierarchy
 
-    # response = EkoDmt::FinoTransferService.call(
-    #   initiator_id: "9212094999",
-    #   user_code: current_user.user_code,
-    #   recipient_id: params[:recipient_id],
-    #   amount: params[:amount],
-    #   customer_id: params[:customer_id],
-    #   otp: params[:otp],
-    #   otp_ref_id: params[:otp_ref_id],
-    #   latlong: params[:latlong] || "28.6139,77.2090",
-    #   client_ref_id: params[:client_ref_id] || "TXN#{Time.current.to_i}"
-    # )
+    response = EkoDmt::FinoTransferService.call(
+      initiator_id: "9212094999",
+      user_code: current_user.user_code,
+      recipient_id: params[:recipient_id],
+      amount: params[:amount],
+      customer_id: current_user.phone_number,
+      otp: params[:otp],
+      otp_ref_id: params[:otp_ref_id],
+      latlong: params[:latlong] || "28.6139,77.2090",
+      client_ref_id: params[:client_ref_id] || "TXN#{Time.current.to_i}"
+    )
 
-    # Rails.logger.info "========== EKO OTP VERIFY RESPONSE =========="
-    # Rails.logger.info response
+    Rails.logger.info "========== EKO OTP VERIFY RESPONSE =========="
+    Rails.logger.info response
 
-    # eko_reason = response.dig("data", "reason") || response["reason"]
-    # p "======eko_reason========"
-    # p eko_reason
-    # if eko_reason == "OTP Verification failed"
-    #   return render json: {
-    #     success: false,
-    #     message: response[:message] || "OTP Verification failed"
-    #   }, status: :unprocessable_entity
-    # end
+    eko_reason = response.dig("data", "reason") || response["reason"]
+    p "======eko_reason========"
+    p eko_reason
+    if eko_reason == "OTP Verification failed"
+      return render json: {
+        success: false,
+        message: response[:message] || "OTP Verification failed"
+      }, status: :unprocessable_entity
+    end
 
-    # eko_status = response.dig("data", "status") || response["status"]
-    eko_status = 0
+    eko_status = response.dig("data", "status") || response["status"]
+    # eko_status = 0
     # ❌ OTP / transfer failed
     if eko_status != 0
       return render json: {
@@ -821,27 +839,22 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :unprocessable_entity
     end
 
-    dmt_transaction = DmtTransaction.find_by(dmt_id: params[:id])
     amount = params[:amount].to_f
 
     #======================Dmt===============
     dmt = Dmt.find_by(id: params[:id])
     p "==========dmt"
-    # dmt.update!(fee: response.dig("data", "fee"),
-    #             tid: response.dig("data", "tid"),
-    #             tds: response.dig("data", "tds"),
-    #             service_tax: response.dig("data", "service_tax"),
-    #             commission: response.dig("data", "commission"),
-    #             txstatus_desc: response.dig("data", "txstatus_desc"),
-    #             collectable_amount: response.dig("data", "collectable_amount"))
+    dmt.update!(
+      status: "Success",
+      fee: response.dig("data", "fee"),
+      tid: response.dig("data", "tid"),
+      tds: response.dig("data", "tds"),
+      service_tax: response.dig("data", "service_tax"),
+      commission: response.dig("data", "commission"),
+      txstatus_desc: response.dig("data", "txstatus_desc"),
+      collectable_amount: response.dig("data", "collectable_amount")
+    )
     #======================Dmt===============
-
-    p "------dmt_transaction----------"
-    p dmt_transaction
-
-    unless dmt_transaction
-      return render json: { success: false, message: "DMT Transaction not found" }, status: :not_found
-    end
 
     # Verify user PIN
     # unless current_user.set_pin.to_s == params[:pin].to_s
@@ -849,95 +862,147 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     # end
 
     # 🔥 STEP 1: FETCH COMMISSION SLAB
+    dmt_surhagre = DmtCommissionSlabRange.find_by(
+      "min_amount <= ? AND max_amount >= ?",
+      amount, amount
+    )
+
     scheme = Scheme.find(current_user.scheme_id)
-    p "======scheme======"
+    scheme_commission = 100
+    commission_eko = dmt_surhagre.surcharge.to_f
+    p "==========scheme============="
     p scheme
+    Rails.logger.info "=========scheme_commission======= #{scheme_commission}"
+    Rails.logger.info "=========commission_eko========= #{commission_eko}"
 
-    commissions_slab = DmtCommissionSlab.where(
-      scheme_id: scheme.id,
-      to_role: current_user.role.title,
-    ).where(
-      "min_amount <= ? AND max_amount >= ?", amount, amount
-    ).first
+    # Get commission percentages for each role
+    commissions = {}
 
-    p "========commissions_slab============="
-    p commissions_slab
+    # 1. Get retailer commission (current user's scheme)
+    p "============params[:scheme_id]========="
+    p params[:scheme_id]
 
-    return render json: {
-      success: false,
-      message: "DMT commission slab not found"
-    }, status: :unprocessable_entity if commissions_slab.nil?
+    current_user_scheme = current_user.scheme_id
+    retailer_commission = DmtCommissionSlab.where(scheme_id: current_user_scheme, to_role: "retailer")
+    .pick(:value)
+    .to_f
 
-    # 🔥 STEP 2: CALCULATIONS
-    # 🔥 STEP 1: FETCH COMMISSION SLAB
-    p "========tds_percent========"
-    p commissions_slab.tds_percent.to_f
-    p "=======commissions_slab.gst_percent======="
-    p commissions_slab.gst_percent.to_f
-    p "=======commissions_slab.surcharge===="
-    p commissions_slab.surcharge.to_f
+    p "===========retailer_commission=========="
+    p retailer_commission
 
-    amount = params[:amount].to_f + commissions_slab.surcharge + commissions_slab.tds_percent + commissions_slab.gst_percent
-    p "=======amount======"
-    p amount.to_f
-    dmt.update!(amount: amount)
-    # 🔥 STEP 2: Commission Distridubte
-    # ===== COMMISSION DISTRIBUTION =====
+    commissions[:retailer] = retailer_commission
 
-    base_amount = params[:amount].to_f
-    surcharge   = commissions_slab.surcharge.to_f
-    gst_percent = commissions_slab.gst_percent.to_f
-    tds_percent = commissions_slab.tds_percent.to_f
+    # 2. Get admin commission (parent user's scheme)
+    admin_user = User.find_by(id: current_user.parent_id)
+    p "==========admin_user========"
+    p admin_user
+    admin_scheme_id = admin_user&.scheme_id
 
-    # customer paid
-    customer_paid_amount = base_amount + surcharge
+    p "=======admin_scheme_id============"
+    p admin_scheme_id
 
-    # GST & TDS
-    gst_amount = (base_amount * gst_percent / 100).round(2)
-    tds_amount = (base_amount * tds_percent / 100).round(2)
+    # admin_commission = Commission.joins(:service_product_item)
+    # .where(
+    #   scheme_id: admin_scheme_id,
+    #   to_role: "admin",
+    #   service_product_items: { name: params[:operator] }
+    # )
+    # .pick(:value)
+    # .to_f
+    admin_commission = DmtCommissionSlab.where(scheme_id: admin_scheme_id, to_role: "admin")
+    .pick(:value)
+    .to_f
 
-    # distributable pool
-    surcharge = commissions_slab.surcharge.to_f
+    p "=========admin_commission============"
+    p admin_commission
 
-    commission_values = {
-      admin:    scheme.dmt_commission_slabs.find_by(to_role: "admin")&.value.to_f,
-      master:   scheme.dmt_commission_slabs.find_by(to_role: "master")&.value.to_f,
-      dealer:   scheme.dmt_commission_slabs.find_by(to_role: "dealer")&.value.to_f,
-      retailer: scheme.dmt_commission_slabs.find_by(to_role: "retailer")&.value.to_f
-    }
+    commissions[:admin] = admin_commission
 
-    commission_map = {
-      superadmin: (surcharge - commission_values[:admin]).round(2),
-      admin:      (commission_values[:admin] - commission_values[:master]).round(2),
-      master:     (commission_values[:master] - commission_values[:dealer]).round(2),
-      dealer:     (commission_values[:dealer] - commission_values[:retailer]).round(2),
-      retailer:   commission_values[:retailer].round(2)
-    }
+    # 3. Get master commission
+    master_users = User.where(role_id: Role.find_by(title: 'master')&.id)
+    master_scheme_id = master_users.first&.scheme_id if master_users.any?
 
-    # 🔒 SAFETY: no negative commission
-    commission_map.each do |role, value|
-      commission_map[role] = 0.0 if value.negative?
-      p "----------------loop---------"
-      p commission_map[role]
+    # master_commission = Commission.joins(:service_product_item)
+    # .where(
+    #   scheme_id: master_scheme_id,
+    #   to_role: "master",
+    #   service_product_items: { name: params[:operator] }
+    # )
+    # .pick(:value)
+    # .to_f
+    master_commission = DmtCommissionSlab.where(scheme_id: admin_scheme_id, to_role: "master")
+    .pick(:value)
+    .to_f
+
+    commissions[:master] = master_commission
+
+    # 4. Get dealer commission
+    dealer_users = User.where(role_id: Role.find_by(title: 'dealer')&.id)
+    dealer_scheme_id = dealer_users.first&.scheme_id if dealer_users.any?
+
+    # dealer_commission = Commission.joins(:service_product_item)
+    # .where(
+    #   scheme_id: dealer_scheme_id,
+    #   to_role: "dealer",
+    #   service_product_items: { name: params[:operator] }
+    # )
+    # .pick(:value)
+    # .to_f
+    dealer_commission = DmtCommissionSlab.where(scheme_id: admin_scheme_id, to_role: "master")
+    .pick(:value)
+    .to_f
+
+    commissions[:dealer] = dealer_commission
+
+    Rails.logger.info "Commissions by role: #{commissions}"
+
+    # Calculate commission amounts for each role using hierarchy chain
+    commission_map = {}
+
+    # Start from top (Superadmin)
+    # Superadmin gets: scheme_commission - admin_commission
+    remaining_percent = scheme_commission - admin_commission
+    remaining_percent = 0 if remaining_percent.negative?
+    commission_map[:superadmin] = (remaining_percent / 100) * commission_eko
+
+    # Move down the chain - Admin
+    # Find the highest commission among roles below admin
+    next_highest_below_admin = [master_commission, dealer_commission, retailer_commission].max
+
+    # Admin gets: admin_commission - next_highest_below_admin
+    admin_diff = admin_commission - next_highest_below_admin
+    admin_diff = 0 if admin_diff.negative?
+    commission_map[:admin] = (admin_diff / 100) * commission_eko
+
+    # Move down - Master
+    # Find the highest commission among roles below master
+    next_highest_below_master = [dealer_commission, retailer_commission].max
+
+    # Master gets: master_commission - next_highest_below_master
+    master_diff = master_commission - next_highest_below_master
+    master_diff = 0 if master_diff.negative?
+    commission_map[:master] = (master_diff / 100) * commission_eko
+
+    # Move down - Dealer
+    # Dealer gets: dealer_commission - retailer_commission
+    dealer_diff = dealer_commission - retailer_commission
+    dealer_diff = 0 if dealer_diff.negative?
+    commission_map[:dealer] = (dealer_diff / 100) * commission_eko
+
+    # Retailer gets their own commission percentage
+    commission_map[:retailer] = (retailer_commission / 100) * commission_eko
+
+    Rails.logger.info "Commission Breakdown: #{commission_map}"
+
+    # Verify total commission doesn't exceed EKO commission
+    total_commission = commission_map.values.sum
+    if total_commission > commission_eko
+      Rails.logger.error "Commission overflow! Total: #{total_commission}, EKO: #{commission_eko}"
+      # Adjust retailer commission to fit within limit
+      excess = total_commission - commission_eko
+      commission_map[:retailer] = [commission_map[:retailer] - excess, 0].max
+      Rails.logger.info "Adjusted Commission Breakdown: #{commission_map}"
     end
-
-
-    Rails.logger.info "DMT Commission Distribution: #{commission_map}"
-
-    # commission_map = {
-    #   superadmin: ((commission_pool - commission_values[:admin].to_f) / 100) * amount,
-    #   admin:      ((commission_values[:admin].to_f - commission_values[:master].to_f) / 100) * amount,
-    #   master:     ((commission_values[:master].to_f - commission_values[:dealer].to_f) / 100) * amount,
-    #   dealer:     ((commission_values[:dealer].to_f - commission_values[:retailer].to_f) / 100) * amount,
-    #   retailer:   ((commission_values[:retailer].to_f) / 100) * amount
-    # }
-
-
-    p "===========commission_map==========="
-    p commission_map
-
-    Rails.logger.info "DMT Commission Distribution: #{commission_map}"
-
 
 
     # 🔥 STEP 2: Commission Distridubte
@@ -960,6 +1025,8 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     end
 
     # Perform transaction safely
+    dmt_transaction = nil   # 👈 ADD THIS LINE
+
     ActiveRecord::Base.transaction do
       wallet.lock!
 
@@ -967,9 +1034,24 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         raise ActiveRecord::Rollback, "Insufficient wallet balance after lock"
       end
 
-      wallet.update!(balance: wallet.balance.to_f - amount)
-      dmt_transaction.update!(status: "success")
+      main_maount = params[:amount].to_f + dmt_surhagre.surcharge + dmt_surhagre.tds_percent + dmt_surhagre.gst_percent
+      wallet.update!(balance: wallet.balance.to_f - main_maount)
+      dmt.update(amount: main_maount, transaction_status: true)
+
+      txn_id = "TXN#{rand(100000..999999)}"
+
+      dmt_transaction = DmtTransaction.create!(
+        dmt_id: dmt.id,
+        user_id: current_user.id,
+        txn_id: txn_id,
+        sender_mobile_number: params[:sender_mobile_number],
+        bank_name: params[:bank_name],
+        account_number: params[:account_number],
+        amount: amount,
+        status: "success"
+      )
     end
+
 
     render json: {
       code: "200",
