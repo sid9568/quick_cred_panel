@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_02_133455) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_03_084751) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -431,6 +431,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_02_133455) do
     t.index ["phone_number"], name: "index_vendor_users_on_phone_number", unique: true
   end
 
+  create_table "wallet_histories", force: :cascade do |t|
+    t.bigint "wallet_id", null: false
+    t.integer "user_id"
+    t.integer "parent_id"
+    t.decimal "amount", precision: 15, scale: 2
+    t.decimal "before_balance", precision: 15, scale: 2
+    t.decimal "after_balance", precision: 15, scale: 2
+    t.string "transaction_type"
+    t.string "remark"
+    t.string "reference_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["wallet_id"], name: "index_wallet_histories_on_wallet_id"
+  end
+
   create_table "wallet_transactions", force: :cascade do |t|
     t.bigint "wallet_id", null: false
     t.string "tx_id", limit: 50, null: false
@@ -481,6 +496,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_02_133455) do
   add_foreign_key "users", "roles"
   add_foreign_key "users", "schemes"
   add_foreign_key "users", "services"
+  add_foreign_key "wallet_histories", "wallets"
   add_foreign_key "wallet_transactions", "fund_requests"
   add_foreign_key "wallet_transactions", "wallets"
   add_foreign_key "wallets", "users"

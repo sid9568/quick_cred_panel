@@ -5,7 +5,8 @@ export default class extends Controller {
     "menu",
     "bankmenu",
     "payment",
-    "rechargemenu"
+    "rechargemenu",
+    "account"
   ]
 
   connect() {
@@ -42,7 +43,8 @@ export default class extends Controller {
       ...this.menuTargets,
       ...this.bankmenuTargets,
       ...this.paymentTargets,
-      ...this.rechargemenuTargets
+      ...this.rechargemenuTargets,
+      ...this.accountTargets
     ]
 
     allTargets.forEach((el) => {

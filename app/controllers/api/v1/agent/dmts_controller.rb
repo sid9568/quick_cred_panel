@@ -328,31 +328,69 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
     parsed = JSON.parse(raw_body) rescue nil
 
-    if parsed && parsed["status"] == 0
-      fee = 3
-
-      # 🔵 STEP 3: Wallet deduct
-      wallet = current_user.wallet
-      wallet.update!(
-        balance: wallet.balance - fee
-      )
-
+    unless parsed && parsed["status"] == 0
       return render json: {
-        success: true,
-        message: "Bank account verified successfully",
-        data: parsed["data"],
-        fee_deducted: fee,
-        bank_verify: true,
-        wallet_balance: wallet.balance
-      }, status: :ok
-    else
-      render json: {
         success: false,
         message: parsed&.dig("message") || "EKO error",
         raw_response: raw_body
       }, status: :unprocessable_entity
     end
+
+    # 🔵 STEP 3: Wallet deduction (FINTECH SAFE)
+    fee = 3.0
+    wallet = current_user.wallet
+
+    return render json: {
+      success: false,
+      message: "Wallet not found"
+    }, status: :unprocessable_entity unless wallet
+
+    if wallet.balance.to_f < fee
+      return render json: {
+        success: false,
+        message: "Insufficient wallet balance for bank verification"
+      }, status: :unprocessable_entity
+    end
+
+    txn_id = "BANKVERIFY#{Time.current.to_i}"
+
+    ActiveRecord::Base.transaction do
+      # 🔻 Wallet fee debit
+      debit_result = Wallets::WalletService.update_balance(
+        wallet: wallet,
+        amount: fee,
+        transaction_type: "debit",
+        remark: "Bank Verification Fee",
+        reference_id: txn_id
+      )
+      raise ActiveRecord::Rollback unless debit_result[:success]
+
+      # 🔹 Save verification status
+      Dmt.create!(
+        vendor_user_id: params[:id],
+        account_number: params[:account_number],
+        ifsc_code: params[:ifsc].upcase,
+        bank_name: parsed.dig("data", "bank_name"),
+        bank_verify_status: true
+      )
+    end
+
+    render json: {
+      success: true,
+      message: "Bank account verified successfully",
+      data: parsed["data"],
+      fee_deducted: fee,
+      bank_verify: true,
+      wallet_balance: wallet.reload.balance
+    }, status: :ok
+
+  rescue StandardError => e
+    render json: {
+      success: false,
+      message: e.message
+    }, status: :internal_server_error
   end
+
 
 
   def dmt_transactions_list

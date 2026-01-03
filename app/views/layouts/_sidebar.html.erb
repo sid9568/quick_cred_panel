@@ -70,6 +70,22 @@
       </div>
     </div>
 
+    <div>
+      <button
+        class="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-yellow-600"
+        data-action="click->superadmindropdown#toggle"
+        data-menu="account">
+        <i class="fa fa-credit-card"></i>
+        Account
+        <i class="fa fa-caret-down ml-auto"></i>
+      </button>
+
+      <div data-superadmindropdown-target="account" class="hidden pl-8 space-y-1">
+        <a href="/superadmin/accounts/index" class="block py-2 hover:bg-yellow-500 p-2 rounded-lg">Credit Note</a>
+        <a href="/superadmin/accounts/debit_index" class="block py-2 hover:bg-yellow-500 p-2 rounded-lg">Debit Note</a>
+      </div>
+    </div>
+
     <!-- Recharge -->
     <div>
       <button

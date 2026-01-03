@@ -108,6 +108,7 @@ Rails.application.routes.draw do
           collection do
             get :bank
             get :bank_details
+            get :wallet_history
           end
         end
 
@@ -227,6 +228,7 @@ Rails.application.routes.draw do
         post "wallets/fund_request_list"
         get "wallets/bank_list"
         post "wallets/bank_details"
+        get "wallets/wallet_history"
 
         post "filters/category_filter"
         post "filters/service_category_filter"

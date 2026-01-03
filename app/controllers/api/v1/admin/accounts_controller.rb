@@ -16,31 +16,54 @@ class Api::V1::Admin::AccountsController < Api::V1::Auth::BaseController
   # POST /api/v1/admin/accounts/add_credit
   # -------------------------
   def add_credit
-    user = User.find_by(username: params[:username], phone_number: params[:phone_number])
-    p "========username"
-    p user
+    # 🔹 Find user
+    user = User.find_by(
+      username: params[:username],
+      phone_number: params[:phone_number]
+    )
+
     return render json: { code: 404, message: "User not found" } unless user
     return render json: { code: 400, message: "Invalid PIN" } unless params[:set_pin] == current_user.set_pin
 
     amount = params[:amount].to_f
-    wallet = user.wallet || user.create_wallet(balance: 0)
-    parent_wallet = Wallet.find_by(user_id: current_user.id)
+    return render json: { code: 400, message: "Invalid amount" } if amount <= 0
 
-    return render json: { code: 400, message: "Admin wallet not found" } unless parent_wallet
+    # 🔹 Wallets
+    user_wallet   = user.wallet || user.create_wallet(balance: 0)
+    parent_wallet = current_user.wallet || current_user.create_wallet(balance: 0)
+
     return render json: { code: 400, message: "Insufficient admin balance" } if parent_wallet.balance.to_f < amount
 
-    txn_id = "TXN#{rand(100000..999999)}"
+    txn_id = "TXN#{SecureRandom.hex(4).upcase}"
 
     ActiveRecord::Base.transaction do
-      parent_wallet.update!(balance: parent_wallet.balance - amount)
-      wallet.update!(balance: wallet.balance + amount)
+      # 🔻 Admin wallet debit
+      parent_result = Wallets::WalletService.update_balance(
+        wallet: parent_wallet,
+        amount: amount,
+        transaction_type: "debit",
+        remark: "Admin Wallet Credit to User",
+        reference_id: txn_id
+      )
+      raise ActiveRecord::Rollback unless parent_result[:success]
 
+      # 🔺 User wallet credit
+      user_result = Wallets::WalletService.update_balance(
+        wallet: user_wallet,
+        amount: amount,
+        transaction_type: "credit",
+        remark: "Wallet Credit by Admin",
+        reference_id: txn_id
+      )
+      raise ActiveRecord::Rollback unless user_result[:success]
+
+      # 📒 Account transaction log
       AccountTransaction.create!(
         txn_id: txn_id,
         mobile: user.phone_number,
         amount: amount,
         reason: params[:reason],
-        wallet_id: wallet.id,
+        wallet_id: user_wallet.id,
         txn_type: "Credit",
         user_id: user.id,
         status: "success",
@@ -48,8 +71,16 @@ class Api::V1::Admin::AccountsController < Api::V1::Auth::BaseController
       )
     end
 
-    render json: { code: 200, message: "Amount credited successfully", txn_id: txn_id }
+    render json: {
+      code: 200,
+      message: "Amount credited successfully",
+      txn_id: txn_id
+    }
+
+  rescue StandardError => e
+    render json: { code: 500, message: e.message }
   end
+
 
   # -------------------------
   # GET /api/v1/admin/accounts/debit_logs
@@ -69,42 +100,70 @@ class Api::V1::Admin::AccountsController < Api::V1::Auth::BaseController
   # -------------------------
   # POST /api/v1/admin/accounts/add_debit
   # -------------------------
-  def add_debit
-    user = User.find_by(username: params[:username])
+ def add_debit
+  # 🔹 Find user
+  user = User.find_by(username: params[:username])
 
-    return render json: { code: 404, message: "User not found" } unless user
-    return render json: { code: 400, message: "Invalid PIN" } unless params[:set_pin] == current_user.set_pin
+  return render json: { code: 404, message: "User not found" } unless user
+  return render json: { code: 400, message: "Invalid PIN" } unless params[:set_pin] == current_user.set_pin
 
-    amount = params[:amount].to_f
-    wallet = user.wallet || user.create_wallet(balance: 0)
+  amount = params[:amount].to_f
+  return render json: { code: 400, message: "Invalid amount" } if amount <= 0
 
-    if amount > wallet.balance.to_f
-      return render json: { code: 400, message: "User has insufficient balance" }
-    end
+  user_wallet   = user.wallet || user.create_wallet(balance: 0)
+  parent_wallet = current_user.wallet || current_user.create_wallet(balance: 0)
 
-    parent_wallet = Wallet.find_by(user_id: current_user.id)
-    return render json: { code: 400, message: "Admin wallet not found" } unless parent_wallet
-
-    txn_id = "TXN#{rand(100000..999999)}"
-
-    ActiveRecord::Base.transaction do
-      wallet.update!(balance: wallet.balance - amount)
-      parent_wallet.update!(balance: parent_wallet.balance + amount)
-
-      AccountTransaction.create!(
-        txn_id: txn_id,
-        mobile: user.phone_number,
-        amount: amount,
-        reason: params[:reason],
-        wallet_id: wallet.id,
-        txn_type: "Debit",
-        user_id: user.id,
-        status: "success",
-        parent_id: current_user.id
-      )
-    end
-
-    render json: { code: 200, message: "Amount debited successfully", txn_id: txn_id }
+  # 🔴 User ke paas paisa hona chahiye
+  if user_wallet.balance.to_f < amount
+    return render json: { code: 400, message: "User has insufficient balance" }
   end
+
+  txn_id = "TXN#{SecureRandom.hex(4).upcase}"
+
+  ActiveRecord::Base.transaction do
+    # 🔻 User wallet debit
+    user_result = Wallets::WalletService.update_balance(
+      wallet: user_wallet,
+      amount: amount,
+      transaction_type: "debit",
+      remark: "Wallet Debit by Admin",
+      reference_id: txn_id
+    )
+    raise ActiveRecord::Rollback unless user_result[:success]
+
+    # 🔺 Admin wallet credit
+    parent_result = Wallets::WalletService.update_balance(
+      wallet: parent_wallet,
+      amount: amount,
+      transaction_type: "credit",
+      remark: "Admin Wallet Credit from User",
+      reference_id: txn_id
+    )
+    raise ActiveRecord::Rollback unless parent_result[:success]
+
+    # 📒 Account transaction log
+    AccountTransaction.create!(
+      txn_id: txn_id,
+      mobile: user.phone_number,
+      amount: amount,
+      reason: params[:reason],
+      wallet_id: user_wallet.id,
+      txn_type: "Debit",
+      user_id: user.id,
+      status: "success",
+      parent_id: current_user.id
+    )
+  end
+
+  render json: {
+    code: 200,
+    message: "Amount debited successfully",
+    txn_id: txn_id
+  }
+
+rescue StandardError => e
+  render json: { code: 500, message: e.message }
+end
+
 
 end

@@ -61,6 +61,11 @@ class Api::V1::Admin::WalletsController < Api::V1::Auth::BaseController
 
   end
 
+  def wallet_history
+    wallet_histories = WalletHistory.where(user_id: current_user.id).order(created_at: :desc)
+    render json: {code: 200, message: "WalletHistory Successfully list show", wallet_histories: wallet_histories}
+  end
+
 
   def create
     # Required validations (API safe)

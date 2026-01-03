@@ -227,6 +227,14 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       # Deduct wallet balance
       wallet.update!(balance: wallet.balance - amount)
 
+      debit_result = Wallets::WalletService.update_balance(
+        wallet: wallet,
+        amount: amount,
+        transaction_type: "debit",
+        remark: "Recharge Amount Deducted",
+        reference_id: txn_id
+      )
+
       recharge_transaction = Transaction.create!(
         tx_id: txn_id,
         operator: params[:operator],
@@ -369,15 +377,21 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
         role = user.role.title.downcase.to_sym
         Rails.logger.info "Processing commission for role: #{role}"
 
-        next unless commission_map[role]
-        commission_amount = commission_map[role]
-
+        commission_amount = commission_map[role].to_f
         next if commission_amount <= 0
 
         user_wallet = Wallet.find_by(user_id: user.id)
         next unless user_wallet
 
-        user_wallet.update!(balance: user_wallet.balance + commission_amount)
+        # ✅ CREDIT commission
+        credit_result = Wallets::WalletService.update_balance(
+          wallet: user_wallet,
+          amount: commission_amount,
+          transaction_type: "credit",
+          remark: "Recharge Commission",
+          reference_id: txn_id
+        )
+        raise ActiveRecord::Rollback unless credit_result[:success]
 
         TransactionCommission.create!(
           transaction_id: recharge_transaction.id,
