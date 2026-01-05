@@ -3,7 +3,7 @@ class Api::V1::Admin::PaymentsController < Api::V1::Auth::BaseController
   before_action :verify_pin_before_action, only: [:approved]
 
   def index
-    fund_requests = FundRequest.where(requested_by: current_user.id)
+    fund_requests = FundRequest.where(requested_by: current_user.id).order(created_at: :desc)
     fund_transactions = WalletTransaction.where(fund_request_id: fund_requests.pluck(:id))
     .order(created_at: :desc)
 
@@ -38,7 +38,7 @@ class Api::V1::Admin::PaymentsController < Api::V1::Auth::BaseController
         ],
         include: {
           fund_request: {
-            only: [:id, :requested_by, :amount, :payment_method, :status, :deposit_bank, :your_bank, :account_number, :reject_note],
+            only: [:id, :requested_by, :amount, :payment_method, :status, :deposit_bank, :your_bank, :account_number, :reject_note, :image],
             include: {
               user: {
                 only: [:id, :first_name, :last_name, :username, :phone_number]

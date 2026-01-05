@@ -72,7 +72,7 @@ Rails.application.routes.draw do
 
         # ROLE LIST
         get "roles", to: "sessions#role"
-        
+
         post "resend_otp", to: "sessions#resend_otp"
 
       end
@@ -233,6 +233,8 @@ Rails.application.routes.draw do
         post "filters/category_filter"
         post "filters/service_category_filter"
         post "filters/service_product"
+
+        post "commission_reports/index"
 
         get "dmts/dmt_transactions_list"
         post "dmts/sender_details"

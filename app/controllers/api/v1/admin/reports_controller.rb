@@ -41,6 +41,7 @@ class Api::V1::Admin::ReportsController < Api::V1::Auth::BaseController
         {
           id: t.id,
           tx_id: t.tx_id,
+          tid: t.tid,
           username: t.user&.username,
           operator: t.operator,
           transaction_type: t.transaction_type,

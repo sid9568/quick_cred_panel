@@ -2,35 +2,57 @@ class Api::V1::Agent::UserServicesController < Api::V1::Auth::BaseController
   # protect_from_forgery with: :null_session
 
   def index
-    # current_user को assign हुई services
-    service_lists = UserService.where(assignee_id: current_user.id)
+    service_lists = UserService
+    .where(assignee_id: current_user.id)
     .includes(:service, :assigner)
     .order("services.position ASC")
 
-    # assign हुई services के ids   reda karna hai
     service_ids = service_lists.map(&:service_id).compact
 
-    # transaction count निकालना service_id के हिसाब से
-    transaction_counts = Transaction.joins(service_product: :category)
+    # 🔹 Transaction count (service-wise)
+    transaction_counts = Transaction
+    .joins(service_product: :category)
     .where(categories: { service_id: service_ids })
+    .group("categories.service_id")
+    .count
+
+    # 🔹 TOTAL commission count (overall)
+    commission_count = Commission.where(
+      scheme_id: current_user.scheme_id
+    ).count
+
+    # 🔹 Service-wise commission count
+    commission_counts_service = Commission
+    .joins(service_product_item: { service_product: :category })
+    .where(scheme_id: current_user.scheme_id)
     .group("categories.service_id")
     .count
 
     render json: {
       code: 200,
       message: "Successfully fetched data",
+
+      # ✅ overall commission count
+      commission_count: commission_count,
+
       services: service_lists.map do |us|
         service_id = us.service_id
+
         {
           id: us.service&.id,
           name: us.service&.title,
           assigned_by: us.assigner&.first_name,
           position: us.service&.position,
-          count: transaction_counts[service_id] || 0
+          count: transaction_counts[service_id] || 0,
+
+          # ✅ service-wise commission count
+          commission_count: commission_counts_service[service_id] || 0
         }
       end
     }
   end
+
+
 
 
   def service_category

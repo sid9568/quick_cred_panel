@@ -80,11 +80,22 @@ class Api::V1::Admin::WalletsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
+    image_url = nil
+    if params[:image].present?
+      uploaded_image = Cloudinary::Uploader.upload(params[:image])
+      image_url = uploaded_image["secure_url"]
+    end
+
     fund_request = FundRequest.new(
       fund_request_params.merge(
         status: "pending",
         user_id: @current_user.id,
-        requested_by: @current_user.parent_id
+        deposit_ifsc_code: params[:deposit_ifsc_code],
+        deposit_account_no: params[:deposit_account_number],
+        account_number: params[:account_number],
+        ifsc_code: params[:ifsc_code],
+        requested_by: @current_user.parent_id,
+        image: image_url
       )
     )
 
@@ -136,7 +147,9 @@ class Api::V1::Admin::WalletsController < Api::V1::Auth::BaseController
       :image,
       :mode,
       :account_number,
-      :requested_by
+      :requested_by,
+      :deposit_account_no,
+      :deposit_ifsc_code,
     )
   end
 end

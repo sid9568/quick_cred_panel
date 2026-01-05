@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_03_084751) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_05_093316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -216,6 +216,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_03_084751) do
     t.datetime "updated_at", null: false
     t.string "account_number"
     t.string "reject_note"
+    t.string "deposit_account_no"
+    t.string "deposit_ifsc_code"
+    t.string "ifsc_code"
     t.index ["user_id"], name: "index_fund_requests_on_user_id"
   end
 
@@ -413,6 +416,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_03_084751) do
     t.string "vendor_otp"
     t.datetime "vendor_expiry_otp"
     t.boolean "vendor_verify_status", default: false
+    t.string "permanent_address"
+    t.string "permanent_landmark"
+    t.string "permanent_postal_code"
+    t.string "permanent_city"
+    t.string "permanent_state"
+    t.string "permanent_pincode"
     t.index ["email"], name: "index_users_on_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["role_id"], name: "index_users_on_role_id"

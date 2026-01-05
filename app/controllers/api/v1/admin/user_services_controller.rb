@@ -82,9 +82,8 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
     end
 
     # ------------------------
-    # 2️⃣ EXTRA VALIDATIONS
+    # 2️⃣ VALIDATIONS
     # ------------------------
-
     unless params[:email].match?(/\A[^@\s]+@[^@\s]+\z/)
       return render json: { code: 422, message: "Invalid email format" }
     end
@@ -109,48 +108,56 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
     end
 
     # ------------------------
-    # 3️⃣ TRANSACTION START
+    # 3️⃣ IMAGE UPLOADS
+    # ------------------------
+
+    aadhaar_url = params[:aadhaar_image].present? ?
+      Cloudinary::Uploader.upload(params[:aadhaar_image], folder: "users/aadhaar")["secure_url"] : nil
+
+    pan_url = params[:pan_card_image].present? ?
+      Cloudinary::Uploader.upload(params[:pan_card_image], folder: "users/pan")["secure_url"] : nil
+
+    shop_url = params[:store_shop_photo].present? ?
+      Cloudinary::Uploader.upload(params[:store_shop_photo], folder: "users/store")["secure_url"] : nil
+
+
+    # ------------------------
+    # 4️⃣ TRANSACTION
     # ------------------------
     ActiveRecord::Base.transaction do
       user = User.new(
         user_params.merge(
           role_id: params[:role_id],
-          parent_id: current_user.id
+          parent_id: current_user.id,
+          aadhaar_image: aadhaar_url,
+          pan_card_image: pan_url,
+          store_shop_photo: shop_url
         )
       )
 
-      # 3.1 User Save
       unless user.save
-        raise ActiveRecord::Rollback
+        return render json: {
+          code: 422,
+          message: user.errors.full_messages.to_sentence
+        }
       end
 
-      # 3.2 Assign Services
       service_ids.each do |sid|
-        service = UserService.new(
+        UserService.create!(
           assigner: current_user,
           assignee: user,
           service_id: sid
         )
-
-        unless service.save
-          raise ActiveRecord::Rollback
-        end
       end
 
-      # Success response
       return render json: {
         code: 201,
-        message: "User created successfully and services assigned",
+        message: "User created successfully",
         user: user
       }
     end
-
-    # If rollback happens
-    render json: {
-      code: 422,
-      message: "User creation failed due to service assignment error"
-    }
   end
+
 
 
   def edit
@@ -282,6 +289,18 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
 
   private
 
+  def upload_image(file, folder)
+    return nil unless file.present?
+
+    result = Cloudinary::Uploader.upload(
+      file,
+      folder: folder,
+      resource_type: :image
+    )
+
+    result["secure_url"]
+  end
+
   def set_user_service
     @user_service = User.find(params[:id])
   end
@@ -296,7 +315,8 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       :ifsc_code, :account_holder_name, :notes, :session_token, :domin_name, :company_type,
       :registration_certificate, :role_id, :company_name, :user_admin_id, :confirm_password,
       :scheme_id, :domain_name, :cin_number, :service_id, :address_proof_photo,
-      :store_shop_photo, :passport_photo, :aadhaar_image, :pan_card_image
+      :store_shop_photo, :passport_photo, :aadhaar_image, :pan_card_image, :permanent_address, :permanent_landmark,
+      :permanent_landmark, :permanent_postal_code, :permanent_address, :permanent_city, :permanent_state, :permanent_pincode
     )
   end
 end

@@ -49,6 +49,7 @@ class Api::V1::Agent::WalletsController < Api::V1::Auth::BaseController
         code: 200,
         message: "Fund transactions fetched successfully",
         wallet_transactions: wallet_transactions.map do |txn|
+          fund_request = txn.fund_request
           {
             id: txn.id,
             wallet_id: txn.wallet_id,
@@ -64,7 +65,14 @@ class Api::V1::Agent::WalletsController < Api::V1::Auth::BaseController
             created_at: txn.created_at,
             updated_at: txn.updated_at,
             fund_request_id: txn.fund_request_id,
-            reject_note: txn.fund_request&.reject_note
+            reject_note: txn.fund_request&.reject_note,
+
+            fund_request_id: fund_request&.id,
+            deposit_bank: fund_request&.deposit_bank,
+            account_number: fund_request&.account_number,
+            your_bank: fund_request&.your_bank,
+            reject_note: fund_request&.reject_note,
+            image: fund_request&.image
           }
         end
       }
@@ -188,6 +196,10 @@ class Api::V1::Agent::WalletsController < Api::V1::Auth::BaseController
                   :payment_mode,
                   :deposit_bank,
                   :your_bank,
+                  :account_number,
+                  :deposit_account_no,
+                  :deposit_ifsc_code,
+                  :ifsc_code,
                   )
   end
 
