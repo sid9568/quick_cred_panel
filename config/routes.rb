@@ -300,6 +300,7 @@ Rails.application.routes.draw do
     post "customer/verify_status"
 
     get "reports/index"
+    get "reports/report_filter"
 
     get "commissions/index"
     get "commissions/commission_filter"

@@ -9,9 +9,16 @@
   <!-- Right -->
   <div class="flex items-center gap-6">
     <!-- Wallet Balance -->
-      <h4 class="text-xl font-bold text-yellow-700">
-      <%= @balance.round(2) %>
+    <div class="py-2 px-2 rounded-lg bg-yellow-500">
+      <h4 class="text-xl font-bold text-white">
+        <%= @balance.round(2) %> <span>V Balance</span>
+      </h4>
+      </div>
+   <div class="py-2 px-2 rounded-lg bg-yellow-500">
+    <h4 class="text-xl font-bold text-white">
+      <%= @api_wallet_balance %> <span>Api Balance</span>
     </h4>
+  </div>
 
     <!-- Notification -->
     <button>
