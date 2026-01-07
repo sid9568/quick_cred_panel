@@ -229,6 +229,7 @@ Rails.application.routes.draw do
         get "wallets/bank_list"
         post "wallets/bank_details"
         get "wallets/wallet_history"
+        get "wallets/agent_bank"
 
         post "filters/category_filter"
         post "filters/service_category_filter"

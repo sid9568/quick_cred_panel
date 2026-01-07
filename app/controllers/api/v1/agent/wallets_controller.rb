@@ -14,6 +14,16 @@ class Api::V1::Agent::WalletsController < Api::V1::Auth::BaseController
     }
   end
 
+  def agent_bank
+     banks = Bank.where(user_id: current_user.id)
+
+    render json: {
+      code: 200,
+      message: "Bank details fetched successfully",
+      banks: banks
+    }
+  end
+
   def bank_details
     bank_id = params[:id]
 

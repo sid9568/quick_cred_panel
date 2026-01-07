@@ -124,6 +124,9 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
     # ------------------------
     # 4️⃣ TRANSACTION
     # ------------------------
+    # ------------------------
+    # 4️⃣ TRANSACTION
+    # ------------------------
     ActiveRecord::Base.transaction do
       user = User.new(
         user_params.merge(
@@ -142,11 +145,22 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
         }
       end
 
+      # ---- User Services ----
       service_ids.each do |sid|
         UserService.create!(
           assigner: current_user,
           assignee: user,
           service_id: sid
+        )
+      end
+
+      # ✅ BANK CREATE ONLY IF ALL DETAILS PRESENT
+      if params[:bank_name].present?
+        Bank.create!(
+          bank_name: params[:bank_name],
+          account_number: params[:account_number],
+          ifsc_code: params[:ifsc_code],
+          user_id: user.id
         )
       end
 
@@ -156,6 +170,7 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
         user: user
       }
     end
+
   end
 
 
@@ -197,7 +212,6 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
     # 2️⃣ Update Services Mapping
     existing_ids = @user_service.user_services.pluck(:service_id)
 
-    # Remove unselected
     (existing_ids - service_ids).each do |sid|
       UserService.where(
         assigner: current_user,
@@ -206,7 +220,6 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       ).destroy_all
     end
 
-    # Add new services
     (service_ids - existing_ids).each do |sid|
       UserService.create!(
         assigner: current_user,
@@ -215,7 +228,23 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       )
     end
 
-    # 3️⃣ Response
+    # --------------------------------
+    # 3️⃣ BANK CREATE / UPDATE (OPTIONAL)
+    # --------------------------------
+    if params[:bank_name].present? ||
+        params[:account_number].present? ||
+        params[:ifsc_code].present?
+
+      bank = Bank.find_or_initialize_by(user_id: @user_service.id)
+
+      bank.update!(
+        bank_name: params[:bank_name],
+        account_number: params[:account_number],
+        ifsc_code: params[:ifsc_code]
+      )
+    end
+
+    # 4️⃣ Response
     render json: {
       code: 200,
       message: "User updated successfully",
@@ -223,6 +252,7 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       updated_service_ids: service_ids
     }
   end
+
 
 
   # -----------------------------------------

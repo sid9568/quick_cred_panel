@@ -8,7 +8,9 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
   # ------------------------------------
   def login
     p "============check"
-    user = User.find_by(email: params[:email].to_s.strip)
+    login_param = params[:email].to_s.strip.downcase
+
+    user = User.find_by("LOWER(email) = ? OR LOWER(username) = ?", login_param.downcase, login_param.downcase)
     p "==========user"
     p user
     enquiry = Enquiry.find_by(email: params[:email].to_s.strip)
