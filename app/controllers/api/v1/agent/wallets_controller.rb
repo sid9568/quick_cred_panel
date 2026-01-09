@@ -115,7 +115,7 @@ class Api::V1::Agent::WalletsController < Api::V1::Auth::BaseController
   end
 
   def balance
-    total_balance = Wallet.where(user_id: current_user.id).pluck(:balance)
+    total_balance = Wallet.find_by(user_id: current_user.id).balance.round(2)
     p "=============total_balance===="
     if total_balance
       render json: { total_balance: total_balance }
