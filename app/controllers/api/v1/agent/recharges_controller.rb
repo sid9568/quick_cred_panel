@@ -178,46 +178,46 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     return render json: { success: false, message: "Commission not Added please before added commission" }, status: :not_found unless service_product_item
 
     # === Call EKO Recharge API ===
-    response = EkoMobileRechargeService.recharge(
-      utility_acc_no: params[:vehicle_no] || params[:card_number],
-      mobile: params[:mobile_number],
-      amount: amount,
-      operator_id: params[:operator_id],
-      client_ref_id: txn_id,
-      card_number: params[:card_number],
-      vehicle_no: params[:vehicle_no]
-    )
+    # response = EkoMobileRechargeService.recharge(
+    #   utility_acc_no: params[:vehicle_no] || params[:card_number],
+    #   mobile: params[:mobile_number],
+    #   amount: amount,
+    #   operator_id: params[:operator_id],
+    #   client_ref_id: txn_id,
+    #   card_number: params[:card_number],
+    #   vehicle_no: params[:vehicle_no]
+    # )
 
-    puts "======== RAW EKO RESPONSE ========"
-    puts "Status Code: #{response.code}"
-    puts "Body: #{response.body}"
+    # puts "======== RAW EKO RESPONSE ========"
+    # puts "Status Code: #{response.code}"
+    # puts "Body: #{response.body}"
 
-    parsed = response.parsed_response rescue nil
+    # parsed = response.parsed_response rescue nil
 
-    if parsed.is_a?(Hash)
-      tx_status_desc = parsed.dig("data", "txstatus_desc")
-      eko_message    = parsed["message"]
-      response_status = parsed["response_status_id"]
-    else
-      return render json: {
-        success: false,
-        message: "Invalid response from provider (#{response.code})"
-      }, status: :bad_gateway
-    end
+    # if parsed.is_a?(Hash)
+    #   tx_status_desc = parsed.dig("data", "txstatus_desc")
+    #   eko_message    = parsed["message"]
+    #   response_status = parsed["response_status_id"]
+    # else
+    #   return render json: {
+    #     success: false,
+    #     message: "Invalid response from provider (#{response.code})"
+    #   }, status: :bad_gateway
+    # end
 
-    # Final message priority
-    # 1️⃣ If tx_status_desc present, use that
-    # 2️⃣ Else use direct eko message
-    # 3️⃣ Else use generic fallback
-    failure_message = tx_status_desc.presence || eko_message.presence || "Recharge Failed"
+    # # Final message priority
+    # # 1️⃣ If tx_status_desc present, use that
+    # # 2️⃣ Else use direct eko message
+    # # 3️⃣ Else use generic fallback
+    # failure_message = tx_status_desc.presence || eko_message.presence || "Recharge Failed"
 
-    # Success check (use response_status or tx_status_desc)
-    if response_status == 0 || tx_status_desc&.casecmp("Success") == 0
-      # SUCCESS
-      # ... save transaction or respond success
-    else
-      return render json: { success: false, message: failure_message }
-    end
+    # # Success check (use response_status or tx_status_desc)
+    # if response_status == 0 || tx_status_desc&.casecmp("Success") == 0
+    #   # SUCCESS
+    #   # ... save transaction or respond success
+    # else
+    #   return render json: { success: false, message: failure_message }
+    # end
 
     # === Call EKO Recharge API ===
 
@@ -225,7 +225,8 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     recharge_transaction = nil
     ActiveRecord::Base.transaction do
       # Deduct wallet balance
-      wallet.update!(balance: wallet.balance - amount)
+      p "================pa title"
+      # wallet.update!(balance: wallet.balance - amount)
 
       debit_result = Wallets::WalletService.update_balance(
         wallet: wallet,
@@ -247,17 +248,17 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
         vehicle_no: params[:vehicle_no],
         consumer_name: params[:consumer_name],
         card_number: params[:card_number],
-        tid: response.dig("data", "tid"),
-        tds: response.dig("data", "tds").to_f,
-        commission: response.dig("data", "commission").to_f,
-        status_text: response.dig("data", "status_text"),
-        txstatus_desc: tx_status_desc
+        #tid: response.dig("data", "tid"),
+        # tds: response.dig("data", "tds").to_f,
+        # commission: response.dig("data", "commission").to_f,
+        # status_text: response.dig("data", "status_text"),
+        # txstatus_desc: tx_status_desc
       )
 
       # === Commission Calculation ===
       scheme = Scheme.find(current_user.scheme_id)
       scheme_commission = 100
-      commission_eko = response.dig("data", "commission").to_f # Fixed EKO commission
+      commission_eko = 5 # Fixed EKO commission
 
       Rails.logger.info "=========scheme_commission======= #{scheme_commission}"
       Rails.logger.info "=========commission_eko========= #{commission_eko}"

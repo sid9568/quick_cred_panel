@@ -27,6 +27,16 @@ class Api::V1::Admin::WalletsController < Api::V1::Auth::BaseController
     }, status: :ok
   end
 
+  def admin_bank
+    banks = Bank.where(user_id: current_user.id)
+
+    render json: {
+      code: 200,
+      message: "Bank details fetched successfully",
+      banks: banks
+    }
+  end
+
   def bank
     p "===========current_user.parent_id"
     p current_user.parent_id

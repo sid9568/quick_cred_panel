@@ -112,8 +112,10 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
   # VERIFY EMAIL OTP
   # ------------------------------------
   def verify_email
+    p "=========verify_email================"
     user = User.find_by(email: params[:email].to_s.strip)
-
+    p "======user======"
+    p user
     unless user
       return render json: { code: 404, message: "User not found" }
     end
@@ -137,6 +139,9 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
         user_id: user.id,
         role: user.role.title  # <===== FIX HERE
       )
+
+      p "==========token==========="
+      p token
 
       return render json: {
         code: 200,

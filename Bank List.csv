@@ -1,0 +1,956 @@
+Bank ID,Bank Name,Bank Code,IMPS Status,NEFT Status,Verification Status,IFSC Status,Static IFSC
+1,Axis Bank,UTIB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0002193
+2,Bank of Baroda,BARB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BARB0KHARAD
+3,Bank of India,BKID,Enabled,Enabled,on,Required,BKID0000500
+4,Central Bank of India,CBIN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0280658
+5,Citibank,CITI,Enabled,Enabled,on,Required,NULL
+6,HDFC Bank,HDFC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0000007
+7,ICICI Bank,ICIC,Enabled,Enabled,on,Required,NULL
+8,IDBI Bank,IBKL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0000007
+9,Indian Bank,IDIB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IDIB000K168
+10,Indian Overseas Bank,IOBA,Enabled,Enabled,on,Required,IOBA0000005
+11,Punjab National Bank,PUNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,PUNB0038600
+13,Union Bank of India,UBIN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UBIN0530786
+14,UCO Bank,UCBA,Disabled,Enabled,off,Required,NULL
+16,Yes Bank,YESB,Enabled,Enabled,on,Required,NULL
+17,Dena Bank,BKDN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BKDN0510259
+18,Abhyudaya Co-Op Bank,ABHY,Enabled,Enabled,on,Required,NULL
+19,Abu Dhabi Commercial Bank,ADCB,Disabled,Enabled,off,Required,NULL
+20,Allahabad Bank,ALLA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ALLA0212052
+21,Andhra Bank,ANDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ANDB0000005
+22,Bank of America,BOFA,Enabled,Enabled,off,Required,NULL
+23,Bank of Bahrain and Kuwait,BBKM,Disabled,Enabled,off,Required,NULL
+24,Bank of Ceylon,BCEY,Disabled,Enabled,off,Required,NULL
+25,Bank of Maharashtra,MAHB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,MAHB0000001
+26,Bank Of Tokyo Mitsubishi Ufj Ltd,BOTM,Disabled,Enabled,off,Required,NULL
+27,Barclays Bank,BARC,Enabled,Enabled,on,Required,NULL
+28,Bassein Catholic Co-Op Bank,BACB,Enabled,Enabled,on,Required,NULL
+29,Bnp Paribas Bank,BNPA,Enabled,Enabled,on,Required,NULL
+30,Canara Bank,CNRB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CNRB0000259
+32,Catholic Syrian Bank,CSBK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CSBK0000282
+33,Chinatrust Commercial Bank,CTCB,Disabled,Enabled,off,Required,NULL
+34,Citizen Credit Co-Op Bank,CCBL,Enabled,Enabled,on,Required,NULL
+35,City Union Bank,CIUB,Enabled,Enabled,on,Required,CIUB0000005
+37,Corporation Bank,CORP,Enabled,Enabled,on,Required,NULL
+38,Credit Agricole Corporate And Investment Bank Calyon Bank,CRLY,Disabled,Enabled,off,Required,NULL
+39,DBS Bank,DBSS,Enabled,Enabled,on,Required,NULL
+41,Deutsche Bank AG,DEUT,Disabled,Enabled,off,Required,NULL
+42,Development Credit Bank,DCBL,Enabled,Enabled,on,Required,NULL
+43,Dhanlaxmi Bank,DLXB,Enabled,Enabled,on,Required,NULL
+44,Deposit Insurance and Credit Guarantee Corporation,DICG,Disabled,Enabled,off,Required,NULL
+45,Dombivli Nagari Sahakari Bank,DNSB,Enabled,Enabled,on,Required,NULL
+46,Firstrand Bank,FIRN,Disabled,Enabled,off,Required,NULL
+47,HSBC,HSBC,Enabled,Enabled,on,Required,NULL
+48,IndusInd Bank,INDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,INDB0000002
+49,ING Vysya Bank,VYSA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,VYSA0005090
+50,Janakalyan Sahakari Bank,JSBL,Enabled,Enabled,on,Required,NULL
+51,Janata Sahakari Bank Pune,JSBP,Enabled,Enabled,on,Required,NULL
+52,JP Morgan Chase Bank,CHAS,Disabled,Enabled,off,Required,NULL
+53,Kapole Co-Op Bank,KCBL,Disabled,Enabled,off,Required,NULL
+54,Karnataka Bank,KARB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KARB0000005
+55,Karur Vysya Bank,KVBL,Enabled,Enabled,on,Required,NULL
+56,Kotak Mahindra Bank,KKBK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KKBK0000731
+57,Mahanagar Co-Op Bank,MCBL,Enabled,Enabled,on,Required,NULL
+58,Maharashtra State Co-Op Bank,MSCI,Enabled,Enabled,on,Required,NULL
+59,Mashreq Bank PSC,MSHQ,Disabled,Enabled,off,Required,NULL
+60,Mizuho Corporate Bank,MHCB,Disabled,Enabled,off,Required,NULL
+61,New India Co-Op Bank Ltd,NICB,Disabled,Enabled,off,Required,NULL
+62,NKGSB Co-Op Bank,NKGS,Enabled,Enabled,on,Required,NULL
+63,Nutan Nagarik Sahakari Bank,NNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,NNSB
+64,Oman International Bank Saog,OIBA,Disabled,Enabled,off,Required,NULL
+65,Oriental Bank of Commerce,ORBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORBC0101319
+66,Parsik Janata Sahakari Bank,PJSB,Enabled,Enabled,on,Required,NULL
+67,Punjab And Maharashtra Co-Op Bank,PMCB,Enabled,Enabled,on,Required,NULL
+68,Punjab and Sind Bank,PSIB,Enabled,Enabled,on,Required,PSIB0000005
+69,Rajkot Nagarik Sahakari Bank,RNSB,Enabled,Enabled,on,Required,NULL
+70,Reserve Bank of India,RBIS,Disabled,Enabled,off,Required,NULL
+71,Shinhan Bank,SHBK,Enabled,Enabled,off,Required,NULL
+72,Societe Generale Bank,SOGE,Disabled,Enabled,off,Required,NULL
+73,South Indian Bank,SIBL,Enabled,Enabled,on,Required,NULL
+74,Standard Chartered Bank,SCBL,Enabled,Enabled,on,Required,NULL
+76,State Bank of Mauritius/Mool,STCB,Disabled,Enabled,off,Required,NULL
+81,Tamilnad Mercantile Bank,TMBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TMBL0000151
+82,Bank of Nova Scotia,NOSC,Disabled,Enabled,off,Required,NULL
+83,Ahmedabad Mercantile Co-Op Bank,AMCB,Enabled,Enabled,on,Required,NULL
+84,Bharat Co-Op Bank Mumbai,BCBM,Enabled,Enabled,on,Required,NULL
+85,Cosmos Co-Op Bank,COSB,Enabled,Enabled,on,Required,NULL
+86,Federal Bank,FDRL,Enabled,Enabled,on,Required,NULL
+87,Greater Bombay Co-Op Bank,GBCB,Enabled,Enabled,on,Required,NULL
+88,Jammu and Kashmir Bank,JAKA,Enabled,Enabled,on,Required,NULL
+89,Kalupur Commercial Co-Op Bank,KCCB,Enabled,Enabled,on,Required,NULL
+90,Karnataka State Apex Co-Op Bank,KSBC,Disabled,Enabled,off,Required,NULL
+91,Kalyan Janata Sahakari Bank,KJSB,Enabled,Enabled,on,Required,NULL
+92,Lakshmi Vilas Bank,LAVB,Enabled,Enabled,on,Required,NULL
+93,Mehsana Urban Co-Op Bank,MSNU,Enabled,Enabled,on,Required,NULL
+94,Nainital Bank,NTBL,Enabled,Enabled,on,Required,NULL
+95,The Ratnakar Bank Ltd,RATN,Enabled,Enabled,on,Required,NULL
+96,Royal Bank of Scotland,ABNA,Disabled,Enabled,off,Required,NULL
+97,Saraswat Co-Op Bank,SRCB,Enabled,Enabled,on,Required,NULL
+98,Shamrao Vithal Co-Op Bank,SVCB,Enabled,Enabled,on,Required,NULL
+99,The Surat Peoples Co-Op Bank,SPCB,Enabled,Enabled,on,Required,NULL
+100,Thane Janata Sahakari Bank,TJSB,Enabled,Enabled,on,Required,NULL
+101,Tamilnadu State Apex Co-Op Bank,TNSC,Enabled,Enabled,on,Required,NULL
+102,West Bengal State Co-Op Bank,WBSC,Disabled,Enabled,off,Required,NULL
+103,Vijaya Bank,VIJB,Enabled,Enabled,off,Required,NULL
+108,State Bank of India,SBIN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0009062
+109,A P Mahesh Co-Op Urban Bank Ltd,APMC,Enabled,Enabled,on,Required,NULL
+110,Karad Urban Co-Op Bank,KUCB,Enabled,Enabled,on,Required,NULL
+111,Karnataka State Co-Op Apex Bank,KSCB,Disabled,Enabled,off,Required,NULL
+112,Nashik Merchants Co-Op Bank,NMCB,Enabled,Enabled,on,Required,NULL
+113,UBS AG Bank,UBSW,Disabled,Enabled,off,Required,NULL
+114,United Bank of India,UTBI,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTBI0CON702
+115,Kangra Co-Op Bank,KANG,Disabled,Enabled,off,Required,NULL
+116,Kangra Central Co-Op Bank,KACE,Enabled,Enabled,on,Required,NULL
+117,Prathama Bank,PRTH,Enabled,Enabled,on,Required,NULL
+119,Chaitanya Godavari Grameena Bank,ACGG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UBIN0CG7999
+121,Rushikulya Gramin Bank,ANDG,Disabled,Enabled,off,Required,ANDB0008999
+122,Sharda Gramin Bank,ASGB,Disabled,Enabled,off,Required,ALLA0SG5001
+123,Nainital Almora Kshetriya Gramin Bank,BARG,Disabled,Enabled,off,Required,BARB0NAKGBX
+124,Baroda Rajasthan Gramin Bank,BARR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BARB0BRGBXX
+125,Baroda Uttar Pradesh Gramin Bank,BARU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BARB0BUPGBX
+126,Baroda Gujarat Gramin Bank,BGGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BARB0BGGBXX
+127,Jhabua Dhar Kshetriya Gramin Bank,BJDG,Disabled,Enabled,off,Required,BARB0JDKGBX
+129,Durg Rajnandgaon Gramin Bank,BKDR,Disabled,Enabled,off,Required,BKDN0800000
+130,Baitarani Gramin Bank,BKIB,Disabled,Enabled,off,Required,BKID0BAITGB
+131,Aryavart Gramin Bank,BKIG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BKID0ARYAGB
+133,Wainganga Krishna Gramin Bank,BWKG,Disabled,Enabled,off,Required,BKID0WAINGB
+134,Uttar Bihar Gramin Bank,CBBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0R10001
+135,Ballia Etawah Gramin Bank,CBIG,Disabled,Enabled,off,Required,CBIN0R30001
+136,Hadoti Kshetriya Gramin Bank,CBIH,Disabled,Enabled,off,Required,CBIN0R70036
+137,Surguja Kshetriya Gramin Bank,CKGB,Disabled,Enabled,off,Required,CBIN0R60051
+138,South Malabar Gramin Bank,CMGB,Disabled,Enabled,off,Required,CNRB00SMGB4
+139,Chickmangalur Kodagu Gramin Bank,CORG,Disabled,Enabled,off,Required,CORP0CK0001
+140,Pragathi Gramin Bank,CPGB,Disabled,Enabled,off,Required,CNRB000PGB1
+141,Shreyas Gramin Bank,CSGB,Disabled,Enabled,off,Required,CNRB000SGB7
+142,Satpura Narmada Kshetriya Gramin Bank,CSUG,Disabled,Enabled,off,Required,CBIN0R20002
+143,Uttar Banga Kshetriya Gramin Bank,CUKG,Disabled,Enabled,off,Required,CBIN0R40012
+144,Vidharbha Kshetriya Gramin Bank,CVAG,Disabled,Enabled,off,Required,CBIN0R50002
+145,Madhya Bharat Gramin Bank,FBIG,Disabled,Enabled,on,Required,NULL
+146,Gurgaon Gramin Bank,GGBK,Disabled,Enabled,off,Required,GGBK0000001
+147,Malwa Gramin Bank,HDFG,Disabled,Enabled,off,Required,HDFC0001431
+148,Mewar Anchalik Gramin Bank,ICIG,Disabled,Enabled,off,Required,ICIC00MEWAR
+149,Pallavan Grama Bank,IDIG,Disabled,Enabled,off,Required,IDIB0PLB001
+150,Neelachal Gramya Bank,INGB,Disabled,Enabled,off,Required,IOBA0000159
+151,Pandyan Gramin Bank,IOBG,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IOBA0PGB001
+153,J&K Grameen Bank,JAKG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,JAKA0GRAMEN
+154,Maharashtra Gramin Bank,MAHG,Enabled,Enabled,on,Required,NULL
+156,Rajasthan Gramin Bank,PRGB,Disabled,Enabled,off,Required,PUNB0001300
+157,Sarva UP Gramin Bank,PSGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,PUNB0SUPGB5
+158,Sutlej Gramin Bank,PSIG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,PSIB0SGB002
+159,Himachal Gramin Bank,PUHG,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,PUNB0HPGB04
+160,Madhya Bihar Gramin Bank,PUNG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,PUNB0MBGB06
+161,Sarva Haryana Gramin Bank,PUNH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,PUNB0HGB001
+162,Andhra Pradesh Grameena Vikas Bank,APGV,Enabled,Enabled,on,Required,NULL
+163,Arunachal Pradesh Rural Bank,SBAP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRARGB
+164,MG Baroda Gramin Bank,SBBG,Disabled,Enabled,off,Required,SBBJ0RRMRGB
+165,Telangana Grameena Bank,SBHG,Enabled,Enabled,on,Required,NULL
+166,Chhattisgarh Gramin Bank,SBIC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRCHGB
+167,Ellaqui Dehati Bank,SBIE,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,SBIN0RRELGB
+168,Mizoram Rural Bank,SBIG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRMIGB
+169,Jharkhand Gramin Bank,SBIJ,Disabled,Enabled,off,Required,NULL
+170,Kaveri Grameena Bank,SBMG,Enabled,Enabled,on,Required,NULL
+171,Vidisha Bhopal Kshetriya Gramin Bank,SBOG,Disabled,Enabled,off,Required,SBIN0RRVDGB
+172,Krishna Gramin Bank,SKRG,Disabled,Enabled,off,Required,SBIN0RRKRGB
+173,Langpi Dehangi Rural Bank,SLDR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRLDGB
+174,Meghalaya Rural Bank,SMEG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRMEGB
+176,Parvatiya Gramin Bank,SPGB,Disabled,Enabled,off,Required,SBIN0RRPRGB
+177,Purvanchal Gramin Bank,SRGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRPUGB
+179,Saurashtra Gramin Bank,SSGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRSRGB
+180,Samastipur Kshetriya Gramin Bank,SSKG,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,SBIN0RRSMGB
+181,Uttarakhand Gramin Bank,SUTG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRUTGB
+182,Utkal Gramya Bank,SUUG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRUKGB
+184,Karnataka Vikas Grameena Bank,KVGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KVGB0001510
+185,Andhra Pragathi Grameena Bank,APGB,Enabled,Enabled,on,Required,NULL
+186,North Malabar Gramin Bank,SYNM,Disabled,Enabled,off,Required,SYNB0004200
+187,Assam Gramin Vikash Bank,UASG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,PUNB0RRBAGB
+188,Kashi Gomati Samyut Gramin Bank,UBKG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UBIN0RRBKGS
+189,Mahakaushal Kshetriya Gramin Bank,UCBG,Disabled,Enabled,off,Required,UCBA0RRBMKG
+190,Bihar Kshetriya Gramin Bank,UCBK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UCBA0RRBBKG
+191,Kalinga Gramya Bank,UCKG,Disabled,Enabled,off,Required,UCBA0RRBKGB
+192,Jaipur Thar Gramin Bank,UJTG,Disabled,Enabled,off,Required,UCBA0RRBJTG
+193,Paschim Banga Gramin Bank,UPBG,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UCBA0RRBPBG
+194,Rewa Sidhi Gramin Bank,URSG,Disabled,Enabled,off,Required,UBIN0RRBRSG
+196,Manipur Rural Bank,UTBG,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UTBI0RRBMRB
+197,Tripura Gramin Bank,UTGB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,PUNB0RRBTGB
+198,Visveshwaraya Gramin Bank,VIJG,Disabled,Enabled,off,Required,VIJB0009999
+199,Swarna Bharat Trust Cyber Grameen,SBCG,Disabled,Enabled,off,Required,ANDB0001538
+200,Neft Malwa Gramin Bank,NMGB,Disabled,Enabled,off,Required,STBP0RRMLGB
+202,Barclays Credit Card,BACC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,BARC0INBBIR
+203,Citibank Credit Card,CICC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,CITI0000003
+204,HDFC Bank Credit Card,HDCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,HDFC0000128
+205,HSBC Credit Card,HSCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,HSBC0400002
+206,ICICI Bank Credit Card,ICCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,ICIC0000103
+207,Kotak Mahindra Credit Card,KKCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,KKBK0000958
+208,State Bank of India Credit Card,SBCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,SBIN00CARDS
+209,Standard Chartered Credit Card,SCCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,SCBL0036001
+210,Axis Bank Credit Card,ABCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UTIB0000400
+211,Vijaya Credit Card,VICC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,VIJB0009020
+212,American Express Credit Card,AMEX,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,SCBL0036020
+213,Janaseva Sahakari Bank,JANA,Enabled,Enabled,on,Required,NULL
+214,Kallappanna Awade Ichalkaranji Janata Sahkari Bank,KAIJ,Enabled,Enabled,on,Required,NULL
+215,Pandharpur Merchant Co-Op Bank,ICIP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00PMCBL
+216,The Gayatri Co Operative Urban Bank Ltd,HDGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTGCUB
+217,Pochampally Co-Op Urban Bank,HDFP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPCUBL
+218,Dr Annasaheb Chougule Urban Co-Op Bank,HDFA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CDACUB
+219,Surat District Co-Op Bank,SDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SDCB0000001
+220,Suco Souharda Sahakari Bank,HDFS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSUCOB
+221,Pune Peoples Co-Op Bank,IBKP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0548PPC
+222,Shri Arihant Co-Op Bank,ICSA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00ARIHT
+223,The National Co-Op Bank Ltd,KKBN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0NBL002
+224,Parshwanath Co-Op Bank,HDPA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPCB01
+225,Apna Sahakari Bank,ASBL,Enabled,Enabled,on,Required,NULL
+226,Jalore Nagrik Sahakari Bank,HDJC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CJALOR
+227,Varachha Co-Op Bank,VARA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,VARA0000001
+228,Janata Co-Op Bank Malegaon,HDFJ,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CJBMLG
+229,Shri Basaveshwar Sahakari Bank Niyamit Bagalkot,ICIS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00SBSBN
+230,Shirpur Peoples Co-Op Bank,KKBS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KKBK0SPCB01
+232,Kerala Gramin Bank,KLGB,Enabled,Enabled,on,Required,NULL
+233,Pragathi Krishna Gramin Bank,PKGB,Enabled,Enabled,on,Required,NULL
+234,Yadagiri Lakshmi Narasimha Swamy Co-Op Urban Bank,YESP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0YLNS01
+235,Hutatma Sahakari Bank,ICIH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00HSBLW
+236,Himachal Pradesh State Co-Op Bank,HPSC,Enabled,Enabled,on,Required,NULL
+237,Adarsh Urban Co-Op Bank Hyderabad,ICIA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00ADRSH
+238,Mayani Urban Co-Op Bank,ICIM,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00TMUCB
+239,Pandharpur Urban Co-Op Bank,ICPU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00PUCCB
+240,Vananchal Gramin Bank,SVAG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRVCGB
+241,Punjab Gramin Bank,PPGB,Enabled,Enabled,off,Required,NULL
+242,Shri Veershaiv Co-Op Bank Ltd,SVSH,Enabled,Enabled,on,Required,NULL
+243,Thrissur District Central Co-Op Bank,TDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0269TDC
+244,Vishweshwar Sahakari Bank Ltd,VSBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,VSBL0000001
+245,Raipur Urban Mercantile Co-Op Bank,HDRU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTRUMC
+246,Zila Sahkari Bank,ICZS,Disabled,Enabled,off,Required,NULL
+247,Titwala,SBIT,Disabled,Enabled,off,Required,SBIN0016389
+248,Dombivli East,SBDO,Disabled,Enabled,off,Required,SBIN0007124
+250,MGCB Main,WBMG,Disabled,Enabled,off,Required,WBSC0MGCB01
+251,Sindhudurg District Central Co-Op Bank,HDSI,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSINDC
+252,Hamirpur District Co-Op Bank Mahoba,ICMA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UPCB00HDCCB
+253,Shivalik Mercantile Co-Op Bank,SMCB,Enabled,Enabled,on,Required,NULL
+254,Hasti Co-Op Bank,HCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HCBL0000001
+255,Rajgurunagar Sahakari Bank,RSBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,RSBL0000003
+256,Bandhan Bank,BDBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BDBL0001000
+257,Dapoli Urban Co-Op Bank,IBDU,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,IBKL0116DPC
+258,Gujarat State Co-Op Bank,GSCB,Enabled,Enabled,on,Required,NULL
+259,Municipal Co-Op Bank,MUBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,MUBL0000001
+260,Rajapur Urban Co-Op Bank,ICRU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00RUCBL
+261,Ahmedabad District Central Co-Op Bank,GSAD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0ADC001
+262,IDFC First Bank Limited,IDFB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IDFB0000001
+263,Rajasthan Marudhara Gramin Bank,SBRM,Enabled,Enabled,on,Required,NULL
+264,Suvarnayug Sahakari Bank,SUSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSUVRN
+265,Sutex Co-Op Bank,SUTB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SUTB0248001
+266,Nagar Sahkari Bank,NASB,Disabled,Enabled,off,Required,YESB0NSB001
+267,Irinjalakuda Town Co-Op Bank,IRTO,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CITC01
+268,Shivajirao Bhosale Sahakari Bank,SHBH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSBB01
+269,Thane Bharat Sahakari Bank,TBSB,Enabled,Enabled,on,Required,NULL
+270,Maratha Co-Op Bank,MCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0101MCB
+271,Pithoragarh Jila Sahkari Bank,IBJS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0768PJS
+272,Pune Cantonment Sahakari Bank,PCSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPCSBL
+274,The Malad Sahakari Bank Ltd,MASB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMALAD
+275,Shree Mahalaxmi Co-Op Bank,SML,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0116MC0
+276,Moradabad Zila Sahkari Bank,MZSB,Disabled,Enabled,off,Required,NULL
+277,Siwan Central Co-Op Bank,SCCB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IBKL01076SB
+278,Madhyanchal Gramin Bank,MGBS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRMBGB
+279,Triveni Kshetriya Gramin Bank,TKGB,Disabled,Enabled,off,Required,NULL
+280,The Ratnakar Bank Credit Card,RRCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,RATN0CRCARD
+281,Punjab National Bank Credit Card,PBCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,PUNB0112000
+283,IndusInd Bank Credit Card,IBCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,INDB0000018
+284,Canara Bank Credit Card,CBCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,CNRB0001912
+285,IDBI Bank Credit Card,IDCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IBKL0NEFT01
+286,Union Bank of India Credit Card,UBCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,ANDB0000205
+287,Bank Of India Credit Card,BKCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,BKID0000101
+288,Bank Of Baroda Credit Card,BABC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,BARB0COLABA
+289,Odisha Gramya Bank,IOGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IOBA0ROGB01
+290,The Udaipur Mahila Samridhi Urban Co-Op Bank Ltd,UMSC,Enabled,Enabled,on,Required,NULL
+291,Delhi State Co-Op Bank,DSCB,Disabled,Enabled,off,Required,NULL
+292,Citizen Co-Op Bank Noida,COBL,Enabled,Enabled,on,Required,NULL
+293,Chikhli Urban Co-Op Bank,CUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CCUB01
+294,Poornawadi Nagrik Sahakari Bank,PNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPNSBL
+295,Ahmednagar Mer Co-Op Bank,AGBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMBANK
+296,Pavana Sahakari Bank,PSBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0087PSB
+297,Fingrowth Co-Op Bank Ltd,UCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTUCBL
+298,Airtel Payments Bank,AIRP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,AIRP0000001
+299,Jalgaon Peoples Co-Op Bank,JPCB,Enabled,Enabled,on,Required,NULL
+300,Vasai Vikas Co-Op Bank,VVSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,VVSB0000001
+301,Equitas Small Finance Bank,ESFB,Enabled,Enabled,on,Required,NULL
+302,Noble Co-Op Bank,NCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00NOBCL
+303,Jalaun District Co-Op Bank,JDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UPCB00JDCBL
+304,Vaidyanath Urban Co-Op Bank,VUCB,Disabled,Enabled,off,Required,NULL
+305,Sapthagiri Grameena Bank,SGCB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IDIB0SGB001
+306,Ambarnath Jai Hind Co-Op Bank,AJHB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00AJHCB
+307,Seva Vikas Co-Op Bank,SVBL,Disabled,Enabled,off,Required,NULL
+308,Pachora Peoples Co-Op Bank,PPCB,Disabled,Enabled,off,Required,NULL
+309,India Post Payment Bank,IPOS,Enabled,Enabled,on,Required,null
+310,Bombay Mercantile Co-Op Bank,BMCL,Enabled,Enabled,on,Required,NULL
+311,Malda District Central Co-Op Bank,MDCB,Disabled,Enabled,off,Required,NULL
+312,Ujjivan Small Finance Bank,UJVN,Enabled,Enabled,on,Required,NULL
+313,Jamia Co-Op Bank,JCBL,Enabled,Enabled,on,Required,NULL
+314,Integral Urban Co-Op Bank,IUCB,Enabled,Enabled,off,Required,NULL
+315,ESAF Small Finance Bank,ESMF,Enabled,Enabled,on,Required,NULL
+316,Mogaveera Co-Op Bank,MGCB,Disabled,Enabled,off,Required,NULL
+317,Akhand Anand Co-Op Bank,AACB,Enabled,Enabled,on,Required,NULL
+318,Sardar Bhiladwala Pardi Peoples Co-Op Bank,SBPP,Enabled,Enabled,on,Required,NULL
+319,Manvi Pattana Souharda Sahakari Bank,MPSS,Enabled,Enabled,on,Required,NULL
+320,Shree Sharada Sahakari Bank,SSSB,Enabled,Enabled,on,Required,NULL
+321,Aircel Smart Money,ASML,Enabled,Enabled,on,Required,NULL
+322,Mumbai District Central Co-Op Bank,DCCL,Enabled,Enabled,off,Required,NULL
+323,The Thane District Central Co-Op Bank,TCCB,Disabled,Enabled,off,Required,NULL
+324,Zoroastrian Co-Op Bank,ZCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ZCBL0000002
+325,Saurashtra Co-Op Bank,SSCB,Enabled,Enabled,off,Required,NULL
+326,Kurmanchal Nagar Sahkari Bank,KNSB,Enabled,Enabled,on,Required,KNSB0000001
+327,Suryoday Small Finance Bank,SURY,Enabled,Enabled,on,Required,NULL
+328,Akola Janata Commercial Co-Op Bank,AKJB,Enabled,Enabled,on,Required,NULL
+329,Sahebrao Deshmukh Co-Op Bank,SAHE,Disabled,Enabled,off,Required,NULL
+330,Shri Chhatrapati Rajarshi Shahu Urban Co-Op Bank,CRUB,Disabled,Enabled,off,Required,NULL
+331,Akola District Central Co-Op Bank,ADCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ADCC0000000
+332,Hindusthan Co-Op Bank,THCB,Enabled,Enabled,off,Required,NULL
+333,Sadhana Sahakari Bank,SSBL,Enabled,Enabled,on,Required,NULL
+334,Sabarkantha District Central Co-Op Bank,SDCC,Enabled,Enabled,on,Required,NULL
+335,Sharad Sahakari Bank Manchar,SSBM,Disabled,Enabled,off,Required,NULL
+336,Udaipur Urban Co-Op Bank,UUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UUCB0000001
+337,Vikas Souharda Co-Op Bank,VSCB,Enabled,Enabled,on,Required,NULL
+338,Priyadarshani Nagari Sahakari Bank,PNSL,Enabled,Enabled,on,Required,NULL
+339,Kaira District Central Co-Op Bank,KAIB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,ICIC00KAIRA
+340,Murshidabad District Central Co-Op Bank,MCCB,Disabled,Enabled,off,Required,NULL
+341,Kottayam Co-Op Urban Bank,KCUB,Enabled,Enabled,on,Required,NULL
+342,Panipat Urban Co-Op Bank,PUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0PUCB01
+343,Telangana State Co-Op Apex Bank,TSAB,Enabled,Enabled,on,Required,NULL
+344,Assam Co-Op Apex Bank,ACAB,Disabled,Enabled,off,Required,NULL
+346,Surat National Co-Op Bank,SUNB,Enabled,Enabled,on,Required,NULL
+347,FINO Payments Bank,FINO,Enabled,Enabled,off,Required,NULL
+348,Narmada Malwa Gramin Bank,MRGB,Disabled,Enabled,off,Required,NULL
+349,Markandey Nagari Sahakari Bank,MSBL,Disabled,Enabled,off,Required,NULL
+350,Bijnor Urban Co-Op Bank,BCBL,Enabled,Enabled,off,Required,NULL
+351,Adarsh Mahila Mercantile Co-Op Bank,AMMC,Disabled,Enabled,off,Required,NULL
+352,Adarsh Co-Op Bank Rajasthan,ACBR,Enabled,Enabled,on,Required,NULL
+353,The Baramati Sahakari Bank Ltd,BARA,Enabled,Enabled,on,Required,NULL
+354,Jalna Merchant Co-Op Bank,JMBL,Enabled,Enabled,on,Required,NULL
+355,Kanaka Mahalakshmi Co-Op Bank,KMCB,Enabled,Enabled,on,Required,NULL
+356,Lokmangal Co-Op Bank,LCBL,Enabled,Enabled,on,Required,NULL
+357,Odisha State Co-Op Bank,ORCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0000001
+358,Prime Co-Op Bank Ltd,PMEC,Enabled,Enabled,on,Required,NULL
+359,Solapur Janata Sahakari Bank,SJSB,Disabled,Enabled,off,Required,NULL
+360,Raigad District Central Co-Op Bank,TRDC,Enabled,Enabled,on,Required,NULL
+361,Sangli District Central Co-Op Bank,ISDC,Disabled,Enabled,off,Required,NULL
+362,Urban Co-Op Bank Siddharthanagar,UCBS,Enabled,Enabled,on,Required,NULL
+363,Zila Sahakari Bank Lucknow,ZSBL,Enabled,Enabled,off,Required,NULL
+364,AU Small Finance Bank,AUBL,Enabled,Enabled,on,Required,NULL
+365,District Co-Op Bank Agra,AGCB,Disabled,Enabled,off,Required,NULL
+366,Janata Sahakari Bank Osmanabad,OJSB,Disabled,Enabled,off,Required,NULL
+367,Rajarshi Shahu Sah Bank Pune,CRBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,RSSB0000001
+368,Sant Sopankaka Sahakari Bank Saswad,SANT,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SANT0000002
+369,Deccan Merchants Co-Op Bank,DMCB,Disabled,Enabled,off,Required,NULL
+370,Nanded Disctrict Central Co-Op Bank,NDCB,Disabled,Enabled,off,Required,NULL
+371,Bhagalpur Central Co-Op Bank,BCCB,Disabled,Enabled,off,Required,NULL
+372,Almora Urban Co-Op Bank,AUCB,Disabled,Enabled,off,Required,NULL
+373,Zila Sahakari Bank Haridwar,ZSBH,Enabled,Enabled,off,Required,NULL
+374,Etah District Co-Op bank,EDCB,Disabled,Enabled,off,Required,NULL
+375,Andhra Pradesh State Co-Op Bank,APBL,Enabled,Enabled,on,Required,NULL
+376,Jharkhand State Co-Op Bank,JSCB,Disabled,Enabled,off,Required,NULL
+377,Sangamner Merchant Co-Op Bank,TSMC,Enabled,Enabled,off,Required,NULL
+378,The Satara District Central Co-Op Bank Ltd,SDCE,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,SDCE0000001
+379,Pune District Central Co-Op Bank,PDCC,Enabled,Enabled,on,Required,NULL
+380,The Khamgaon Urban Co-Op Bank Ltd,KUCC,Enabled,Enabled,off,Required,NULL
+381,Chartered Sahakari Bank Niyamitha,CSBN,Enabled,Enabled,off,Required,NULL
+382,The Gandhinagar Urban Co-Op Bank Ltd,TGUC,Disabled,Enabled,off,Required,NULL
+383,Valsad District Central Co-Op Bank Ltd,VDCC,Enabled,Enabled,off,Required,NULL
+384,Jijamata Mahila Sah Bank Ltd Pune,CJMS,Enabled,Enabled,off,Required,NULL
+385,Capital Small Finance Bank,CLBL,Enabled,Enabled,on,Required,NULL
+386,The Muslim Co-Op Bank Ltd,TMCO,Enabled,Enabled,on,Required,NULL
+387,The Gandhinagar Nagrik Co-Op Bank Ltd,TGNC,Enabled,Enabled,on,Required,NULL
+388,The Rajasthan State Co-Op Bank Ltd,RSCB,Enabled,Enabled,off,Required,NULL
+389,Ratnagiri District Central Co-Op Bank Ltd,RDCC,Disabled,Enabled,off,Required,NULL
+390,Jila Sahakari Kendriya Bank Khandwa,MPDC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAR
+391,Jila Sahakari Kendriya Bank Maryadit Rajnandgaon,SJSD,Disabled,Enabled,off,Required,NULL
+392,Kokan Mercantile Co-Op Bank Ltd,KKCB,Disabled,Enabled,off,Required,NULL
+393,Annasaheb Savant Co-Op Urban Bank,AHAD,Disabled,Enabled,off,Required,NULL
+394,Prerana Co-Op Bank Ltd,PCBL,Enabled,Enabled,on,Required,NULL
+395,The Chembur Nagarik Sahakari Bank Ltd,CNSB,Enabled,Enabled,on,Required,NULL
+396,The Bhagyodaya Co-Op Bank Ltd,TBCB,Enabled,Enabled,on,Required,NULL
+397,Saibaba Nagari Sahakari Bank Ltd,SSNS,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UTIB0SSNS01
+398,Central Madhya Pradesh Gramin Bank,CMPG,Disabled,Enabled,off,Required,NULL
+399,Jio Payments Bank Ltd,JIOP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,JIOP0000001
+400,The Co-Op Bank Of Rajkot Ltd,CBOR,Enabled,Enabled,off,Required,NULL
+401,Vijay Commercial Co-Op Bank,VCCB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,KKBK0VCCB01
+402,Samarth Sahakari Bank Ltd,SMRT,Enabled,Enabled,off,Required,NULL
+403,Khalilabad Nagar Sah Bank Semariawa,KHBK,Disabled,Enabled,off,Required,NULL
+404,Zila Sahakari Bank Ltd Rampur,RAMP,Enabled,Enabled,on,Required,NULL
+405,Zila Sahakari Bank Ltd Moradabad,MORD,Disabled,Enabled,off,Required,NULL
+406,Narmada Jhabua Gramin Bank,NJGB,Disabled,Enabled,off,Required,NULL
+407,Home Credit Finance Bank,HCFB,Enabled,Enabled,off,Required,NULL
+408,DCB Bank,DCBB,Enabled,Enabled,on,Required,NULL
+409,Bajaj Finance Bank,BFBB,Enabled,Enabled,off,Required,NULL
+410,Rae Bareli District Co-Op Bank Ltd,RBDC,Enabled,Enabled,off,Required,NULL
+411,Karnala Nagari Sahakari Bank,KNBB,Enabled,Enabled,off,Required,NULL
+412,Meghalaya Co-Op Apex Bank,MCAB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,NULL
+413,Bharuch District Central Co-Op Bank Ltd,BDCC,Enabled,Enabled,off,Required,NULL
+414,Gopinath Patil Parsik Janata Sahakari Bank Ltd,GPPJ,Enabled,Enabled,off,Required,NULL
+416,Aditya Birla Idea Payments Bank,ABPB,Enabled,Enabled,on,Required,NULL
+417,Indrayani Co-Op Bank Ltd,ICBL,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,ICIC00ICBLP
+418,Contai Co-Op Bank Ltd,CBLT,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00CCBLT
+419,The Punjab State Co-Op Bank,PSCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0PSCB01
+420,Kolhapur Mahila Sahakari Bank Ltd,CKMB,Enabled,Enabled,on,Required,NULL
+421,The Chandigarh State Co-Op Bank Ltd,CSCB,Enabled,Enabled,off,Required,NULL
+422,The Villupuram District Central Co-Op Bank Ltd,VDCB,Disabled,Enabled,off,Required,NULL
+423,Uttar Pradesh State Co-Op Bank Ltd,UPCB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UPCB0000001
+424,The Ajara Urban Co-Op Bank Ltd,AUBB,Enabled,Enabled,off,Required,AJAR0000001
+426,Samata Co-Op Development Bank,SAMA,Disabled,Enabled,off,Required,NULL
+427,Bhagini Nivedita Sahakari Bank Ltd,NBNK,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,BNSB0000002
+428,Model Co-Op Bank Ltd,MDBK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,NULL
+429,The Satara Sahakari Bank Ltd,TSSB,Enabled,Enabled,off,Required,NULL
+430,The Mehsana Nagrik Sahakari Bank Ltd,MNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0443MNB
+431,Tehri Garhwal Zila Sahakari Bank Ltd,TGZS,Enabled,Enabled,on,Required,NULL
+432,Utkarsh Small Finance Bank,UTKS,Enabled,Enabled,on,Required,NULL
+433,Shivajirao Bhosale Sahakari Bank Ltd,NULL,Disabled,Enabled,off,Required,NULL
+435,Shahjahanpur District Central Co-Op Bank Ltd,SDDB,Disabled,Enabled,off,Required,NULL
+436,The Kolhapur Urban Co-Op Bank Ltd Kolhapur,KUBL,Enabled,Enabled,on,Required,NULL
+437,Uttar Daudpur Samabay Krishi Unnayan Samity Ltd,UDSK,Disabled,Enabled,off,Required,NULL
+438,Durgapur Steel Peoples Co-Op Bank Ltd,DURG,Enabled,Enabled,on,Required,NULL
+439,The Sitamarhi Central Co-Op Bank,ISCB,Disabled,Enabled,off,Required,NULL
+440,Shree Kadi Nagarik Sahakari Bank Ltd,KNBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0KNB006
+441,The Ahmednagar District Central Co-Op Bank Ltd,ACCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00ADCCB
+442,Sardargunj Mercantile Co-Op Bank Ltd,SSMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSMC01
+443,Himatnagar Nagrik Sahakari Bank Ltd,HNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0218HNS
+444,Pali Urban Co-Op Bank Ltd,CPUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPUB03
+445,Janata Sahakari Bank Ltd Ajara,LJSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0116JSB
+446,"Dr.Appashab urf Sa.Re.Patil Jasingpur Udgaon Sahakari Bank Ltd,Jaysingpur",JUSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00JUSBL
+447,The Ranuj Nagrik Sahakari Bank Ltd,RANU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CRANUJ
+448,Sandur Pattana Souharda Sahakari Bank Ltd,SPSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0776SPS
+449,Nirmal Urban Co-Op Bank Nagpur,CNBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNB311
+450,The Mangalore Catholic Co-Op Bank Ltd,TMCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0078MCC
+451,Peoples Urban Co-Op Bank Ltd,TPCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0341PUB
+452,Kheda Peoples Co-Op Bank Ltd,TPCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC0002020
+453,Bhadradri Co-Op Urban Bank Ltd,BCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SRCB0BCB808
+454,The Manipur State Co-Op Bank,MSCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0MSCB01
+455,The Financial Co-Op Bank Ltd,FSCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0FINCO2
+456,The Kodungallur Town Co-Op Bank Ltd,KTCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0269KTC
+457,Shree Panchganga Nagari Sahakari Bank,SPNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0464PNS
+458,Malviya Urban Co-Op Bank Ltd,MUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMUCBL
+459,Nilambur Urban Co-Op Bank Ltd,MUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,FDRL0NCUB01
+460,Saraspur Nagrik Sahakari Bank,SCNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0USNCBL
+461,Patan Nagarik Sahakari Bank Ltd,UPAT,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UPATAN
+462,The Mehsana District Central Co-Op Bank Ltd,MSNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0MSN001
+463,Khagaria District Central Co-Op Bank Ltd,KDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01077KD
+464,The Yavatmal Urban Co-Op Bank Ltd,YUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0041Y01
+465,The Aurangabad District Central Co-Op Bank Ltd,ACBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01192AC
+466,The Rohika Central Co-Op Bank Ltd Madhubani,RCCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01066RC
+467,Uttrakhand Co-Op Bank Ltd,UCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CUCOBL
+468,Khattri Co-Op Urban Bank Ltd,BKCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0KCUB01
+469,The Surat Mercantile Co-Op Bank Ltd,SMBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0SMCB05
+470,Chittorgarh Urban Co-Op Bank Ltd,CCUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CCUCBL
+471,The Kanara District Central Co-Op Bank Ltd Sirsi,KDCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KSCB0016001
+472,The Karnavati Co-Op Bank Ltd,TKCB,Disabled,Enabled,off,Required,NULL
+473,The Washim Urban Co-Op Bank Ltd Washim,WUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CWUCBL
+474,Sarvodaya Sahakari Bank Ltd,SSBH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0SSBL01
+475,Ambajogai Peoples Co-Op Bank Ltd,CAPC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CAPCBL
+476,Manjeri Co-Op Urban Bank Ltd,MCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00MCUBL
+477,Mansing Co-Op Bank Ltd Dudhondi,CMCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMCBLD
+478,Shri Adinath Co-Op Bank Ltd,SACB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSACBL
+479,The Commercial Co-Op Bank Ltd Kolhapur,CCBK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTCCBK
+480,The Vijay Co-Op Bank Ltd,VCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTVCBL
+481,Veraval Mercantile Co-Op Bank,VMCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CVMCBA
+482,The Baroda City Co-Op Bank Ltd,BCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KKBK0BCCB04
+483,Shri Janata Sahakari Bank Ltd Halol,USJB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0USJSBL
+484,The Bhavana Rishi Co-Op Urban Bank Ltd,BRCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0BRCB01
+485,Adarsh Mahila Nagari Sahakari Bank Ltd Aurangabad,AMSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0AMSB01
+486,Associate Co-Op Bank Ltd,ASCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0ASCB02
+487,Uttarkashi Zila Sahakari Bank Ltd,DCBU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0DCBU01
+488,Sampada Sahakari Bank Ltd,SBSL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0459SBS
+489,The Ottapalam Co-Op Urban Bank Ltd,OCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0763OCB
+490,The Nawanagar Co-Op Bank,NCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0427NCB
+491,The Deola Merchant Co-Op Bank Ltd,DMOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0157001
+492,Madhya Pradesh Rajya Sahakari Bank Maryadit,MPAB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPABAA
+493,Aman Sahakari Bank Ltd Ichalkaranji,ASMB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00AMSBL
+494,The Manmandir Co-Op Bank Ltd Vita,MMCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00MMCBL
+495,Balotra Urban Co-Op Bank Ltd,BALU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00BALUC
+496,Rajkot District Central Co-Op Bank,RDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0RJT001
+497,Bhatpara Naihati Co-Op Bank Ltd,BUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,WBSC0BUCB01
+498,Wai Urban Co-Op Bank Ltd,WUBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SVCB0016101
+499,Navi Mumbai Co-Op Bank Ltd,NMCL,Enabled,Enabled,off,Required,NULL
+500,Sudha Co-Op Urban Bank Ltd,SCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSUCUB
+501,Angul Central Co-Op Bank Ltd,YEAC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0ANG001
+502,Balasore Bhadrak Central Co-Op Bank,BBCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0BLS001
+503,Banki Central Co-Op Bank Ltd,BCYS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0BNK001
+504,Berhampore Central Co-Op Bank Ltd,IBBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0BER001
+505,Bhawanipatna Central Co-Op Bank Ltd,ICBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0BWP001
+506,Bolangir Central Co-Op Bank Ltd,YSBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0BLR001
+507,Boudh Central Co-Op Bank Ltd,YSBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0BOU001
+508,Cuttack Central Co-Op Bank Ltd,CCCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0CTC001
+509,Khordha Central Co-Op Bank Ltd,KCCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0KHU001
+510,Mayurbhanj Central Co-Op Bank Ltd,MCCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0MYB001
+511,Nayagarh Central Co-Op Bank Ltd,NCCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0NGR001
+512,Sambalpur Central Co-Op Bank Ltd,SCYS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0SBP001
+513,Samruddhi Co-Op Bank Ltd,SSBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0041SCB
+514,The District Co-Op Bank Ltd,TDCC,Disabled,Enabled,off,Required,NULL
+515,Sundargarh Central Co-Op Bank Ltd,SCBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0SUN001
+516,United Puri Nimapara Central Co-Op Bank,UPNC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0UPN001
+517,Abhinandan Urban Co-Op Bank Ltd,AUUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMAN01
+518,Bhilwara Urban Co-Op Bank Ltd,BUCN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CBHLUB
+519,Sumerpur Merchantile Urban Co-Op Bank Ltd,SMUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CS1812
+520,The Eenadu Co-Op Urban Bank Ltd,ECUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CEENAD
+521,M S Co-Op Bank Ltd,MSSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0553MSC
+522,Sterling Urban Co-Op Bank Ltd,SUCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSTUCB
+523,Vallabh Vidyanagar Commercial Co-Op Bank Ltd,VVCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CVVCCB
+524,Godavari Urban Co-Op Bank Ltd Vazirabad,GUCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0GUCB01
+525,Baroda Central Co-Op Bank,BCCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0BRD001
+526,Darussalam Co-Op Urban Bank Ltd,DCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CDUCBL
+527,Shree Warana Sahakari Bank Ltd,SWSS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSWSBL
+528,The Panchsheel Mercantile Co-Op Bank Ltd,TPMB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0PMCB02
+529,Unjha Nagarik Sahakari Bank Ltd,UNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UUNJBL
+530,Adar P D Patil Sahakari Bank,APDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPDPBK
+531,C G Rajya Sahakari Bank Maryadit Raipur,CGSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0CGDCBN
+532,Samata Sahakari Bank Ltd,SSBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SRCB0SAM001
+533,Mahesh Sahakari Bank Pune,MSBP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SRCB0MSBLPN
+534,The Madanapalle Co-Op Town Bank Ltd,MCTB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMPLTB
+535,Shrimant Malojiraje Sahakari Bank Ltd,SMSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00SMSBL
+536,Deendayal Nagari Sahakari Bank Ltd,DNBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00DDNSB
+537,District Co-Op Bank Ltd Dehradun,DCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0DZSB01
+538,The Urban Co-Op Bank Ltd Dharangaon,UCBD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00TUCBD
+539,Lakhimpur Urban Co-Op Bank Ltd,LCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00LKUCB
+540,Sundarlal Sawaji Urban Co-Op Bank Ltd,SSCU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SRCB0SSB001
+541,Manorma Co-Op Bank Ltd Solapur,MCBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMANCB
+542,Junagadh Commercial Co-Op Bank Ltd,JCCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CJCCBL
+543,Fincare Small Finance Bank Ltd,FSFB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,FSFB0000000
+544,Idukki District Co-Op Bank Ltd,IDUK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IDUK0000000
+545,Jalgaon Janata Sahakari Bank Ltd,JJSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,JJSB0000000
+546,Janaseva Sahakari Bank Borivali Ltd,JASB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,JASB0000000
+547,Textile Traders Co-Op Bank Ltd,TTCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TTCB0000000
+548,Pragati Sahakari Bank Ltd,PSBB,Enabled,Enabled,on,Required,NULL
+549,Bhavnagar District Central Co-Op Bank Ltd,BVNL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0BVN001
+550,The Banaskantha District Central Co-Op Bank Ltd,BKDL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0BKD001
+551,Pune Merchants Co-Op Bank Ltd,PMCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0548PMC
+552,Latur Urban Co-Op Bank,LUCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0497LUC
+553,The Gandevi Peoples Co-Op Bank Ltd,GPCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0068GP1
+555,Central Co-Op Bank Ltd Ara,CCBA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0722CCB
+556,Mahaveer Co-Op Urban Bank Ltd,MBCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMCUBL
+557,The Jalgaon District Central Co-Op Bank Ltd,JDBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00JDCCB
+558,Etawah District Co-Op Bank Ltd Etawah,ETAW,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00ETAWH
+559,Bihar State Co-Op Bank Ltd,BSCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0BSCB01
+560,Almora Zila Sahakari Bank Ltd,AZSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0AZSB01
+561,Nainital District Co-Op Bank Ltd,NDCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0NDCB01
+562,North East Small Finance Bank Ltd,NESF,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,NESF0000000
+563,Alapuzha District Co-Op Bank Ltd,SADC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SADC83
+564,Chamoli Zila Sahakari Bank Ltd,CZSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL070CZSB
+565,Navsarjan Industrial Co-OP Bank Ltd,CNIC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNICBL
+566,Kankaria Maninagar Nagrik Sahakari Bank Ltd,KMNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CKMNSB
+567,The Sarvodaya Nagrik Sahkari Bank Ltd,SNBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UTSNBL
+568,The Kurla Nagarik Sahakari Bank Ltd,KURL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00KURLA
+569,The Bharat Co-Op Bank Ltd,IBCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0008BCB
+570,Jana Small Finance Bank Ltd,JSFB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,JSFB0000001
+571,Gadchiroli District Central Co-Op Bank,GDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GDCB0000001
+572,Shri Anand Nagari Sahakari Bank Limited,SANB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0SANB99
+573,Belagavi Shree Basveshwar Co-Op Bank Ltd,SBCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0S63SBC
+574,Bhopal Co-Op Central Bank Ltd,BCAE,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAE
+575,Kashmir Mercantile Co-Op Bank Ltd Kashmir,KAMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CKAMCO
+576,The Sevalia Urban Co-Op Bank Ltd,SEVC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00SEVUC
+577,The Laxmi Co-Op Bank Ltd Solapur,LCOS,Enabled,Enabled,on,Required,NULL
+578,The Sarvodaya Co-Op Bank Ltd Mum,CSBM,Disabled,Enabled,off,Required,NULL
+579,Janakalyan Co-Op Bank Ltd,JBLN,Disabled,Enabled,off,Required,NULL
+580,Deogiri Nagari Sahakari Bank Ltd,DEOB,Enabled,Enabled,on,Required,NULL
+581,The Kapurthala Central Co-Op Bank Ltd,SKPT,Disabled,Enabled,off,Required,NULL
+582,Patliputra Central Co-Op Bank Ltd,IPCC,Enabled,Enabled,off,Required,NULL
+583,The Begusarai District Central Co-Op Bank,BDCB,Disabled,Enabled,off,Required,NULL
+584,Kozhikode District Co-Op Bank,KDDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KDCB0000001
+585,Shushruti Souharda Sahakara Bank Niyamita,SSBN,Enabled,Enabled,on,Required,NULL
+586,The Rajkot Commercial Co-Op Bank Ltd,RCBB,Enabled,Enabled,on,Required,NULL
+587,The Bardoli Nagrik Sahakari bank Ltd,BNBL,Enabled,Enabled,off,Required,NULL
+588,Urban Co-Op Bank Ltd Bareilly,UCBB,Enabled,Enabled,on,Required,NULL
+589,The United Co-Op Bank Ltd,TUBL,Disabled,Enabled,off,Required,NULL
+590,The Faridabad Central Co-Op Bank Ltd,SFCB,Disabled,Enabled,off,Required,NULL
+591,The Muzaffarpur Central Co-Op Bank Ltd,IMCC,Disabled,Enabled,off,Required,NULL
+592,The South Canara District Central Co-Op Bank,SCDC,Disabled,Enabled,off,Required,NULL
+593,The Ernakulam District Co-Op Bank Ltd,BEDC,Disabled,Enabled,off,Required,NULL
+594,Vasai Janata Sahkari Bank Ltd,VJBL,Disabled,Enabled,off,Required,NULL
+595,Sangli Sahakari Bank Ltd,SBBB,Enabled,Enabled,on,Required,NULL
+596,Australia And New Zealand Banking Group Ltd,ANZB,Disabled,Enabled,off,Required,NULL
+597,DMK Jaoli Bank,DMKJ,Enabled,Enabled,on,Required,NULL
+598,Doha Bank,DOHB,Disabled,Enabled,off,Required,NULL
+599,Emirates Nbd India,EBIL,Enabled,Enabled,off,Required,NULL
+600,Export Import Bank Of India,EIBI,Disabled,Enabled,off,Required,NULL
+601,Haryana State Co-Op Bank,HARC,Enabled,Enabled,on,Required,NULL
+602,Woori Bank,HVBK,Disabled,Enabled,off,Required,NULL
+603,Bank Internasional Indonesia,IBBK,Disabled,Enabled,off,Required,NULL
+604,Industrial Bank Of Korea,IBKO,Disabled,Enabled,off,Required,NULL
+605,Industrial And Commercial Bank Of China Ltd,ICBK,Disabled,Enabled,off,Required,NULL
+606,Keb Hana Bank,KOEX,Disabled,Enabled,off,Required,NULL
+607,Krung Thai Bank Pcl,KRTH,Disabled,Enabled,off,Required,NULL
+608,Sir M Visvesvaraya Co-Op Bank Ltd,MVCB,Disabled,Enabled,off,Required,NULL
+609,National Australia Bank Ltd,NATA,Disabled,Enabled,off,Required,NULL
+610,National Bank Of Abu Dhabi PJSC,NBAD,Disabled,Enabled,off,Required,NULL
+611,National Bank For Agriculture And Rural Development,NBRD,Disabled,Enabled,off,Required,NULL
+612,Nagpur Nagrik Sahakari Bank Ltd,NGSB,Disabled,Enabled,off,Required,NULL
+613,Nagar Urban Co-Op Bank,NUCB,Disabled,Enabled,off,Required,NULL
+614,The Navnirman Co-Op Bank Ltd,NVNM,Enabled,Enabled,on,Required,NULL
+615,Qatar National Bank Saq,QNBA,Disabled,Enabled,off,Required,NULL
+616,Rabobank International,RABO,Disabled,Enabled,off,Required,NULL
+617,IDRBT Bank,RBIH,Disabled,Enabled,off,Required,NULL
+618,Sber Bank,SABR,Disabled,Enabled,off,Required,NULL
+619,Small Industries Development Bank Of India,SIDB,Disabled,Enabled,off,Required,NULL
+620,Shikshak Sahakari Bank Ltd,SKSB,Disabled,Enabled,off,Required,NULL
+621,Tumkur Grain Merchants Co-Op Bank Ltd,TGMB,Enabled,Enabled,on,Required,NULL
+622,United Overseas Bank Ltd,UOVB,Disabled,Enabled,off,Required,NULL
+623,Westpac Banking Corporation,WPAC,Disabled,Enabled,off,Required,NULL
+624,Credit Suisse AG Bank,CRES,Enabled,Enabled,off,Required,NULL
+625,Sumitomo Mitsui Banking Co-Op Bank,SMBB,Disabled,Enabled,off,Required,NULL
+626,Tripura State Co-Op Bank Ltd,TSCB,Disabled,Enabled,off,Required,NULL
+627,The Yamuna Nagar Central Co-Op Bank Ltd,YCCB,Disabled,Enabled,off,Required,NULL
+628,The Banaskantha Mercantile Co-Op Bank Ltd,BMCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTBMCB
+629,Kota Nagrik Sahkari Bank Ltd kota,CKNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CKNB02
+630,The Commercial Co-Op Bank Ltd,COMM,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0COMMCO
+631,The Naroda Nagrik Co-Op Bank Ltd,NNCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UNNCBL
+632,The Godhra Urban Co-Op Bank Ltd,SGUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SGUCB1
+633,Solapur Siddheshwar Sahakari Bank Ltd,SIDD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSIDDH
+634,Sharad Nagari Sahakari Bank Ltd,SNSB,Disabled,Enabled,off,Required,NULL
+635,The Tarn Taran Central Co-Op Bank Ltd,STTN,Disabled,Enabled,off,Required,NULL
+636,Purnea District Central Co-Op Bank,PCCB,Disabled,Enabled,off,Required,NULL
+637,The Panchkula Central Co-Op Bank Ltd,SPKL,Disabled,Enabled,off,Required,NULL
+638,The Kottakkal Co-Op Urban Bank Ltd,SKUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SKCU78
+639,Jampeta Urban Co-Op Bank,CBNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SJCUB2
+640,Karnataka Gramin Bank,RKGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRCKGB
+641,Ahmednagar Sahar Sahakari Bank Maryadit,ASSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SVCB0008011
+642,Gujarat Ambuja Co-Op Bank Ltd,GACB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UGACBL
+643,The Business Co-Op Bank Ltd,BOBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESBOBCBL02
+644,The Nawada Central Co-Op Bank Ltd,NCCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0NCCB01
+645,The Adinath Co-Op Bank Ltd,ACOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0ACB002
+646,Shree Dharati Co-Op Bank Ltd,SCDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01642SD
+647,Rajkot Peoples Co-Op Bank Ltd,RPCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01642RP
+648,Sirsi Urban Sahakari Bank Ltd,USBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0069S01
+649,Sangola Urban Co-Op Bank Ltd,SUCB,Disabled,Enabled,off,Required,NULL
+650,The Hoshiarpur Central Co-Op Bank Ltd,SHSP,Disabled,Enabled,off,Required,NULL
+651,Vaijapur Merchants Bank,VMBL,Disabled,Enabled,off,Required,NULL
+652,Jila Sahakari Kendriya Bank Maryadit Dhar,JSKB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAK
+653,Peoples Co-Op Bank Ltd Dholka,PCBD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPCBLD
+654,The Udaipur Mahila Urban Co-Op Bank Ltd,UMUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00UMUCB
+655,The Aska Co-Op Central Bank Ltd,ASKA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0ASK001
+656,Keonjhar Central Co-Op Bank Ltd,SKCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0KJR001
+657,The Koraput Central Co-Op Bank Ltd,SKOC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ORCB0KPT001
+658,Nagaland Rural Bank,NLGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SBIN0RRNLGB
+659,The Udupi Co-Op Town Bank,UCTB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SUCTBL
+660,Coastal Local Area Bank Ltd,CLAB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,MAHB000CB01
+661,The Bhagyalakshmi Mahila Sah Bank,BMSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CBLMSB
+662,The Ssk Co-Op Bank Ltd,SSSK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSSKCB
+663,Valmiki Urban Co-Op Bank Ltd,SVAU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SVAUB1
+664,The Bhandara District Central Co-Op Bank Ltd,BHNL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0BHN001
+665,The Nagar Sahakari Bank Ltd,NBKG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0NBGKP1
+666,The Uttarsanda Peoples Co-Op Bank,SUPC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SUPCB1
+667,The Kakatiya Co-Op Urban Bank,SKCU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SKCUB1
+668,The Kranthi Co-Op Urban Bank Ltd,SKRN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SKRN01
+669,Sri Vasavamba Co-Op Bank Ltd,VCBA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSVCBA
+670,The Union Co-Op Bank Ltd,UCBN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CUCBNR
+671,Citizens Co-Op Bank Ltd,CCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01642C1
+672,Jawahar Sahakari Bank Ltd,JSBH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0116JCB
+673,Bapuji Co-Op Bank Ltd,BOBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0364BCB
+674,Uttrakhand State Co-Co Bank Ltd,USCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00USCBD
+675,Udham Singh Nagar District Co-Op Bank Ltd,USND,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00USNDC
+676,The Burdwan Central Co-Op Bank Ltd,CBCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CBCCBL
+677,Pimpri Chinchwad Sahakari Bank,PSCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0087PCS
+678,The Maharaja Co-Op Urban Bank Ltd,IMCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0031MCB
+679,The Kerala State Co-Op Bank Ltd,KCSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KSBK0000001
+680,The Visakhapatnam Co-Op Bank Ltd,TVCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0031VCB
+681,Sarvodaya Commercial Co-Op Bank Ltd,SCOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0443SCC
+682,The Samastipur District Central Co-Op Bank Ltd,SDCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0065SDC
+683,Belgaum Zilla Rani Channamma Mahila Sahakari Bank Niyamit,BZRB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0101BZR
+684,The Chandrapur District Central Co-Op Bank Ltd,CDBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0CDC016
+685,Ajantha Urban Co-Op Bank Ltd,AUCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0AUCB01
+686,Mudgal Urban Co-Op Bank Ltd,SMUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SMUB01
+687,Jodhpur Nagrik Sahakari Bank Ltd,CJNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CJNB08
+688,Wardhman Urban Co-Op Bank Ltd,WUCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0510WUC
+689,Mizoram Co-Op Apex Bank Ltd,MABL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0MAB001
+690,The Naval Dockyard Co-Op Bank Ltd,NDBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0452ND1
+691,Vardhaman Mahila Co-Op Urban Bank Ltd,CVBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CVB222
+692,Jammu And Kashmir State Co-Op Bank,SJKB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SJKCB1
+693,Jivan Commercial Co-Op Bank Ltd,JIVA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0JIVAN1
+694,Krishna Bhima Samruddhi Local Area Bank,KBSL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CKBS01
+695,The Dahod Urban Co-Op Bank Ltd,TDUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CDUCBE
+696,Shri Mahila Sewa Sahakari Bank Ltd,SMSS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSMSSB
+697,Mahatma Fule Urban Co-Op Bank Ltd Amravati,MFUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMFUCB
+698,The Tiruvalla East Co-Op Bank,TTEC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0029T03
+699,The Gandhi Co-Op Urban Bank Ltd,TGCU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0GCUB01
+700,The Anand Mercantile Co-Op Bank Ltd,AMBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CAMCBK
+701,Nagrik Sahakari Bank Maryadit Vidisha,NSMV,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNSBMV
+702,Udyam Vikas Sahakari bank,UVSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CUDYAM
+703,The Texco Co-Op Bank Ltd,TCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0TCB002
+704,Uma Co-Op Bank Ltd,UMCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0UMA002
+705,Shri Shivayogi Murughendra Swami Urban Co-Op Bank Ltd,SMSU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSSMSB
+706,Jila Sahakari Kendriya Bank Maryadit Vidisha,JSKV,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCBM
+707,Jila Sahakari Kendriya Bank Maryadit Ujjain,JSKU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCBL
+708,Jila Sahakari Kendriya Bank Maryadit Dewas,JSKD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAJ
+709,The Sultan S Battery Co-Op Urban Bank Ltd,SBCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01708SB
+710,Sri Rama Co-Op Bank Ltd,SRBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSRCBL
+711,Sri Guru Raghavendra Sahakara Bank Niyamitha,SGRS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0868GRS
+712,Navanagara Urban Co-Op Bank Ltd,NUBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNUCBK
+713,Subhadra Local Area Bank Ltd,SLAB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSLABK
+714,Parbhani District Central Co-Op Bank,PDBH,Disabled,Enabled,off,Required,NULL
+715,The Gopalganj Central Gopalganj Co-Op Bank Ltd,GCBL,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IBKL01011GC
+716,The Bhatkal Urban Co-Op Bank Ltd,SBUL,Disabled,Enabled,off,Required,NULL
+717,Vaishya Nagari Sahakari Bank Ltd,SVNS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SVNS01
+718,The Fatehgarh Sahib Central Co-Op Bank Ltd,SFGH,Disabled,Enabled,off,Required,NULL
+719,Indore Cloth Mkt Co-Op Bank,ICMB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0ICMB02
+720,The Solapur Dist Central Co-Op Bank,BSDC,Enabled,Enabled,on,Required,NULL
+721,Latur District Central Co-Op Bank Ltd,ILDC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0497LDC
+722,NSDL Payment Bank Limited,NSPB,Enabled,Enabled,on,Required,NULL
+723,The Pimpalgaon Merchants Co-Op Bank Ltd,CPIM,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CPIMCO
+724,Mizoram Urban Co-Op Development Bank,MUDC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0MUDC01
+725,Indore Paraspar Sahakari Bank Ltd,INPR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00INPRS
+726,The Co-Op Bank Of Mehsana Ltd,CBML,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UCOBML
+727,The Gurgaon Central Co-Op Bank Ltd,BGBL,Disabled,Enabled,off,Required,NULL
+728,Dharamvir Sambhaji Urban Co-Op Bank,DSUB,Disabled,Enabled,off,Required,NULL
+729,Ramrajya Sahakari Bank Ltd,RRSB,Disabled,Enabled,off,Required,NULL
+730,Lonavala Sahakari Bank Ltd,LSAB,Disabled,Enabled,off,Required,NULL
+731,Sangli Urban Co Op Bank Ltd,CSUC,Disabled,Enabled,off,Required,NULL
+732,Jilla Kendriya Sahakari Maryadit Morena,DCAV,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAV
+733,Jila Sahakari Maryadit Narsinghpur,DCAW,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAW
+734,Jila Sahakari Maryadit Hoshangabad,DCAN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAN
+735,Jila Sahakari Maryadit Damoh,DCAH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAH
+736,Indore Premier Co-Op Bank,DCAO,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAO
+737,The A.P. Raja Rajeswari Mahila Co-Op Urban Bank Ltd,APRR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SAPRR2
+738,Palus Sahakari Bank Ltd,PSLB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SPSB01
+739,Mahanagar Nagrik Sahakari Bank Ltd,MBSL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0MNSB01
+740,Urban Co-Op Bank Deharadun,DUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0DUCB01
+741,Smriti Nagrik Sahakari Bank,YNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0SNSB01
+742,Manndeshi Mahila Sahakari Bank,MANB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0MAN001
+743,Panchmahal District Co-Op Bank,PDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0PDC001
+744,"Sadhana Sahakari Bank Ltd,Nagpur",ISSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0041SB2
+745,The Thodupuzha Urban Co-Op Bank Ltd,TPZC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00TPZCB
+746,The Modasa Nagarik Sahkari Bank Ltd,KMNS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KKBK0MNSB01
+747,"Mahaveer Co-Op Bank,Belgaum",CTMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTMCBL
+748,Nandura Urban Co-Op Bank Ltd,CNUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNUCBN
+749,Andman and Nicobar State Co-Op Bank Ltd,ANCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CANSCB
+750,Balasinor Nagarik Sahkari Bank Ltd,BNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CBNSBL
+751,Zila Sahkari Bank Garhwal Kotdwar,ZSKT,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00ZSKTW
+752,Shree Murugharajendra Co-Op Bank Ltd,SMLB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSMCBL
+753,Shimsha Sahakara Bank Niyamitha,VSSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,BARB0VJCBSS
+754,The Kodinar Taluka Cooperative Banking Union Ltd,KDTL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0KDT001
+755,Jilla Sahakari Kendriya Bank Maryadit Rajgarh,DCAZ,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAZ
+756,Nagrik Sahakari Bank Maryadit Gwalior,NSBG,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,INDB0NSBG01
+757,The Kodagu District Co-Op Central Bank Ltd,KCDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KSCB0011001
+758,Tirupati Urban Co-Op Bank Ltd,TUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTUB02
+759,Shree Mahavir Sahakari Bank Ltd,SMSL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KKBK0SMSB01
+760,The Gandhidham Mercantile Co-Op Bank Ltd,TGMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UGMCBL
+761,The Railway Employees Co-Op Bank Ltd,TREB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SRECB1
+762,The Amravati Zila Parishad Shikshak Sahakari Bank,AZPS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0ASSB01
+763,Indraprastha Sahakari Bank Ltd,ISBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SIPSB1
+764,The Merchants Souharda Sahakari Bank Ltd,TMSS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SMCB51
+765,The Kollam District Co-Op Bank Ltd,TKDC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0KLMDCB
+766,The Chanasma Nagrik Sahakari Bank Ltd,CBBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UCHANA
+767,Samarth Sahakari Bank Ltd Jalna,SSBJ,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSSBMJ
+768,Kakinada Co-Op Town Bank Ltd,KCTB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SKCTBL
+769,Coimbatore District Central Co-Op Bank Ltd,CDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TNSC0010000
+770,The Bangalore City Co-Op Bank Ltd,TBCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,INDB0BCCB02
+771,Mahila Nagrik Sahakari Bank Maryadit Mahasamund,MNSM,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CMNSBM
+772,The New Urban Co-Op Bank Ltd Rampur,NUBR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNUCBL
+773,Shiva Sahakari Bank Niyamitha,SSBS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSVA01
+774,The Guruvayur Co-Op Urban Bank Ltd,TGCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00GCUBL
+775,The National Central Co-Op Bank Ltd Bettiah,NCBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01248NC
+776,The Jain Sahakari Bank Ltd,JSBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0452JSB
+777,Vaishya Nagari Sahakari Bank Ltd Mumbai,VNSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0501VSB
+778,The Kannur District Co-Op Bank Ltd,KDBB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SKDC01
+779,Sarakari Naukarara Sahakari Bank Niyamit,NSBK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSNSBK
+780,The Gurdaspur Central Co-Op Bank Ltd,SGDS,Disabled,Enabled,off,Required,NULL
+781,The Sirsa Central Co-Op Bank Ltd,SIRS,Disabled,Enabled,off,Required,NULL
+782,"Jila Sahkari Kendriya Bank Maryadit,Jagdalpur",SJSJ,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UTIB0SJSJ01
+783,Yes Bank Credit Card,YBCC,Disabled,Enabled,off,Static IFSC works for IMPS and NEFT,YESB0CMSNOC
+784,Kolar And Chikballapura District Co-Op Bank Ltd,KCDC,Disabled,Enabled,off,Required,NULL
+785,Beed District Central Co-Op Bank Ltd,SBDC,Disabled,Enabled,off,Required,NULL
+786,The Bellary District Co-Op Central Bank Ltd,BCDB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0103901
+787,Yavatmal Dist Central Co-Op Bank Ltd,SYDC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SYDC01
+788,Sree Charan Souhardha Co-Op Bank Ltd,SCSC,Enabled,Enabled,on,Required,NULL
+789,Pune Urban Co-Op Bank Ltd,CCPU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CCPUBL
+790,Chikmagalur Pattana Sahakara Bank,SCPS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SCPSBN
+791,Veerashaiva Sahakari Bank Ltd,CVSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CVSBHO
+792,Kolhapur District Central Co-Op Bank Ltd,KDBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0463KDC
+793,Loknete Dattaji Patil Sahkari Bank Ltd,LDSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01992L1
+794,The Maharashtra Mantralaya And Allied Offices Co-Op Bank Ltd,CSUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0004MCB
+795,The Shillong Co-Op Urban Bank Ltd,MMAB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0158SCU
+796,Bellad Bagewadi Urban Souharada Sahakari Bank,BBUS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0101BBU
+797,The Mandvi Nagarik Sahakari Bank Ltd,MNBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UTMNBL
+798,Hanamasagar Urban Co-Op Bank Ltd,HUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SHUCBL
+799,Bhuj Commercial Co-Op Bank Ltd,BCCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0BCCB01
+800,Shree Basaveshwar Urban Co-op Bank Ltd,BUBR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SBUBRN
+801,Ilkal Co-Op Bank Ltd,SICB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SICB25
+802,Sadalga Urban Souharda Sahakari Bank Niyamit,SUSS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSUSSB
+803,Karnataka Mahila Sahkara Bank Nmt Chikmagalur,SCJB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SCJMSB
+804,Shri Chatrapati Shivaji Maharaj Sahakari Bank Niyamith Gulbarga,CSMS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SCSMSB
+805,Dausa Urban Co-Op Bank Ltd,SDUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SDUCB3
+806,The Kanyakumari District Central Co-Op Bank,KKDB,Disabled,off,off,Required,NULL
+807,The Cuddalore District Central Co-Op Bank,CDCC,Disabled,off,off,Required,NULL
+808,The Kumbakonam District Central Co-Op Bank,KDBL,Disabled,off,off,Required,NULL
+809,The Thoothukudi District Central Co-Op Bank,TDBL,Disabled,off,off,Required,NULL
+810,The Tirunelveli District Central Co-Op Bank,TTBL,Disabled,off,off,Required,NULL
+811,The Vellore District Central Co-Op Bank,VDBL,Disabled,off,off,Required,NULL
+812,Dharmapuri District Central Co-Op Bank,DDBL,Disabled,off,off,Required,NULL
+813,Sri Sudha Co-Op Bank Ltd,SUDH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSUDHA
+814,The Dhanera Mercantile Co-Op Bank Ltd,CDMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CDMCBL
+815,Shri Bharat Urban Co-Op Bank Ltd,CDMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CBHRAT
+816,Sanmitra Mahila Nagari Sahakari Bank Maryadit Chandrapur,SMNS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSMNSB
+817,Colour Merchants Co-Op Bank Ltd,CCMC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CCMCBL
+818,The Gandhidham Co-Op Bank Ltd,GCLB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CGCBLG
+819,Shree Samarth Sah Bank Ltd Nashik,SBNK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSSBNK
+820,The Dahod Mercantile Co-Op Bank Ltd,MCBD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CDMCBD
+821,Shri Laxmikrupa Urban Co-Op Bank Ltd,SLKU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSLKUB
+822,The Godhra City Co-Op Bank Ltd,GCCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CGCCB1
+823,Sreenidhi Souharda Sahakari Bank Niyamitha,SBNL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,INDB0SSBN01
+824,Jila Sahakari Kendriya Bank Maryadit Guna,MDCA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAL
+825,Jila Sahakari Kendriya Bank Mydt Khargone,PDCA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCAS
+826,Vikramaditya Nagrik Sahakari Bank,VNBS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0VNSB01
+827,Rajsamand Urban Co-Op Bank Udaipur,RUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0RUCB05
+828,Jila Sahakari Kendriya Bank Maryadit Sagar,MCBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,CBIN0MPDCBC
+829,Sahyadri Sahakari Bank Ltd,TSBL,Disabled,Enabled,off,Required,NULL
+830,Bangiya Gramin Vikash Bank,BGVB,Disabled,Enabled,off,Required,NULL
+831,"Arunachal Pradesh State Co-Op,Apex Bank Ltd.",ARCB,Disabled,Enabled,off,Required,NULL
+832,Pusad Urban Co-Op Bank Ltd.,PUBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0PUB001
+833,The Vaishali District Central Co-Op Bank,VCDB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IBKL0724VDC
+834,Sardar Singh Nagrik Sahkari Bank Ltd,CSSN,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,HDFC0CSSNSB
+835,Baran Nagrik Sahkari Bank Ltd,BSNB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,HDFC0CBNB01
+836,The Shahada Peoples Co-Op Bank Ltd,SPBC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,YESB0SPCB01
+837,Sri Kanyakaparameswari Co-Op Bank Ltd,SSKP,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,UTIB0SSKPCB
+838,Jijau Commercial Co-Op Bank Ltd,JCBC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,IBKL0JCB001
+839,Vyavsayik Sahakari Bank,VSLB,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,YESB0VSBL02
+840,Shriram Urban Co-Op Bank Ltd,SUBC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,KKBK0SUCB01
+841,Amreli Jilla Madhyastha Sahakari Bank Ltd,AMRB,Disabled,Enabled,off,Required,GSCB0AMR001
+842,The Womens Co-Op Bank Ltd,WCBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0546WCB
+843,The Jain Co-Op Bank Ltd,JCLB,Disabled,Enabled,off,Required,NULL
+844,The Panvel Co-Op Urban bank Ltd,PCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0189PUC
+845,Wana Nagrik Sahakari Bank Ltd,WANA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0WANA01
+846,UP Postal Primary Co-Op Bank Ltd,PPBC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00PPCBL
+847,The Babasaheb Deshmukh Sahakari Bank Ltd,BDSS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0467BDS
+848,The Abhinav SahakariBank Ltd,ABSL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,NULL
+849,The VSV Co-Op Bank Ltd,VSVB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CVSVCB
+850,The Urban Co-Op Bank Ltd No 1758 Perinthalmanna,URBN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,URBN0000001
+851,Pragati Mahila Nagrik Sahakari Bank Ltd Bhilai,PMNS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0PMNSB1
+852,HCBL Co-Op Bank Ltd,HBBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0HCBL01
+853,Sree Mahayogi Lakshmamma Co-Op Bank,SAVB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SAVB01
+854,Nagarik Samabay Bank Ltd,NSBL,Disabled,Enabled,off,Required,NULL
+855,The District Co-Op Central Bank Ltd Medak,KDDBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TSAB0017001
+856,The Karimnagar District Co-Op Central Bank,MDDBL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TSAB0020001
+857,Guardian Souharda Sahakari Bank Niyamita,GSSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SVCB0002001
+858,Rajarambapu Sahakari Bank Ltd Peth,RRBP,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,RRBP0000001
+859,"Mahalakshmi Co-Op Bank Limited,Udupi",MCLB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0186MC2
+860,The Dindigul Central Co-Op Bank Ltd,DCCB,Disabled,Enabled,off,Required,NULL
+861,Sriramanagar Pattana Sahakara Bank Niyamith,SRPB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01543SR
+862,Janatha Seva Co-Op Bank,JTSC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,JTSC0000002
+863,Nandani Sahakari Bank Ltd Nandani,NSBD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNSBLN
+864,Nagaland State Co-Op Bank Ltd,NSCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SNSCB1
+865,Balageria Central Co-Op Bank Ltd,BCLB,Disabled,Enabled,off,Required,NULL
+866,The Ludhiana Central Co-Op Bank Ltd,SLDH,Disabled,Enabled,off,Required,NULL
+867,Jogindra Central Co-Op Bank Ltd,JCCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0JCCB01
+868,Arihant Urban Co-Op Bank Ltd,ACLB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CACOBL
+869,The Bantra Co Opertive Bank Ltd,BCCK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CBCBBK
+870,Godavari Urban Co-Op Bank Ltd,CGCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CGCB01
+871,Mahesh Urban Co-Op Bank Ltd,MBLH,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0SMBLHO
+872,Warangal Urban Co-Op Bank Ltd,WBUL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0WUCB01
+873,Abasaheb Patil Rendal Sahakari Bank Ltd,APRS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0116RSB
+874,Reserve Bank Employees Co-Op Bank Ltd,RBEC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,INDB0RBECBL
+875,Rajadhani Co-Op Urban Bank Ltd,RCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,KKBK0RCUB01
+876,The Kopargaon Peoples Co-Op Bank Ltd,KPCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SVCB0035002
+877,Dhule Vikas Sahakari Bank Ltd,DVSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00DVSBL
+878,Koilkuntla Co-Op Bank Ltd,KBCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,INDB0KCBL01
+879,Appasaheb Birnale Sahakari Bank Ltd Dudhgaon,ABSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01894AB
+880,Progressive Co-Op Bank Ltd,PCLB,Disabled,Enabled,off,Required,NULL
+881,IDFC First Bank Limited - Credit Card,IFCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IDFB0000001
+882,Federal Bank Credit Card,FBCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,FDRL00CARDS
+883,The District Central CooOp Bank Ltd Khammam,KOCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TSAB0022001
+884,Shree Talaja Nagrik Sahakari Bank Ltd,STNS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CTALAJ
+885,S S L S A Kurundwad Urban Bank Ltd,SLSA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0116SBK
+886,The Honavar Urban Co-Op Bank Ltd,HUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL01874HC
+887,Betul Nagrik Sahakari Bank Mydt,BTNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0001350
+888,AP Janata Co-Op Urban Bank Ltd,AJCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CAPJBK
+889,Muzaffarnagar District Co-Operative Bank Ltd,MUZA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UPCB00MUZAF
+890,Chaitanya Mahila Sahakari Bank Ltd Vijayapur,CMSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SCHAIT
+891,PUDUVAI BHARATHIAR GRAMA BANK,PBGB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IDIB0PBG001
+892,"Nagar Sahkari Bank Ltd,Maharajgan",NBSL,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,YESB0NSB006
+893,The Warangal District Co-Op Central Bank Ltd,WDCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,TSAB0021001
+894,Vidarbha Merchants Urban Co-Op Bank Ltd,VMUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0VMUB00
+895,Siddheshwar Urban Co-Op Bank Maryadit Sillod,SUMS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00SIDUC
+896,The Sarangpur Co-Op Bank Ltd,TREA,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UTSCBL
+897,Northern Railway Primary Co-Op Bank,NRPC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SNRP03
+898,Nagarik Sahakari Bank Maryadit Durg,NSBM,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNSBLD
+899,The Chandwad Merchants Co-Op Bank Ltd,CBCL,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00CMCBL
+900,Ujjain Paraspar Sahakari Bank Mydt,UPSM,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0UPSBL1
+901,The Urban Co-Op Bank Ltd Saharanpur,TBLS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0236UCS
+902,The Santrampur Urban Co-Op Ltd Saharanpur,TSCS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0000001
+903,The Nanded Merchants Coop Bank Ltd Nanded,TNMN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0500NMC
+904,The Raichur District Central Co-Op Bank Ltd Raichur,TRDR,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0296RDC
+906,The Konark Urban Co-Op Bank Ltd,KNUC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0KNUCB1
+907,Shri Chhani Nagrik Bank Ltd,CSNB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CSCNSB
+908,The Chiplun Urban Co-Op Bank Ltd,CCUB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,SVCB0006020
+909,The Sardargunj Mercantile Co-Op Bank Ltd Patan,TSMP,Enabled,Enabled,on,Required,NULL
+910,The dholpur Urban Co-Op Bank Ltd Dholpur,TDUO,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CDUCB1
+911,Kashipur Urban Co-Op Bank Ltd,KUCO,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CKUCPL
+912,Shri Yashwant Sahakari Bank Maryadit Kuditre,SYMK,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0463YSB
+913,The Mumbai Mahanagarpalika Shikshan Vibhag Sahakari Bank Ltd,TMMS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,MDCB0680289
+914,Brahmadeodada Mane Sahakari Bank Ltd Solapur,BMSS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0BMSB01
+915,The Veraval peoples Co-Op Bank Ltd,TVPC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CVPCBL
+916,The Vaish Co-Op New Bank Ltd,TVCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0VNB005
+917,Vasundhara Mahila Nagari Sahakari Bank Ltd,VMNS,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,ICIC00VMNSL
+918,Zila Sahakari Bank Ltd Unnao,UDDC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UPCB00UDCCB
+919,Zila Sahakari Bank Ltd Varanasi,VCLD,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UPCB00VDCBL
+920,Sri Ganapathi Urban Co-Op Bank,GUCB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSGUCB
+921,The Nagaur Central Co-Op Bank Ltd,TNCD,Disabled,Enabled,on,Required,NULL
+922,The Gauhati Co-Operative Urban Bank Ltd,TGCB,Disabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0115GCU
+923,Axis Bank Tehatta,ABTT,Disabled,Enabled,on,Required,NULL
+924,LIC Employees Co-Op Bank Ltd Udupi,LICU,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0186LEC
+925,The Bapunagar Mahila Co-Op Bank Ltd,TBML,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0UBMCBL
+926,The Rander Peoples Co-Op Bank Ltd,TRPC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CRPCBL
+927,Sri Seetharaghava Souharda Sahakara Bank Niyamitha,SBSN,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,UTIB0SSSSBN
+928,RBL (Ratnakar) Bank Credit Card,AUCC,Enabled,Enabled,off,Static IFSC works for IMPS and NEFT,RATN0CRCARD
+929,The Sarvodaya Sahakari Bank Ltd Modasa,USSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,GSCB0USSBLM
+930,Cherpalcheri Co-Op Urban Bank Ltd,CPOB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,IBKL0763CCB
+931,Shree Vardhaman Sahakari Bank Ltd,SVSB,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,YESB0SVSB01
+932,The Nabadwip Co-Op Credit Bank Ltd,CNCC,Enabled,Enabled,on,Static IFSC works for IMPS and NEFT,HDFC0CNCCBL
+933,Amazon Pay Axis Bank,APAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@apl
+934,Amazon Pay Yes Bank,APYB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@yapl
+935,Amazon Pay RBL Bank,APRB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@rapl
+936,Bajaj Finserv Axis Bank,BFAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@abfspay
+937,CRED Axis Bank,CAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@axisb
+938,IDFC FIRST Bank,IFB,Enabled,off,on,Static IFSC works for IMPS and NEFT,@idfcbank
+939,Goibibo ICICI bank,GIB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@icici
+940,Google Pay Axis Bank,GPAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@okaxis
+941,Google Pay HDFC Bank,GPHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@oksbi
+942,Google Pay ICICI,GPICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@okicici
+943,Groww	Yes Bank,GYB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@yesg
+944,Jupiter Money	Axis Bank Limited,JMAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@jupiteraxis
+945,Kiwi	Axis Bank Limited,KABL,Disabled,off,on,Static IFSC works for IMPS and NEFT,@goaxb
+946,Make My Trip IndusInd Bank,MMTIB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@indus
+947,MobiKwik HDFC Bank,MHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@ikwik
+948,Navi Axis Bank,NAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@naviaxis
+949,Niyo Global ICICI Bank,NGICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@NIYOICICI
+950,Phonepe Yes Bank,PYB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@ybl
+951,Phonepe ICICI Bank,PICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@ibl
+952,Phonepe Axis Bank,PAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@axl
+953,Samsung Pay Axis Bank,SPAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@pingpay
+954,Shriram One HDFC Bank,SOHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@shriramhdfcbank
+955,Slice	Axis Bank,SAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@sliceaxis
+956,TataNeu ICICI Bank,TNICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@tapicici
+957,Timepay The Cosmos Co-Operative Bank Ltd.,TTCCB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@timecosmos
+958,WhatsApp ICICI Bank,WICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@waicici
+959,WhatsApp Axis Bank,WAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@waaxis
+960,WhatsApp HDFC Bank,WHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@wahdfcbank
+961,WhatsApp State Bank of India,WSBI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@wasbi
+962,Amazon Pay Axis Bank,APAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@apl
+963,Amazon Pay Yes Bank,APYB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@yapl
+964,Amazon Pay RBL Bank,APRB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@rapl
+965,Bajaj Finserv Axis Bank,BFAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@abfspay
+966,CRED Axis Bank,CAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@axisb
+967,IDFC FIRST Bank,NULL,Enabled,off,on,Static IFSC works for IMPS and NEFT,@idfcbank
+968,Goibibo ICICI bank,GIB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@icici
+969,Google Pay Axis Bank,GPAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@okaxis
+970,Google Pay HDFC Bank,GPHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@oksbi
+971,Google Pay ICICI,GPICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@okicici
+972,Groww	Yes Bank,GYB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@yesg
+973,Jupiter Money	Axis Bank Limited,JMAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@jupiteraxis
+974,Kiwi	Axis Bank Limited,KABL,Disabled,off,on,Static IFSC works for IMPS and NEFT,@goaxb
+975,Make My Trip IndusInd Bank,MMTIB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@indus
+976,MobiKwik HDFC Bank,MHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@ikwik
+977,Navi Axis Bank,NAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@naviaxis
+978,Niyo Global ICICI Bank,NGICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@NIYOICICI
+979,Phonepe Yes Bank,PYB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@ybl
+980,Phonepe ICICI Bank,PICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@ibl
+981,Phonepe Axis Bank,PAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@axl
+982,Samsung Pay Axis Bank,SPAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@pingpay
+983,Shriram One HDFC Bank,SOHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@shriramhdfcbank
+984,Slice	Axis Bank,SAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@sliceaxis
+985,TataNeu ICICI Bank,TNICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@tapicici
+986,Timepay The Cosmos Co-Operative Bank Ltd.,TTCCB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@timecosmos
+987,WhatsApp ICICI Bank,WICICI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@waicici
+988,WhatsApp Axis Bank,WAB,Disabled,off,on,Static IFSC works for IMPS and NEFT,@waaxis
+989,WhatsApp HDFC Bank,WHDFC,Disabled,off,on,Static IFSC works for IMPS and NEFT,@wahdfcbank
+990,WhatsApp State Bank of India,WSBI,Disabled,off,on,Static IFSC works for IMPS and NEFT,@wasbi
