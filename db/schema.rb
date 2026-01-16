@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_06_063747) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_13_065943) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -250,6 +250,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_06_063747) do
     t.index ["user_id"], name: "index_fund_requests_on_user_id"
   end
 
+  create_table "refund_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "transaction_id", null: false
+    t.bigint "parent_id", null: false
+    t.string "refund_id"
+    t.string "refund_type"
+    t.decimal "amount", precision: 15, scale: 2
+    t.text "reason"
+    t.string "status"
+    t.text "admin_note"
+    t.datetime "processed_at"
+    t.integer "processed_by"
+    t.string "attachment_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_refund_requests_on_parent_id"
+    t.index ["transaction_id"], name: "index_refund_requests_on_transaction_id"
+    t.index ["user_id"], name: "index_refund_requests_on_user_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string "title"
     t.datetime "created_at", null: false
@@ -295,6 +315,27 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_06_063747) do
     t.datetime "updated_at", null: false
     t.string "logo"
     t.integer "position"
+  end
+
+  create_table "support_tickets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "ticket_number"
+    t.string "full_name"
+    t.string "email"
+    t.string "service_type"
+    t.string "reference_id"
+    t.string "subject"
+    t.text "description"
+    t.string "status"
+    t.datetime "status_updated_at"
+    t.text "resolution_note"
+    t.datetime "resolved_at"
+    t.integer "assigned_agent_id"
+    t.string "attachment_url"
+    t.integer "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_support_tickets_on_user_id"
   end
 
   create_table "transaction_commissions", force: :cascade do |t|
@@ -521,9 +562,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_06_063747) do
   add_foreign_key "dmts", "vendor_users"
   add_foreign_key "enquiries", "roles"
   add_foreign_key "fund_requests", "users"
+  add_foreign_key "refund_requests", "transactions"
+  add_foreign_key "refund_requests", "users"
   add_foreign_key "schemes", "users"
   add_foreign_key "service_product_items", "service_products"
   add_foreign_key "service_products", "categories"
+  add_foreign_key "support_tickets", "users"
   add_foreign_key "transaction_commissions", "service_product_items"
   add_foreign_key "transaction_commissions", "transactions"
   add_foreign_key "transaction_commissions", "users"

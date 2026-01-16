@@ -99,6 +99,9 @@ Rails.application.routes.draw do
             get :service_list
             get :scheme_list
             get :role_list
+            post :master_role
+            post :dealer_role
+            get :scheme_role
           end
         end
 
@@ -109,6 +112,8 @@ Rails.application.routes.draw do
             get :bank
             get :bank_details
             get :wallet_history
+            get :balance
+            get :virtual_balance
           end
         end
 
@@ -159,6 +164,15 @@ Rails.application.routes.draw do
         post "reports/index"
         # resources :reports , only: [:index]
 
+        resources :support_tickets, only: [:create, :index, :show] do
+          patch :update_status, on: :member
+        end
+
+        # resources :refunds, only: [:index, :refund_transaction]
+
+        resources :refunds, only: [:index, :create] do
+          post :refund_transaction, on: :member
+        end
 
       end
     end
@@ -263,6 +277,17 @@ Rails.application.routes.draw do
             post "send_otp"
             post "verify_otp"
           end
+        end
+
+        resources :support_tickets, only: [:create, :index, :show] do
+          patch :update_status, on: :member
+        end
+
+        # resources :refunds, only: [:index, :create]
+
+        resources :refunds, only: [:index, :create] do
+          post :refund_transaction, on: :collection
+          post :refund_verify_otp, on: :collection
         end
 
 

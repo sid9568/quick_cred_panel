@@ -71,6 +71,21 @@ class Api::V1::Admin::WalletsController < Api::V1::Auth::BaseController
 
   end
 
+  def balance
+    total_balance = Wallet.find_by(user_id: current_user.id).balance.round(2)
+    p "=============total_balance===="
+    if total_balance
+      render json: { total_balance: total_balance }
+    else
+      render json: { balance: 0.0 }
+    end
+  end
+
+  def virtual_balance
+    Rails.logger.info "@api_wallet_balance => #{@api_wallet_balance.inspect}"
+    render json: { api_balance: @api_wallet_balance }
+  end
+
   def wallet_history
     wallet_histories = WalletHistory.where(user_id: current_user.id).order(created_at: :desc)
     render json: {code: 200, message: "WalletHistory Successfully list show", wallet_histories: wallet_histories}

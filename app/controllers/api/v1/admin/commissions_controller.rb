@@ -25,6 +25,8 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
 
   def scheme_list
     schemes = Scheme.where(user_id: current_user)
+    p "=======schemes========"
+    p schemes
     render json: {code: 200, message: "scheme successfully show", schemes: schemes}
   end
 
@@ -109,6 +111,22 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
 
 
   def set_commission
+
+    current_role = current_user.role.title
+
+    allowed_roles =
+    case current_role
+    when "admin"
+      %w[master dealer retailer]
+    when "master"
+      %w[dealer retailer]
+    when "dealer"
+      %w[retailer]
+    else
+      []
+    end
+
+
     if params[:service_product_id].blank?
       return render json: { code: 400, message: "service_product_id is required" }, status: :bad_request
     end
@@ -156,52 +174,55 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
 
     commissions_created = []
 
-    commission_type = params[:commission_type] # "percentage" or "flat"
+    commission_type = params[:commission_type]
 
-    role_commissions = [
-      { role: "master",   value: params[:master_commission] },
-      { role: "dealer",   value: params[:dealer_commision] },
-      { role: "retailer", value: params[:retailer_commission] }
-    ]
+    role_commissions = {
+      "master"   => params[:master_commission],
+      "dealer"   => params[:dealer_commision],
+      "retailer" => params[:retailer_commission]
+    }
 
-    # Validate based on commission type
-    if commission_type == "percentage"
-      total_commission = role_commissions.sum { |c| c[:value].to_f }
+    filtered_commissions = role_commissions
+    .select { |role, _| allowed_roles.include?(role) }
+    .values
+    .map(&:to_f)
 
+    total_commission = filtered_commissions.sum
+
+    if commission_type == "commission"
       if total_commission > admin_commission
         return render json: {
           code: 422,
           message: "Total (#{total_commission}%) cannot exceed Admin limit #{admin_commission}%"
         }, status: :unprocessable_entity
       end
-    else # flat type
-      total_flat = role_commissions.sum { |c| c[:value].to_f }
-
-      if total_flat > admin_commission
+    else
+      if total_commission > admin_commission
         return render json: {
           code: 422,
-          message: "Total flat (₹#{total_flat}) cannot exceed Admin limit ₹#{admin_commission}"
+          message: "Total flat (₹#{total_commission}) cannot exceed Admin limit ₹#{admin_commission}"
         }, status: :unprocessable_entity
       end
     end
 
+
     # Save commissions
-    role_commissions.each do |commission_data|
-      next if commission_data[:value].blank?
+    role_commissions.each do |role, value|
+      next if value.blank?
+      next unless allowed_roles.include?(role)
 
       commission = Commission.find_or_initialize_by(
         service_product_item_id: service_item.id,
         scheme_id: params[:scheme],
         commission_type: commission_type,
-        to_role: commission_data[:role]
+        to_role: role
       )
 
-      commission.from_role  = current_user.role.title
-      commission.value      = commission_data[:value]
-      commission.updated_at = Time.now
-
-      commissions_created << commission if commission.save
+      commission.from_role = current_user.role.title
+      commission.value     = value
+      commission.save
     end
+
   end
 
 

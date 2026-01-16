@@ -2,6 +2,8 @@ class Api::V1::Admin::DashboardsController < Api::V1::Auth::BaseController
   # protect_from_forgery with: :null_session
 
   def index
+    p "===========@api_wallet_balance"
+    p @api_wallet_balance
   transactions = Transaction.where(user_id: current_user.id)
 
   # Calculate wallet balance dynamically

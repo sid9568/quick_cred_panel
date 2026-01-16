@@ -106,7 +106,7 @@ class Api::V1::Admin::PaymentsController < Api::V1::Auth::BaseController
     render json: { code: 200, message: "Transaction approved successfully" }
 
   rescue ActiveRecord::RecordNotFound
-    render json: { code: 404, message: "Transaction not found" }
+    render json: { code: 404, message: "Wallet Not found" }
 
   rescue StandardError => e
     render json: { code: 422, message: e.message }

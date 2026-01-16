@@ -211,6 +211,27 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       end
     end
 
+    description = resp.dig("data", "description") || resp["description"]
+
+    success_descriptions = [
+      "Customer Already registred ",
+      "OTP Verified Successfully"
+    ]
+
+    if success_descriptions.include?(description)
+      ActiveRecord::Base.transaction do
+        current_user.update!(eko_biometric_kyc: true)
+        user_wallet.update!(balance: user_wallet.balance.to_f - 10)
+      end
+
+      return render json: {
+        status: true,
+        message: description.strip,
+        data: resp
+      }
+    end
+
+
     render json: {
       status: status,
       message: resp["message"] || "OTP verification completed",
@@ -410,6 +431,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
           status: txn.status,
           amount: txn.amount,
           created_at: txn.created_at,
+          tid: txn.tid,
 
           receiver_name: dmt&.receiver_name,
           receiver_mobile_number: dmt&.receiver_mobile_number,

@@ -5,12 +5,23 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
   # LIST RETAILERS/DEALERS CREATED BY ADMIN
   # -----------------------------------------
   def index
-    p "===================="
-    p current_user
-    users = User.where(parent_id: current_user.id).order(created_at: :desc)
+    users = current_user.all_descendants
 
-    render json: { code: 200, message: "Users fetched", users: users }
+    if users.any?
+      render json: {
+        code: 200,
+        message: "Hierarchy users fetched successfully",
+        users: users
+      }
+    else
+      render json: {
+        code: 404,
+        message: "No hierarchy users found",
+        users: []
+      }
+    end
   end
+
 
   def role_list
     roles = Role.all
@@ -20,6 +31,69 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       message: "Role list fetched successfully",
       roles: roles.select(:id, :title)
     }
+  end
+
+  def master_role
+    users = User.joins(:role)
+    .where(roles: { title: "master" }, parent_id: current_user.id, scheme_id: params[:scheme_id])
+
+    if users.exists?
+      render json: {
+        code: 200,
+        message: "Master users fetched successfully",
+        users: users
+      }
+    else
+      render json: {
+        code: 404,
+        message: "Master not found",
+        users: []
+      }
+    end
+  end
+
+
+  def dealer_role
+    users = User.joins(:role)
+    .where(roles: { title: "dealer" }, parent_id: params[:master_id])
+
+    if users.exists?
+      render json: {
+        code: 200,
+        message: "Dealer users fetched successfully",
+        users: users
+      }
+    else
+      render json: {
+        code: 404,
+        message: "Dealer not found",
+        users: []
+      }
+    end
+  end
+
+  def scheme_role
+    scheme_id = current_user.scheme_id
+    scheme = Scheme.find_by(id: scheme_id)
+
+    if scheme.present?
+      render json: {
+        code: 200,
+        message: "Scheme found",
+        scheme: scheme
+      }
+    else
+      render json: {
+        code: 404,
+        message: "Scheme not found"
+      }
+    end
+  end
+
+
+  def role
+    roles = Role.all
+    render json: { code: 200, message: "Role List", roles: roles }
   end
 
   def service_list
@@ -53,9 +127,6 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
 
 
   def create
-    # ------------------------
-    # 1️⃣ REQUIRED FIELD CHECK
-    # ------------------------
     required_fields = [
       :first_name, :last_name, :email, :phone_number, :password,
       :role_id, :service_ids, :scheme_id
@@ -71,19 +142,23 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       }
     end
 
-    # ------------------------
-    # Email already exists?
-    # ------------------------
-    if User.exists?(email: params[:email].strip.downcase)
+    email    = params[:email].to_s.strip.downcase
+    username = params[:username].to_s.strip.downcase
+
+    if User.where("LOWER(email) = ?", email).exists?
       return render json: {
         code: 409,
         message: "User already exists with this email"
       }, status: :conflict
     end
 
-    # ------------------------
-    # 2️⃣ VALIDATIONS
-    # ------------------------
+    if User.where("LOWER(username) = ?", username).exists?
+      return render json: {
+        code: 409,
+        message: "User already exists with this username"
+      }, status: :conflict
+    end
+
     unless params[:email].match?(/\A[^@\s]+@[^@\s]+\z/)
       return render json: { code: 422, message: "Invalid email format" }
     end
@@ -120,23 +195,44 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
     shop_url = params[:store_shop_photo].present? ?
       Cloudinary::Uploader.upload(params[:store_shop_photo], folder: "users/store")["secure_url"] : nil
 
-
-    # ------------------------
-    # 4️⃣ TRANSACTION
-    # ------------------------
     # ------------------------
     # 4️⃣ TRANSACTION
     # ------------------------
     ActiveRecord::Base.transaction do
-      user = User.new(
-        user_params.merge(
-          role_id: params[:role_id],
-          parent_id: current_user.id,
-          aadhaar_image: aadhaar_url,
-          pan_card_image: pan_url,
-          store_shop_photo: shop_url
+
+      if %w[master dealer].include?(params[:title].to_s.downcase)
+        user = User.new(
+          user_params.merge(
+            role_id: params[:role_id],
+            parent_id: current_user.id,
+            aadhaar_image: aadhaar_url,
+            pan_card_image: pan_url,
+            store_shop_photo: shop_url
+          )
         )
-      )
+      else
+        master_fetch = User.find_by(id: params[:master_id])
+        return render json: {
+          code: 404,
+          message: "Master not found"
+        } unless master_fetch
+
+        dealer_fetch = User.find_by(id: params[:dealer_id])
+        return render json: {
+          code: 404,
+          message: "Dealer not found"
+        } unless dealer_fetch
+
+        user = User.new(
+          user_params.merge(
+            role_id: params[:role_id],
+            parent_id: dealer_fetch.id,
+            aadhaar_image: aadhaar_url,
+            pan_card_image: pan_url,
+            store_shop_photo: shop_url
+          )
+        )
+      end
 
       unless user.save
         return render json: {
@@ -154,15 +250,75 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
         )
       end
 
-      # ✅ BANK CREATE ONLY IF ALL DETAILS PRESENT
-      if params[:bank_name].present?
-        Bank.create!(
-          bank_name: params[:bank_name],
-          account_number: params[:account_number],
-          ifsc_code: params[:ifsc_code],
-          user_id: user.id
-        )
-      end
+      # residence_address JSON (reuse at both places)
+      # ===============================
+      # ONLY FOR RETAILER ROLE
+      # ===============================
+      # if user.role&.title == "retailer"
+
+      #   # -------------------------------
+      #   # EKO USER ONBOARD
+      #   # -------------------------------
+      #   response = EkoDmt::UserOnboardService.new(
+      #     initiator_id: "9212094999",
+      #     pan_number:   user.pan_card,
+      #     mobile:       user.phone_number,
+      #     first_name:   user.first_name,
+      #     last_name:    user.last_name,
+      #     email:        user.email,
+      #     dob:          user.date_of_birth,
+      #     shop_name:    user.business_name,
+      #     residence_address: params[:residence_address]
+      #   ).call
+
+      #   p "==========response============="
+      #   p response
+
+      #   user_code = response.dig("data", "user_code") || response["user_code"]
+      #   p "================="
+      #   p user_code
+      #   if user_code.blank?
+      #     render json: {
+      #       code: 422,
+      #       message: response["message"] || "User code not received from EKO",
+      #       raw: response
+      #     }, status: :unprocessable_entity
+      #     raise ActiveRecord::Rollback
+      #   end
+
+      #   user.update!(
+      #     user_code: user_code,
+      #     eko_onboard_first_step: true
+      #   )
+
+      #   # -------------------------------
+      #   # EKO DMT CUSTOMER CREATE
+      #   # -------------------------------
+      #   resp = EkoDmt::DmtCustomerCreateService.new(
+      #     customer_id:       user.phone_number,
+      #     initiator_id:      "9212094999",
+      #     user_code:         user.user_code,
+      #     name:              user.first_name,
+      #     dob:               user.date_of_birth,
+      #     residence_address: params[:residence_address]
+      #   ).call
+
+      #   p "===========resp========"
+      #   p resp
+      #   user.update!(
+      #     eko_onboard_first_step: true
+      #   )
+
+      #   p "============respresp============="
+      #   p resp
+
+      # end
+
+      # residence_address JSON (reuse at both places)
+      # ===============================
+      # ONLY FOR RETAILER ROLE
+      # ===============================
+
 
       return render json: {
         code: 201,

@@ -77,7 +77,7 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       sender_name:       params[:sender_name],
       client_ref_id:     SecureRandom.hex(8)
     )
-    
+
     render json: response
   end
 
@@ -161,6 +161,8 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
     Rails.logger.info "================= current_user: #{current_user.id} (#{current_user.role.title})"
 
     hierarchy = current_user.find_hierarchy
+    p "========hierarchy============="
+    p hierarchy
     required = %i[transaction_type recharge_type mobile_number operator operator_id amount service_product_id]
     missing = required.select { |p| params[p].blank? }
 
@@ -257,9 +259,10 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
 
       # === Commission Calculation ===
       scheme = Scheme.find(current_user.scheme_id)
+      p "===========scheme======="
+      p scheme
       scheme_commission = 100
       commission_eko = response.dig("data", "commission").to_f # Fixed EKO commission
-
       Rails.logger.info "=========scheme_commission======= #{scheme_commission}"
       Rails.logger.info "=========commission_eko========= #{commission_eko}"
 
@@ -276,11 +279,21 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       .pick(:value)
       .to_f
 
+      p "--------retailer_commission-----------------"
+      p retailer_commission
+
       commissions[:retailer] = retailer_commission
 
       # 2. Get admin commission (parent user's scheme)
-      admin_user = User.find_by(id: current_user.parent_id)
+
+      admin_user = current_user.find_hierarchy.find do |user|
+        user.role_id == Role.find_by(title: "admin")&.id
+      end
+
       admin_scheme_id = admin_user&.scheme_id
+
+      p "==========admin_scheme_id==========="
+      p admin_scheme_id
 
       admin_commission = Commission.joins(:service_product_item)
       .where(
@@ -291,11 +304,20 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       .pick(:value)
       .to_f
 
+      p "=========admin_commission==========="
+      p admin_commission
+
       commissions[:admin] = admin_commission
 
       # 3. Get master commission
-      master_users = User.where(role_id: Role.find_by(title: 'master')&.id)
-      master_scheme_id = master_users.first&.scheme_id if master_users.any?
+      # master_users = User.where(role_id: Role.find_by(title: 'master')&.id)
+      # master_scheme_id = master_users.first&.scheme_id if master_users.any?
+
+      admin_user = current_user.find_hierarchy.find do |user|
+        user.role_id == Role.find_by(title: "master")&.id
+      end
+
+      master_scheme_id = admin_user&.scheme_id
 
       master_commission = Commission.joins(:service_product_item)
       .where(
@@ -306,11 +328,20 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       .pick(:value)
       .to_f
 
+      p "==========master_commission=========="
+      p master_commission
+
       commissions[:master] = master_commission
 
       # 4. Get dealer commission
       dealer_users = User.where(role_id: Role.find_by(title: 'dealer')&.id)
       dealer_scheme_id = dealer_users.first&.scheme_id if dealer_users.any?
+
+      dealer_users = current_user.find_hierarchy.find do |user|
+        user.role_id == Role.find_by(title: "dealer")&.id
+      end
+
+      dealer_scheme_id = dealer_users&.scheme_id
 
       dealer_commission = Commission.joins(:service_product_item)
       .where(
@@ -320,6 +351,9 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       )
       .pick(:value)
       .to_f
+
+      p "--------dealer_commission-------------"
+      p dealer_commission
 
       commissions[:dealer] = dealer_commission
 

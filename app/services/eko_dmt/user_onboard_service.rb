@@ -4,35 +4,52 @@ module EkoDmt
     BASE_URL = "https://api.eko.in:25002/ekoicici/v1/user/onboard"
 
     def initialize(params)
-      @initiator_id       = params[:initiator_id]
-      @pan_number         = params[:pan_number]
-      @mobile             = params[:mobile]
-      @first_name         = params[:first_name]
-      @last_name          = params[:last_name]
-      @email              = params[:email]
-      @dob                = params[:dob]
-      @shop_name           = params[:shop_name]
-      @residence_address  = params[:residence_address]
+      @initiator_id      = params[:initiator_id]
+      @pan_number        = params[:pan_number]
+      @mobile            = params[:mobile]
+      @first_name        = params[:first_name]
+      @last_name         = params[:last_name]
+      @email             = params[:email]
+      @dob               = params[:dob]
+      @shop_name         = params[:shop_name]
+      @residence_address = params[:residence_address]
     end
 
     def call
+      Rails.logger.info "[EKO USER ONBOARD] URL: #{BASE_URL}"
+      Rails.logger.info "[EKO USER ONBOARD] Headers: #{headers.except('secret-key')}"
+      Rails.logger.info "[EKO USER ONBOARD] Body: #{request_body}"
+
       response = HTTParty.put(
         BASE_URL,
         headers: headers,
         body: request_body
       )
 
+      Rails.logger.info "[EKO USER ONBOARD] Status: #{response.code}"
+      Rails.logger.info "[EKO USER ONBOARD] Response: #{response.parsed_response}"
+
       response.parsed_response
+
+    rescue StandardError => e
+      Rails.logger.error "[EKO USER ONBOARD ERROR] #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      {
+        "status"  => 0,
+        "message" => "EKO User Onboard service failed",
+        "error"   => e.message
+      }
     end
 
     private
 
     def headers
       {
-        "developer_key"         => ENV["EKO_DEV_KEY"],
-        "secret-key"            => generate_secret_key,
-        "secret-key-timestamp"  => timestamp,
-        "Content-Type"          => "application/x-www-form-urlencoded"
+        "developer_key"        => ENV["EKO_DEV_KEY"],
+        "secret-key"           => generate_secret_key,
+        "secret-key-timestamp" => timestamp,
+        "Content-Type"         => "application/x-www-form-urlencoded"
       }
     end
 

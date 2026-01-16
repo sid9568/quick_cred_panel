@@ -30,7 +30,7 @@ class Api::V1::Admin::SchemesController < Api::V1::Auth::BaseController
       return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request
     end
 
-    scheme = current_user.schemes.new(scheme_params)
+    scheme = current_user.schemes.new(scheme_params.merge(commision_rate: 100))
 
     if scheme.save
       render json: {

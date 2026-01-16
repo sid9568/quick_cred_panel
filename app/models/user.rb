@@ -4,20 +4,41 @@ class User < ApplicationRecord
 
   has_secure_token :session_token
 
+  has_many :refund_requests, dependent: :destroy
+  has_many :fund_requests, dependent: :destroy
+
+
   belongs_to :role
   has_secure_password validations: false
   # belongs_to :scheme
   has_many :transactions, dependent: :destroy
 
-  def all_descendant_ids
-    children.flat_map { |child| [child.id] + child.all_descendant_ids }
+  def all_descendants
+    children.includes(:children).flat_map do |child|
+      [child] + child.all_descendants
+    end
   end
+
+
 
   has_one :wallet, dependent: :destroy
   has_many :transaction_commissions, dependent: :destroy
   has_many :user_services, foreign_key: :assignee_id, dependent: :destroy
   has_many :banks, dependent: :destroy
   has_many :schemes, dependent: :destroy
+
+
+  # def find_hierarchy
+  #   hierarchy = []
+  #   user = self
+
+  #   while user.parent.present?
+  #     hierarchy << user.parent
+  #     user = user.parent
+  #   end
+
+  #   hierarchy
+  # end
 
 
   def find_hierarchy
@@ -31,6 +52,7 @@ class User < ApplicationRecord
 
     hierarchy
   end
+
 
 
   enum kyc_status: {
