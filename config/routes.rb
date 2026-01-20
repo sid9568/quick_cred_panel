@@ -102,6 +102,7 @@ Rails.application.routes.draw do
             post :master_role
             post :dealer_role
             get :scheme_role
+            get :role_count
           end
         end
 
@@ -226,7 +227,7 @@ Rails.application.routes.draw do
         get "fetch_eko_locations", to: "recharges#fetch_eko_locations"
         post "fetch_eko_plans", to: "recharges#fetch_eko_plans"
         post "eko_mobile_recharge", to: "recharges#eko_mobile_recharge"
-        get "activate_eko_service", to: "recharges#activate_eko_service"
+        post "activate_eko_service", to: "recharges#activate_eko_service"
         post "activate_eko_service_ar", to: "recharges#activate_eko_service_ar"
         post "activate_bbps_service", to: "recharges#activate_bbps_service"
         post "create", to: "recharges#create"
@@ -250,6 +251,7 @@ Rails.application.routes.draw do
         post "filters/service_product"
 
         post "commission_reports/index"
+        get "commission_reports/earn_commission"
 
         get "dmts/dmt_transactions_list"
         post "dmts/sender_details"
@@ -267,10 +269,13 @@ Rails.application.routes.draw do
         get "dmts/bank_list"
         post "dmts/send_ekodmt_otp"
         post "dmts/bank_verify"
+        post "dmts/verify_aadhaar"
+
         post "biometric_ekyc_otp_verify", to: "dmts#biometric_ekyc_otp_verify"
         post "biometric", to: "dmts#biometric"
         post "biometric_kyc", to: "dmts#biometric_kyc"
-
+        
+        post "digilocker/initiate"
 
         resources :beneficiaries do
           collection do

@@ -6,6 +6,8 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
   # -----------------------------------------
   def index
     users = current_user.all_descendants
+    .sort_by(&:created_at)
+    .reverse
 
     if users.any?
       render json: {
@@ -21,6 +23,26 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       }
     end
   end
+
+
+  def role_count
+    user_ids = current_user.all_descendants.map(&:id)
+
+    users = User.joins(:role).where(id: user_ids)
+
+    counts = users.group('roles.title').count
+
+    render json: {
+      success: true,
+      data: {
+        master: counts['master'] || 0,
+        dealer: counts['dealer'] || 0,
+        retailer: counts['retailer'] || 0
+      }
+    }
+  end
+
+
 
 
   def role_list
@@ -356,56 +378,99 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
   def update
     service_ids = Array(params[:service_ids]).map(&:to_i)
 
-    # 1️⃣ Update User Basic Details
-    unless @user_service.update(user_params)
-      return render json: {
-        code: 422,
-        message: "Update failed",
-        errors: @user_service.errors.full_messages
-      }
+    ActiveRecord::Base.transaction do
+      # ==============================
+      # 1️⃣ IMAGE UPLOAD (OPTIONAL)
+      # ==============================
+      image_params = {}
+
+      if params[:aadhaar_image].present?
+        image_params[:aadhaar_image] =
+        Cloudinary::Uploader.upload(
+          params[:aadhaar_image],
+          folder: "users/aadhaar"
+        )["secure_url"]
+      end
+
+      if params[:pan_card_image].present?
+        image_params[:pan_card_image] =
+        Cloudinary::Uploader.upload(
+          params[:pan_card_image],
+          folder: "users/pan"
+        )["secure_url"]
+      end
+
+      if params[:store_shop_photo].present?
+        image_params[:store_shop_photo] =
+        Cloudinary::Uploader.upload(
+          params[:store_shop_photo],
+          folder: "users/store"
+        )["secure_url"]
+      end
+
+      # ==============================
+      # 2️⃣ UPDATE USER BASIC DETAILS
+      # ==============================
+      unless @user_service.update(user_params.merge(image_params))
+        raise ActiveRecord::Rollback,
+          @user_service.errors.full_messages.join(", ")
+      end
+
+      # ==============================
+      # 3️⃣ UPDATE SERVICES MAPPING
+      # ==============================
+      existing_ids = @user_service.user_services.pluck(:service_id)
+
+      # Remove unselected services
+      (existing_ids - service_ids).each do |sid|
+        UserService.where(
+          assigner: current_user,
+          assignee: @user_service,
+          service_id: sid
+        ).destroy_all
+      end
+
+      # Add new services
+      (service_ids - existing_ids).each do |sid|
+        UserService.create!(
+          assigner: current_user,
+          assignee: @user_service,
+          service_id: sid
+        )
+      end
+
+      # ==============================
+      # 4️⃣ BANK CREATE / UPDATE
+      # ==============================
+      if params[:bank_name].present? ||
+          params[:account_number].present? ||
+          params[:ifsc_code].present?
+
+        bank = Bank.find_or_initialize_by(user: @user_service)
+
+        bank.update!(
+          bank_name: params[:bank_name],
+          account_number: params[:account_number],
+          ifsc_code: params[:ifsc_code]
+        )
+      end
     end
 
-    # 2️⃣ Update Services Mapping
-    existing_ids = @user_service.user_services.pluck(:service_id)
-
-    (existing_ids - service_ids).each do |sid|
-      UserService.where(
-        assigner: current_user,
-        assignee: @user_service,
-        service_id: sid
-      ).destroy_all
-    end
-
-    (service_ids - existing_ids).each do |sid|
-      UserService.create!(
-        assigner: current_user,
-        assignee: @user_service,
-        service_id: sid
-      )
-    end
-
-    # --------------------------------
-    # 3️⃣ BANK CREATE / UPDATE (OPTIONAL)
-    # --------------------------------
-    if params[:bank_name].present? ||
-        params[:account_number].present? ||
-        params[:ifsc_code].present?
-
-      bank = Bank.find_or_initialize_by(user_id: @user_service.id)
-
-      bank.update!(
-        bank_name: params[:bank_name],
-        account_number: params[:account_number],
-        ifsc_code: params[:ifsc_code]
-      )
-    end
-
-    # 4️⃣ Response
+    # ==============================
+    # 5️⃣ SUCCESS RESPONSE
+    # ==============================
     render json: {
       code: 200,
       message: "User updated successfully",
       user: @user_service,
       updated_service_ids: service_ids
+    }
+
+  rescue StandardError => e
+    render json: {
+      code: 422,
+      message: "Update failed",
+      error: e.message
     }
   end
 

@@ -239,6 +239,18 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     }
   end
 
+  def verify_aadhaar
+    result = EkoDmt::AadhaarOtpService.send_otp(
+      initiator_id:  params[:initiator_id],
+      user_code:     params[:user_code],
+      aadhar:        params[:aadhar],
+      access_key:    params[:access_key],
+      realsourceip:  request.remote_ip
+    )
+
+    render json: result
+  end
+
 
   def biometric_kyc
     customer_id = params[:customer_id]
@@ -398,7 +410,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
     render json: {
       success: true,
-      message: "Bank account verified successfully",
+      message: "Bank account verified successfully. ₹3 has been deducted from your wallet.",
       data: parsed["data"],
       fee_deducted: fee,
       bank_verify: true,
@@ -455,23 +467,22 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
   def beneficiary_list
     user = VendorUser.find_by(phone_number: params[:customer_id])
-    p "=========user======"
-    p user
-    beneficiaries =
+
     if user.present?
-      Dmt.where(
+      beneficiaries = Dmt.where(
         vendor_user_id: user.id,
         beneficiaries_status: true
       )
     else
-      Dmt.where(beneficiaries_status: true)
-    end.order(created_at: :desc)
+      resp = EkoDmt::ListRecipientsService.call(
+        sender_mobile: current_user.phone_number,
+        initiator_id: "9212094999",
+        user_code: current_user.user_code
+      )
 
-    resp = EkoDmt::ListRecipientsService.call(
-      sender_mobile: current_user.phone_number,
-      initiator_id: "9212094999",
-      user_code: current_user.user_code
-    )
+      # 👇 assume EKO response me beneficiaries yahan mil rahe hain
+      beneficiaries = resp[:beneficiaries] || resp["beneficiaries"]
+    end
 
     render json: {
       code: 200,
@@ -479,6 +490,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       beneficiaries: beneficiaries
     }
   end
+
 
 
 

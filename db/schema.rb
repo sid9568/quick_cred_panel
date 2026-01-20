@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_13_065943) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_20_101555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -506,6 +506,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_13_065943) do
     t.boolean "vendor_verify_status", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "addhar_kyc_status"
     t.index ["phone_number"], name: "index_vendor_users_on_phone_number", unique: true
   end
 

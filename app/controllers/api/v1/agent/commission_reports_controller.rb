@@ -4,7 +4,7 @@ class Api::V1::Agent::CommissionReportsController < Api::V1::Auth::BaseControlle
   def index
     commission_lists = Commission
     .includes(service_product_item: :service_product)
-    .where(scheme_id: current_user.scheme_id)
+    .where(scheme_id: current_user.scheme_id).order(created_at: :desc)
 
     render json: {
       code: 200,
@@ -31,6 +31,36 @@ class Api::V1::Agent::CommissionReportsController < Api::V1::Auth::BaseControlle
           }
         }
       end
+    }
+  end
+
+  def earn_commission
+    commissions = TransactionCommission
+    .includes(:txn, :service_product_item)
+    .where(user_id: current_user.id)
+
+    render json: {
+      code: 200,
+      message: "Successfully commission show",
+      earn_commission: commissions.as_json(
+        only: [
+          :id,
+          :transaction_id,
+          :user_id,
+          :role,
+          :commission_amount,
+          :created_at,
+          :updated_at
+        ],
+        include: {
+          txn: {
+            only: [:id, :tid, :txn_id]
+          },
+          service_product_item: {
+            only: [:id, :name]
+          }
+        }
+      )
     }
   end
 
