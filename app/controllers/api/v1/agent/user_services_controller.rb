@@ -8,10 +8,12 @@ class Api::V1::Agent::UserServicesController < Api::V1::Auth::BaseController
     .order("services.position ASC")
 
     service_ids = service_lists.map(&:service_id).compact
+    user_ids = [current_user.id] + current_user.all_descendants
 
     # 🔹 Transaction count (service-wise)
     transaction_counts = Transaction
     .joins(service_product: :category)
+    .where(user_id: user_ids)
     .where(categories: { service_id: service_ids })
     .group("categories.service_id")
     .count

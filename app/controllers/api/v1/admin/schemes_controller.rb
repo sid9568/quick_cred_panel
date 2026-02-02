@@ -19,7 +19,9 @@ class Api::V1::Admin::SchemesController < Api::V1::Auth::BaseController
       return render json: { success: false, message: "Missing: #{missing.join(', ')}" }, status: :bad_request
     end
 
-    schemes = Scheme.where(user_id: params[:master_id])
+    user = User.find_by(id: params[:master_id])
+
+    schemes = Scheme.where(id: user.scheme_id)
 
     render json: {
       code: 200,
