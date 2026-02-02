@@ -1,20 +1,26 @@
 class Api::V1::Admin::RefundsController < Api::V1::Auth::BaseController
-
   def index
+    user_ids = [ current_user.id ] + current_user.all_descendants.pluck(:id)
+
     refunds = RefundRequest
-    .includes(:eko_transaction)
-    .where(parent_id: current_user.id)
-    .order(created_at: :desc)
+                .includes(:eko_transaction)
+                .where(parent_id: user_ids)
+                .order(created_at: :desc)
 
     result = refunds.map do |refund|
       {
         id: refund.id,
+        user_name: refund.user.username,
+        phone_number: refund.user.phone_number,
+        email: refund.user.email,
         amount: refund.amount,
         status: refund.status,
+        
         created_at: refund.created_at,
         tid: refund.eko_transaction&.tid,
         refund_id: refund.refund_id,
-        refund_type: refund.refund_type
+        refund_type: refund.refund_type,
+        user_id: refund.parent_id
       }
     end
 
@@ -23,6 +29,7 @@ class Api::V1::Admin::RefundsController < Api::V1::Auth::BaseController
       refunds: result
     }, status: :ok
   end
+
 
   def refund_transaction
     # ================== PARAM VALIDATION ==================
@@ -58,8 +65,4 @@ class Api::V1::Admin::RefundsController < Api::V1::Auth::BaseController
       data: result
     }, status: :ok
   end
-
-
-
-
 end

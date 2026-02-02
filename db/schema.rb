@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_20_114440) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -98,6 +98,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_114440) do
     t.string "from_role"
     t.string "set_by_role"
     t.string "set_for_role"
+    t.string "commission_rate"
     t.index ["scheme_id"], name: "index_commissions_on_scheme_id"
     t.index ["service_product_item_id"], name: "index_commissions_on_service_product_item_id"
   end
@@ -293,6 +294,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_114440) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "operator_id"
+    t.index ["operator_id"], name: "index_service_product_items_on_operator_id"
     t.index ["service_product_id"], name: "index_service_product_items_on_service_product_id"
   end
 
@@ -506,7 +509,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_114440) do
     t.boolean "vendor_verify_status", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "addhar_kyc_status"
+    t.boolean "addhar_kyc_status", default: false
     t.index ["phone_number"], name: "index_vendor_users_on_phone_number", unique: true
   end
 

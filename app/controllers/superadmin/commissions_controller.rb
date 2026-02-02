@@ -61,6 +61,8 @@ class Superadmin::CommissionsController < Superadmin::BaseController
 
       resp = Eko::OperatorListService.fetch(type)
       @operators = resp["data"] if resp.present?
+      p "===========operators==========dsdsds"
+      p @operators
     end
 
     @commission = Commission.new
@@ -70,13 +72,15 @@ class Superadmin::CommissionsController < Superadmin::BaseController
   def create
     service_item = ServiceProductItem.find_or_create_by!(
       service_product_id: params[:service_product_id],
-      name: params[:operator_name]
+      name: params[:operator_name],
+      operator_id: params[:operator_id]
     )
 
     @commission = Commission.new(commission_params.merge(value: params[:admin_commission]))
     @commission.service_product_item_id = service_item.id
     @commission.from_role = current_superadmin.role.title # Assuming current_user is available
     @commission.to_role = "admin"
+    @commission.commission_type = "fixed"
 
     if @commission.save
       redirect_to superadmin_commissions_path,

@@ -90,13 +90,20 @@
      <!-- Scheme -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Scheme</label>
-      <select name="scheme" class="mt-1 w-full border rounded-lg px-3 py-2">
+
+      <select name="user[scheme_id]"
+              class="mt-1 w-full border rounded-lg px-3 py-2">
         <option value="">Select Scheme</option>
-        <option>Silver</option>
-        <option>Gold</option>
-        <option>Platinum</option>
+
+        <% Scheme.all.each do |scheme| %>
+          <option value="<%= scheme.id %>"
+            <%= "selected" if scheme.id == @retailer.scheme_id %>>
+            <%= scheme.name %>
+          </option>
+        <% end %>
       </select>
     </div>
+
 
     <!-- Address -->
     <div class="md:col-span-2">

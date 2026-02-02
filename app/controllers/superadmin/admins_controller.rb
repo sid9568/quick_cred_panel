@@ -1,5 +1,4 @@
 class Superadmin::AdminsController < Superadmin::BaseController
-
   def index
     @balance = Wallet.where(user_id: current_superadmin.id).sum(:balance)
 
@@ -16,7 +15,7 @@ class Superadmin::AdminsController < Superadmin::BaseController
         "(users.first_name ILIKE :t#{term.object_id} OR users.last_name ILIKE :t#{term.object_id} OR users.email ILIKE :t#{term.object_id})"
       end.join(" AND ")
 
-      query_params = search_terms.map { |term| ["t#{term.object_id}".to_sym, "%#{term}%"] }.to_h
+      query_params = search_terms.map { |term| [ "t#{term.object_id}".to_sym, "%#{term}%" ] }.to_h
 
       @users = @users.where(search_conditions, query_params)
     end
@@ -54,14 +53,29 @@ class Superadmin::AdminsController < Superadmin::BaseController
 
   def update
     @admin = User.find(params[:id])
+
     if @admin.update(user_params)
 
+      # ==============================
+      # UPDATE SCHEME FOR CHILD USERS
+      # ==============================
+      if @admin.saved_change_to_scheme_id?
+        old_scheme_id, new_scheme_id = @admin.saved_change_to_scheme_id
+
+        @admin
+          .all_descendants
+          .where(scheme_id: old_scheme_id)
+          .update_all(scheme_id: new_scheme_id)
+      end
+
+      # ==============================
+      # UPDATE SERVICES
+      # ==============================
       service_ids = Array(params[:user][:service_ids]).map(&:to_i)
-      assigner = current_superadmin # ya phir current_admin_user agar login se aa raha ho
+      assigner = current_superadmin
 
       existing_ids = @admin.user_services.pluck(:service_id)
 
-      # Unchecked services delete karo
       (existing_ids - service_ids).each do |sid|
         UserService.where(
           assigner: assigner,
@@ -70,7 +84,6 @@ class Superadmin::AdminsController < Superadmin::BaseController
         ).destroy_all
       end
 
-      # Naye checked services add karo
       (service_ids - existing_ids).each do |sid|
         UserService.create!(
           assigner: assigner,
@@ -84,6 +97,7 @@ class Superadmin::AdminsController < Superadmin::BaseController
       render :edit, status: :unprocessable_entity
     end
   end
+
 
 
 
@@ -167,6 +181,4 @@ class Superadmin::AdminsController < Superadmin::BaseController
                                  :pan_card_image,
                                  )
   end
-
-
 end

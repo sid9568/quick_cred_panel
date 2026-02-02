@@ -1,5 +1,5 @@
 class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
-  before_action :set_user_service, only: [:edit ,:update, :update_status, :destroy]
+  before_action :set_user_service, only: [ :edit, :update, :update_status, :destroy ]
 
   # -----------------------------------------
   # LIST RETAILERS/DEALERS CREATED BY ADMIN
@@ -30,20 +30,17 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
 
     users = User.joins(:role).where(id: user_ids)
 
-    counts = users.group('roles.title').count
+    counts = users.group("roles.title").count
 
     render json: {
       success: true,
       data: {
-        master: counts['master'] || 0,
-        dealer: counts['dealer'] || 0,
-        retailer: counts['retailer'] || 0
+        master: counts["master"] || 0,
+        dealer: counts["dealer"] || 0,
+        retailer: counts["retailer"] || 0
       }
     }
   end
-
-
-
 
   def role_list
     roles = Role.all
@@ -57,7 +54,7 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
 
   def master_role
     users = User.joins(:role)
-    .where(roles: { title: "master" }, parent_id: current_user.id, scheme_id: params[:scheme_id])
+    .where(roles: { title: "master" }, parent_id: current_user.id)
 
     if users.exists?
       render json: {
@@ -95,6 +92,8 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
   end
 
   def scheme_role
+    p "--------------------"
+    p current_user
     scheme_id = current_user.scheme_id
     scheme = Scheme.find_by(id: scheme_id)
 
@@ -221,7 +220,6 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
     # 4️⃣ TRANSACTION
     # ------------------------
     ActiveRecord::Base.transaction do
-
       if %w[master dealer].include?(params[:title].to_s.downcase)
         user = User.new(
           user_params.merge(
@@ -348,7 +346,6 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
         user: user
       }
     end
-
   end
 
 
@@ -367,7 +364,7 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
       message: "User data fetched successfully",
       user: user,
       user_services: user_services,
-      assigned_services: assigned_services,
+      assigned_services: assigned_services
     }
   end
 

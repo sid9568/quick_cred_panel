@@ -47,8 +47,9 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
     p company_name
     # --- Type Mapping ---
     type_mapping = {
-      "mobile recharge" => "prepaid",
-      "broadband recharge" => "broadband",
+      "mobile prepaid" => "prepaid",
+      "mobile postpaid" => "postpaid",
+      "broadband recharge" => "broaband",
       "dth recharge" => "dth",
       "fastag" => "fastag",
       "credit card bill payment" => "credit",
@@ -84,15 +85,15 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
       commissions = Commission.where(
         service_product_item_id: item.id,
         scheme_id: params[:scheme]
-      ).select(:id, :from_role, :to_role, :value, :scheme_id, :commission_type)
+      ).select(:id, :from_role, :to_role, :value, :scheme_id, :commission_type, :commission_rate)
 
       commissions_admin = Commission.where(
         service_product_item_id: item.id,
         scheme_id: current_user.scheme_id
-      ).select(:id, :from_role, :to_role, :value, :scheme_id, :commission_type)
+      ).select(:id, :from_role, :to_role, :value, :scheme_id, :commission_type, :commission_rate)
 
       {
-        item_id: item.id,
+        item_id: item.operator_id,
         item_name: item.name,
         commissions: (commissions + commissions_admin).uniq
       }

@@ -25,7 +25,7 @@ class Api::V1::Agent::DashboardsController < Api::V1::Auth::BaseController
 
     render json: {
       total_balance: transactions.sum { |t| t.amount.to_f },
-      total_expends: commission_amount,
+      total_expends: 10,
       wallet: wallet_balance,
       transaction_trend: transaction_trend.sort_by { |t| Date::ABBR_MONTHNAMES.index(t[:month]) }, # correct order
       revenue_overview: [

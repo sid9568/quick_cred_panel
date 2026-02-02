@@ -1,8 +1,8 @@
 class Superadmin::RetailersController < Superadmin::BaseController
-  before_action :set_retailer, only: [:show, :edit, :update, :destroy]
+  before_action :set_retailer, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @retailers = User.joins(:role).where(roles: { title: ["retailer", "master", "dealer"] }).order(created_at: :desc)
+    @retailers = User.joins(:role).where(roles: { title: [ "retailer", "master", "dealer" ] }).order(created_at: :desc)
 
     # 🔍 Unified Search (name + email + mobile)
     if params[:search].present?
@@ -36,7 +36,7 @@ class Superadmin::RetailersController < Superadmin::BaseController
 
 
   def index
-    @retailers = User.joins(:role).where(roles: { title: ["retailer", "master", "dealer"] }).order(created_at: :desc)
+    @retailers = User.joins(:role).where(roles: { title: [ "retailer", "master", "dealer" ] }).order(created_at: :desc)
 
     # 🔍 Full Name filter
     if params[:full_name].present?
@@ -97,18 +97,39 @@ class Superadmin::RetailersController < Superadmin::BaseController
 
    def edit
     @retailer = User.find(params[:id])
+    p "============scheme_id="
+    @retailer.scheme_id
   end
 
   def update
     @retailer = User.find(params[:id])
+    p "============scheme_id="
+    @retailer.scheme_id
     if @retailer.update(retailer_params)
 
+      # ==============================
+      # 1️⃣ UPDATE SCHEME FOR CHILD USERS
+      # ==============================
+      if params[:scheme_id].present?
+        old_scheme_id = current_user.scheme_id
+        new_scheme_id = params[:scheme_id]
+
+        child_users = @retailer
+                        .all_descendants
+                        .where(scheme_id: old_scheme_id)
+
+        child_users.update_all(scheme_id: new_scheme_id)
+      end
+
+      # ==============================
+      # 2️⃣ UPDATE SERVICES
+      # ==============================
       service_ids = Array(params[:user][:service_ids]).map(&:to_i)
-      assigner = User.find(136) # ya phir current_admin_user agar login se aa raha ho
+      assigner = User.find(136) # better: current_admin_user
 
       existing_ids = @retailer.user_services.pluck(:service_id)
 
-      # Unchecked services delete karo
+      # Remove unchecked services
       (existing_ids - service_ids).each do |sid|
         UserService.where(
           assigner: assigner,
@@ -117,7 +138,7 @@ class Superadmin::RetailersController < Superadmin::BaseController
         ).destroy_all
       end
 
-      # Naye checked services add karo
+      # Add new services
       (service_ids - existing_ids).each do |sid|
         UserService.create!(
           assigner: assigner,
@@ -126,11 +147,13 @@ class Superadmin::RetailersController < Superadmin::BaseController
         )
       end
 
-      redirect_to superadmin_admins_path, notice: "Admin updated successfully."
+      redirect_to superadmin_admins_path,
+        notice: "Admin updated successfully."
     else
       render :edit, status: :unprocessable_entity
     end
   end
+
 
   def update_status
     @retailer = User.find(params[:id])
@@ -167,8 +190,8 @@ class Superadmin::RetailersController < Superadmin::BaseController
 
     respond_to do |format|
       format.csv do
-        headers['Content-Disposition'] = "attachment; filename=\"retailers-#{Date.today}.csv\""
-        headers['Content-Type'] ||= 'text/csv'
+        headers["Content-Disposition"] = "attachment; filename=\"retailers-#{Date.today}.csv\""
+        headers["Content-Type"] ||= "text/csv"
       end
     end
   end

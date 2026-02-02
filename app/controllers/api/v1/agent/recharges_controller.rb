@@ -75,7 +75,8 @@ class Api::V1::Agent::RechargesController < Api::V1::Auth::BaseController
       utility_acc_no:    params[:utility_acc_no],
       mobile_no:         params[:mobile_number],
       sender_name:       params[:sender_name],
-      client_ref_id:     SecureRandom.hex(8)
+      client_ref_id:     SecureRandom.hex(8),
+      dob:               params[:dob]
     )
 
     render json: response

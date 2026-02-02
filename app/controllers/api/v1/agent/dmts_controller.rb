@@ -12,6 +12,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     dob
     shop_name
     residence_address
+    deposit_account_no
   ]
 
     missing = required_params.select { |key| params[key].blank? }
@@ -22,6 +23,9 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
+    if params[:deposit_ifsc_code] && params[:deposit_ifsc_code]
+      bank = Bank.find_by(deposit_account_no: params[:deposit_account_no], deposit_ifsc_code: params[:deposit_ifsc_code])
+     end
     response = EkoDmt::UserOnboardService.new(
       initiator_id: params[:initiator_id],
       pan_number: params[:pan_number],
@@ -461,13 +465,31 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   end
 
 
-  def sender_beneficiary
-    user = User.find_by(phone_number: params[:customer_id])
+  def all_beneficiary
+    beneficiaries = Dmt.where(
+      beneficiaries_status: true,
+      user_id: current_user.id
+    ).order(created_at: :desc)
+
+    if beneficiaries.exists?
+      render json: {
+        code: 200,
+        message: "Beneficiaries fetched successfully",
+        beneficiaries: beneficiaries
+      }
+    else
+      render json: {
+        code: 404,
+        message: "No beneficiaries found",
+        beneficiaries: []
+      }
+    end
   end
+
 
   def beneficiary_list
     user = VendorUser.find_by(phone_number: params[:customer_id])
-
+    p "======user======"
     if user.present?
       beneficiaries = Dmt.where(
         vendor_user_id: user.id,

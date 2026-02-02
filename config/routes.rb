@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-
   namespace :dealer do
     get "sessions/login"
     post "sessions/create"
@@ -60,7 +59,6 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       namespace :auth do
-
         # LOGIN (Admin / Master / Dealer / Agent)
         post "login", to: "sessions#login"
 
@@ -74,7 +72,6 @@ Rails.application.routes.draw do
         get "roles", to: "sessions#role"
 
         post "resend_otp", to: "sessions#resend_otp"
-
       end
     end
   end
@@ -91,7 +88,6 @@ Rails.application.routes.draw do
         post "accounts/add_debit",   to: "accounts#add_debit"
 
         resources :user_services do
-
           member do
             put :update_status
           end
@@ -107,8 +103,9 @@ Rails.application.routes.draw do
         end
 
         resources :schemes
+        post :scheme_list, to: "schemes#scheme_list", as: :admin_scheme_list
         resources :banks
-        resources :wallets, only: [:index, :create] do
+        resources :wallets, only: [ :index, :create ] do
           collection do
             get :bank
             get :bank_details
@@ -165,16 +162,15 @@ Rails.application.routes.draw do
         post "reports/index"
         # resources :reports , only: [:index]
 
-        resources :support_tickets, only: [:create, :index, :show] do
+        resources :support_tickets, only: [ :create, :index, :show ] do
           patch :update_status, on: :member
         end
 
         # resources :refunds, only: [:index, :refund_transaction]
 
-        resources :refunds, only: [:index, :create] do
-          post :refund_transaction, on: :member
+        resources :refunds, only: [ :index, :create ] do
+          post :refund_transaction, on: :collection
         end
-
       end
     end
   end
@@ -262,6 +258,7 @@ Rails.application.routes.draw do
         post "dmts/benfisries_dmt_transaction"
         post "dmts/beneficiary_fetch"
         post "dmts/beneficiary_list"
+        get "dmts/all_beneficiary"
         post "dmts/user_onboard"
         post "dmts/check_profile"
         post "dmts/create_customer"
@@ -274,7 +271,7 @@ Rails.application.routes.draw do
         post "biometric_ekyc_otp_verify", to: "dmts#biometric_ekyc_otp_verify"
         post "biometric", to: "dmts#biometric"
         post "biometric_kyc", to: "dmts#biometric_kyc"
-        
+
         post "digilocker/initiate"
 
         resources :beneficiaries do
@@ -284,19 +281,19 @@ Rails.application.routes.draw do
           end
         end
 
-        resources :support_tickets, only: [:create, :index, :show] do
+        resources :support_tickets, only: [ :create, :index, :show ] do
           patch :update_status, on: :member
         end
 
         # resources :refunds, only: [:index, :create]
 
-        resources :refunds, only: [:index, :create] do
+        resources :refunds, only: [ :index, :create ] do
           post :refund_transaction, on: :collection
           post :refund_verify_otp, on: :collection
         end
 
 
-        resources :reatailer_profiles, only: [:index]
+        resources :reatailer_profiles, only: [ :index ]
         get "reatailer_profiles/user_profile"
         post "reatailer_profiles/set_pin"
         post "reatailer_profiles/reset_password"
@@ -304,9 +301,7 @@ Rails.application.routes.draw do
         post "reatailer_profiles/verify_password_otp"
         post "reatailer_profiles/forget_password"
         post "reatailer_profiles/main_forget_password"
-
       end
-
     end
   end
 
@@ -385,7 +380,7 @@ Rails.application.routes.draw do
     post "scheme/create", to: "scheme#create", as: :scheme_create
     post "scheme/update", to: "scheme#update", as: :scheme_update
 
-    resources :scheme, only: [:destroy]
+    resources :scheme, only: [ :destroy ]
 
     post "admins/create", to: "admins#create", as: :admins_create
     post "admins/:id/admin_update_stauts", to: "admins#admin_update_stauts", as: :admin_update_status
