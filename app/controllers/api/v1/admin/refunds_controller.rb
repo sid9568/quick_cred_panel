@@ -30,6 +30,39 @@ class Api::V1::Admin::RefundsController < Api::V1::Auth::BaseController
     }, status: :ok
   end
 
+  def check_transaction_status
+    if params[:transaction_id].blank? && params[:client_ref_id].blank?
+      return render json: {
+        success: false,
+        message: "transaction_id or client_ref_id is required"
+      }, status: :bad_request
+    end
+
+    service = Eko::TransactionService.new
+
+    response = service.fetch(
+      transaction_id: params[:transaction_id],
+      client_ref_id:  params[:client_ref_id],
+      initiator_id:   "9212094999"
+    )
+
+    parsed_body = JSON.parse(response.body) rescue response.body
+
+    render json: {
+      success: response.success?,
+      data: parsed_body
+    }, status: :ok
+
+  rescue StandardError => e
+    Rails.logger.error("[EKO][check_transaction_status][ERROR] #{e.message}")
+
+    render json: {
+      success: false,
+      error: e.message
+    }, status: :internal_server_error
+  end
+
+
 
   def refund_transaction
     # ================== PARAM VALIDATION ==================

@@ -1,5 +1,5 @@
 class Api::V1::Agent::RefundsController < Api::V1::Auth::BaseController
-  before_action :set_refund, only: [:update_status]
+  before_action :set_refund, only: [ :update_status ]
 
   # GET /api/v1/agent/refunds
   def index

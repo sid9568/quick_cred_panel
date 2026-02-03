@@ -112,6 +112,7 @@ Rails.application.routes.draw do
             get :wallet_history
             get :balance
             get :virtual_balance
+            get :admin_bank
           end
         end
 
@@ -170,6 +171,7 @@ Rails.application.routes.draw do
 
         resources :refunds, only: [ :index, :create ] do
           post :refund_transaction, on: :collection
+          post :check_transaction_status, on: :collection
         end
       end
     end
