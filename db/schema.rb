@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_25_105222) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -101,6 +101,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
     t.string "commission_rate"
     t.index ["scheme_id"], name: "index_commissions_on_scheme_id"
     t.index ["service_product_item_id"], name: "index_commissions_on_service_product_item_id"
+  end
+
+  create_table "departments", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "dmt_commission_slab_ranges", force: :cascade do |t|
@@ -251,6 +258,87 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
     t.index ["user_id"], name: "index_fund_requests_on_user_id"
   end
 
+  create_table "leads", force: :cascade do |t|
+    t.string "name"
+    t.string "mobile"
+    t.string "email"
+    t.text "address"
+    t.string "director"
+    t.string "loan_type"
+    t.string "loan_ac"
+    t.decimal "total_outstanding"
+    t.text "borrower_info"
+    t.decimal "emi_amount"
+    t.integer "service_id"
+    t.bigint "user_id", null: false
+    t.string "adhaar_image"
+    t.string "pan_image"
+    t.string "notice_image"
+    t.string "check_image"
+    t.string "address_proof"
+    t.decimal "amount"
+    t.string "status"
+    t.string "account_number"
+    t.date "date"
+    t.string "image"
+    t.string "area"
+    t.string "bank_name"
+    t.text "branch_address"
+    t.string "officer_name"
+    t.string "designation"
+    t.string "borrower_name"
+    t.string "co_borrower"
+    t.string "loan_account_number"
+    t.text "borrower_address"
+    t.decimal "outstanding_amount"
+    t.date "npa_date"
+    t.date "notice_132_date"
+    t.date "expiry_date"
+    t.text "property_address"
+    t.string "survey_number"
+    t.string "north_boundary"
+    t.string "south_boundary"
+    t.string "east_boundary"
+    t.string "west_boundary"
+    t.string "possession_type"
+    t.date "possession_date"
+    t.string "possession_place"
+    t.date "notice_issue_date"
+    t.string "issue_place"
+    t.text "pending_message"
+    t.text "reject_message"
+    t.integer "ca_id"
+    t.integer "lawyer_id"
+    t.string "document_permission_status"
+    t.string "lead_status"
+    t.string "befor_sumbit_mca_status"
+    t.string "document_status"
+    t.string "payment_status"
+    t.string "review_status"
+    t.string "step_status"
+    t.string "service_type"
+    t.string "lead_ref_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_leads_on_user_id"
+  end
+
+  create_table "leave_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "parent_id"
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "total_days"
+    t.text "reason"
+    t.string "status", default: "pending"
+    t.text "reject_note"
+    t.text "approve_note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_leave_requests_on_parent_id"
+    t.index ["user_id"], name: "index_leave_requests_on_user_id"
+  end
+
   create_table "refund_requests", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "transaction_id", null: false
@@ -275,6 +363,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
     t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "salaries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "month"
+    t.integer "year"
+    t.integer "total_days"
+    t.integer "leave_days"
+    t.integer "working_days"
+    t.decimal "per_day_salary"
+    t.decimal "total_salary"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_salaries_on_user_id"
   end
 
   create_table "schemes", force: :cascade do |t|
@@ -339,6 +441,27 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_support_tickets_on_user_id"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "priority"
+    t.string "status"
+    t.string "task_status"
+    t.datetime "deadline"
+    t.bigint "user_id", null: false
+    t.bigint "department_id", null: false
+    t.integer "assigned_to"
+    t.text "pending_note"
+    t.text "approved_note"
+    t.text "note"
+    t.bigint "lead_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_tasks_on_department_id"
+    t.index ["lead_id"], name: "index_tasks_on_lead_id"
+    t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
   create_table "transaction_commissions", force: :cascade do |t|
@@ -566,12 +689,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_095929) do
   add_foreign_key "dmts", "vendor_users"
   add_foreign_key "enquiries", "roles"
   add_foreign_key "fund_requests", "users"
+  add_foreign_key "leads", "users"
+  add_foreign_key "leave_requests", "users"
+  add_foreign_key "leave_requests", "users", column: "parent_id"
   add_foreign_key "refund_requests", "transactions"
   add_foreign_key "refund_requests", "users"
+  add_foreign_key "salaries", "users"
   add_foreign_key "schemes", "users"
   add_foreign_key "service_product_items", "service_products"
   add_foreign_key "service_products", "categories"
   add_foreign_key "support_tickets", "users"
+  add_foreign_key "tasks", "departments"
+  add_foreign_key "tasks", "leads"
+  add_foreign_key "tasks", "users"
   add_foreign_key "transaction_commissions", "service_product_items"
   add_foreign_key "transaction_commissions", "transactions"
   add_foreign_key "transaction_commissions", "users"

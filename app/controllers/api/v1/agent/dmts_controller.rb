@@ -12,7 +12,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     dob
     shop_name
     residence_address
-    deposit_account_no
   ]
 
     missing = required_params.select { |key| params[key].blank? }
@@ -23,9 +22,9 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
-    if params[:deposit_ifsc_code] && params[:deposit_ifsc_code]
-      bank = Bank.find_by(deposit_account_no: params[:deposit_account_no], deposit_ifsc_code: params[:deposit_ifsc_code])
-     end
+    # if params[:deposit_ifsc_code] && params[:deposit_ifsc_code]
+    #   bank = Bank.find_by(deposit_account_no: params[:deposit_account_no], deposit_ifsc_code: params[:deposit_ifsc_code])
+    # end
     response = EkoDmt::UserOnboardService.new(
       initiator_id: params[:initiator_id],
       pan_number: params[:pan_number],

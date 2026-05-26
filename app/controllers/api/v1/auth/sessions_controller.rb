@@ -36,7 +36,7 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
     end
 
     # Allowed roles
-    allowed_roles = %w[admin master dealer retailer]
+    allowed_roles = %w[admin master dealer retailer staff]
     unless allowed_roles.include?(user.role.title)
       return render json: { code: 403, message: "Role not allowed" }
     end
@@ -112,49 +112,69 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
   # VERIFY EMAIL OTP
   # ------------------------------------
   def verify_email
-    p "=========verify_email================"
-    user = User.find_by(email: params[:email].to_s.strip)
-    p "======user======"
-    p user
-    unless user
-      return render json: { code: 404, message: "User not found" }
-    end
-
-    # OTP Expired
-    if user.email_otp_verified_at.nil? || Time.current > user.email_otp_verified_at
-      return render json: { code: 401, message: "OTP expired. Please request new." }
-    end
-
-    # OTP match?
-    if user.email_otp == params[:otp].to_s.strip
-
-      user.update!(
-        email_otp_status: true,
-        email_otp: nil,
-        email_otp_verified_at: Time.current
-      )
-
-      # Generate JWT Token WITH CORRECT ROLE
-      token = JsonWebToken.encode(
-        user_id: user.id,
-        role: user.role.title  # <===== FIX HERE
-      )
-
-      p "==========token==========="
-      p token
-
-      return render json: {
-        code: 200,
-        message: "Email verified successfully",
-        token: token,
-        role: { title: user.role.title.capitalize },   # <===== FIX HERE
-        user: user
-      }
-    end
-
-    # Wrong OTP
-    render json: { code: 401, message: "Invalid OTP" }
+  p "=========verify_email================"
+  user = User.find_by(email: params[:email].to_s.strip)
+  p "======user======"
+  p user
+  
+  unless user
+    return render json: { code: 404, message: "User not found" }
   end
+
+  p "======OTP Debug======"
+  p "Input OTP: #{params[:otp]}"
+  p "User OTP: #{user.email_otp}"
+  p "OTP Expires At: #{user.email_otp_verified_at}"
+  p "Current Time: #{Time.current}"
+  p "Is Expired: #{user.email_otp_verified_at.nil? || Time.current > user.email_otp_verified_at}"
+
+  # OTP Expired
+  if user.email_otp_verified_at.nil? || Time.current > user.email_otp_verified_at
+    p "❌ OTP Expired"
+    return render json: { code: 401, message: "OTP expired. Please request new." }
+  end
+
+  # OTP match?
+  if user.email_otp == params[:otp].to_s.strip
+    p "✅ OTP Matched"
+
+    user.update!(
+      email_otp_status: true,
+      email_otp: nil,
+      email_otp_verified_at: Time.current
+    )
+
+    p "User Role Title: #{user.role.title}"
+    p "User Role Title Class: #{user.role.title.class}"
+
+    # Generate JWT Token
+    token = JsonWebToken.encode(
+      user_id: user.id,
+      role: user.role.title.downcase  # <===== FIX: Send lowercase role
+    )
+
+    p "==========token==========="
+    p token
+
+    # Decode token to verify (optional)
+    decoded = JsonWebToken.decode(token)
+    p "Decoded Token Role: #{decoded['role']}"
+
+    return render json: {
+      code: 200,
+      message: "Email verified successfully",
+      token: token,
+      role: { title: user.role.title.downcase },  # <===== FIX: Send lowercase
+      user: user.as_json.merge(
+        role_title: user.role.title.downcase,
+        status_mpin: user.status_mpin
+      )
+    }
+  end
+
+  p "❌ Invalid OTP"
+  render json: { code: 401, message: "Invalid OTP" }
+end
 
 
   # ------------------------------------
@@ -174,6 +194,24 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
       render json: { code: 201, message: "User created successfully", user: user }
     else
       render json: { code: 422, message: "Failed", errors: user.errors.full_messages }
+    end
+  end
+
+  def logout
+    auth_header = request.headers["Authorization"]
+
+    if auth_header.present?
+      render json: {
+        code: 200,
+        success: true,
+        message: "Logout successfully"
+      }
+    else
+      render json: {
+        code: 401,
+        success: false,
+        message: "Token missing"
+      }
     end
   end
 

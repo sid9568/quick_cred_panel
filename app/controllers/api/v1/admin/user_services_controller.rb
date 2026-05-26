@@ -4,25 +4,31 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
   # -----------------------------------------
   # LIST RETAILERS/DEALERS CREATED BY ADMIN
   # -----------------------------------------
-  def index
-    users = current_user.all_descendants
-    .sort_by(&:created_at)
-    .reverse
+def index
+  users = current_user.all_descendants
 
-    if users.any?
-      render json: {
-        code: 200,
-        message: "Hierarchy users fetched successfully",
-        users: users
-      }
-    else
-      render json: {
-        code: 404,
-        message: "No hierarchy users found",
-        users: []
-      }
+  if params[:title].present?
+    users = users.select do |user|
+      user.role&.title&.downcase == params[:title].downcase
     end
   end
+
+  users = users.sort_by(&:created_at).reverse
+
+  if users.any?
+    render json: {
+      code: 200,
+      message: "Hierarchy users fetched successfully",
+      users: users
+    }
+  else
+    render json: {
+      code: 404,
+      message: "No hierarchy users found",
+      users: []
+    }
+  end
+end
 
 
   def role_count
@@ -148,205 +154,196 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
 
 
   def create
+  p "======title==========="
+  p params[:title]
+
+  # Staff → Auto role_id = 13
+  if params[:title].to_s.downcase == "staff"
+    params[:role_id] = 13
+
     required_fields = [
-      :first_name, :last_name, :email, :phone_number, :password,
-      :role_id, :service_ids, :scheme_id
+      :first_name,
+      :last_name,
+      :email,
+      :phone_number,
+      :password
     ]
+  else
+    required_fields = [
+      :first_name,
+      :last_name,
+      :email,
+      :phone_number,
+      :password,
+      :role_id,
+      :service_ids,
+      :scheme_id
+    ]
+  end
 
-    missing = required_fields.select { |f| params[f].blank? }
+  missing = required_fields.select do |field|
+    params[field].blank?
+  end
 
-    if missing.any?
-      return render json: {
-        code: 400,
-        message: "Missing required fields",
-        missing_fields: missing
-      }
-    end
+  if missing.any?
+    return render json: {
+      code: 400,
+      message: "Missing required fields",
+      missing_fields: missing
+    }
+  end
 
-    email    = params[:email].to_s.strip.downcase
-    username = params[:username].to_s.strip.downcase
+  email = params[:email].to_s.strip.downcase
+  username = params[:username].to_s.strip.downcase
 
-    if User.where("LOWER(email) = ?", email).exists?
-      return render json: {
-        code: 409,
-        message: "User already exists with this email"
-      }, status: :conflict
-    end
+  if User.where("LOWER(email)=?", email).exists?
+    return render json: {
+      code: 409,
+      message: "User already exists with this email"
+    }, status: :conflict
+  end
 
-    if User.where("LOWER(username) = ?", username).exists?
-      return render json: {
-        code: 409,
-        message: "User already exists with this username"
-      }, status: :conflict
-    end
+  if username.present? &&
+     User.where("LOWER(username)=?", username).exists?
 
-    unless params[:email].match?(/\A[^@\s]+@[^@\s]+\z/)
-      return render json: { code: 422, message: "Invalid email format" }
-    end
+    return render json: {
+      code: 409,
+      message: "User already exists with this username"
+    }, status: :conflict
+  end
 
-    unless params[:phone_number].to_s.match?(/\A[0-9]{10}\z/)
-      return render json: { code: 422, message: "Invalid phone number (10 digits required)" }
-    end
+  unless params[:email].match?(/\A[^@\s]+@[^@\s]+\z/)
+    return render json: {
+      code: 422,
+      message: "Invalid email format"
+    }
+  end
 
-    if params[:aadhaar_number].present? &&
-        !params[:aadhaar_number].to_s.match?(/\A[0-9]{12}\z/)
-      return render json: { code: 422, message: "Aadhaar must be 12 digits" }
-    end
+  unless params[:phone_number].to_s.match?(/\A\d{10}\z/)
+    return render json: {
+      code: 422,
+      message: "Invalid phone number (10 digits required)"
+    }
+  end
 
-    if params[:pan_card].present? &&
-        !params[:pan_card].to_s.match?(/\A[A-Z]{5}[0-9]{4}[A-Z]{1}\z/)
-      return render json: { code: 422, message: "PAN number is invalid" }
-    end
+  if params[:aadhaar_number].present? &&
+     !params[:aadhaar_number].to_s.match?(/\A\d{12}\z/)
+    return render json: {
+      code: 422,
+      message: "Aadhaar must be 12 digits"
+    }
+  end
 
+  if params[:pan_card].present? &&
+     !params[:pan_card].to_s.match?(/\A[A-Z]{5}[0-9]{4}[A-Z]{1}\z/)
+    return render json: {
+      code: 422,
+      message: "PAN number is invalid"
+    }
+  end
+
+  service_ids = []
+
+  unless params[:title].to_s.downcase == "staff"
     service_ids = Array(params[:service_ids]).map(&:to_i)
+
     if service_ids.empty?
-      return render json: { code: 422, message: "At least one service must be selected" }
-    end
-
-    # ------------------------
-    # 3️⃣ IMAGE UPLOADS
-    # ------------------------
-
-    aadhaar_url = params[:aadhaar_image].present? ?
-      Cloudinary::Uploader.upload(params[:aadhaar_image], folder: "users/aadhaar")["secure_url"] : nil
-
-    pan_url = params[:pan_card_image].present? ?
-      Cloudinary::Uploader.upload(params[:pan_card_image], folder: "users/pan")["secure_url"] : nil
-
-    shop_url = params[:store_shop_photo].present? ?
-      Cloudinary::Uploader.upload(params[:store_shop_photo], folder: "users/store")["secure_url"] : nil
-
-    # ------------------------
-    # 4️⃣ TRANSACTION
-    # ------------------------
-    ActiveRecord::Base.transaction do
-      if %w[master dealer].include?(params[:title].to_s.downcase)
-        user = User.new(
-          user_params.merge(
-            role_id: params[:role_id],
-            parent_id: current_user.id,
-            aadhaar_image: aadhaar_url,
-            pan_card_image: pan_url,
-            store_shop_photo: shop_url
-          )
-        )
-      else
-        master_fetch = User.find_by(id: params[:master_id])
-        return render json: {
-          code: 404,
-          message: "Master not found"
-        } unless master_fetch
-
-        dealer_fetch = User.find_by(id: params[:dealer_id])
-        return render json: {
-          code: 404,
-          message: "Dealer not found"
-        } unless dealer_fetch
-
-        user = User.new(
-          user_params.merge(
-            role_id: params[:role_id],
-            parent_id: dealer_fetch.id,
-            aadhaar_image: aadhaar_url,
-            pan_card_image: pan_url,
-            store_shop_photo: shop_url
-          )
-        )
-      end
-
-      unless user.save
-        return render json: {
-          code: 422,
-          message: user.errors.full_messages.to_sentence
-        }
-      end
-
-      # ---- User Services ----
-      service_ids.each do |sid|
-        UserService.create!(
-          assigner: current_user,
-          assignee: user,
-          service_id: sid
-        )
-      end
-
-      # residence_address JSON (reuse at both places)
-      # ===============================
-      # ONLY FOR RETAILER ROLE
-      # ===============================
-      # if user.role&.title == "retailer"
-
-      #   # -------------------------------
-      #   # EKO USER ONBOARD
-      #   # -------------------------------
-      #   response = EkoDmt::UserOnboardService.new(
-      #     initiator_id: "9212094999",
-      #     pan_number:   user.pan_card,
-      #     mobile:       user.phone_number,
-      #     first_name:   user.first_name,
-      #     last_name:    user.last_name,
-      #     email:        user.email,
-      #     dob:          user.date_of_birth,
-      #     shop_name:    user.business_name,
-      #     residence_address: params[:residence_address]
-      #   ).call
-
-      #   p "==========response============="
-      #   p response
-
-      #   user_code = response.dig("data", "user_code") || response["user_code"]
-      #   p "================="
-      #   p user_code
-      #   if user_code.blank?
-      #     render json: {
-      #       code: 422,
-      #       message: response["message"] || "User code not received from EKO",
-      #       raw: response
-      #     }, status: :unprocessable_entity
-      #     raise ActiveRecord::Rollback
-      #   end
-
-      #   user.update!(
-      #     user_code: user_code,
-      #     eko_onboard_first_step: true
-      #   )
-
-      #   # -------------------------------
-      #   # EKO DMT CUSTOMER CREATE
-      #   # -------------------------------
-      #   resp = EkoDmt::DmtCustomerCreateService.new(
-      #     customer_id:       user.phone_number,
-      #     initiator_id:      "9212094999",
-      #     user_code:         user.user_code,
-      #     name:              user.first_name,
-      #     dob:               user.date_of_birth,
-      #     residence_address: params[:residence_address]
-      #   ).call
-
-      #   p "===========resp========"
-      #   p resp
-      #   user.update!(
-      #     eko_onboard_first_step: true
-      #   )
-
-      #   p "============respresp============="
-      #   p resp
-
-      # end
-
-      # residence_address JSON (reuse at both places)
-      # ===============================
-      # ONLY FOR RETAILER ROLE
-      # ===============================
-
-
       return render json: {
-        code: 201,
-        message: "User created successfully",
-        user: user
+        code: 422,
+        message: "At least one service must be selected"
       }
     end
   end
+
+  # Upload Images
+  aadhaar_url =
+    if params[:aadhaar_image].present?
+      Cloudinary::Uploader.upload(
+        params[:aadhaar_image],
+        folder: "users/aadhaar"
+      )["secure_url"]
+    end
+
+  pan_url =
+    if params[:pan_card_image].present?
+      Cloudinary::Uploader.upload(
+        params[:pan_card_image],
+        folder: "users/pan"
+      )["secure_url"]
+    end
+
+  shop_url =
+    if params[:store_shop_photo].present?
+      Cloudinary::Uploader.upload(
+        params[:store_shop_photo],
+        folder: "users/store"
+      )["secure_url"]
+    end
+
+  ActiveRecord::Base.transaction do
+
+    if %w[master dealer staff].include?(params[:title].to_s.downcase)
+
+      user = User.new(
+        user_params.merge(
+          role_id: params[:role_id],
+          parent_id: current_user.id,
+          aadhaar_image: aadhaar_url,
+          pan_card_image: pan_url,
+          store_shop_photo: shop_url
+        )
+      )
+
+    else
+
+      master_fetch = User.find_by(id: params[:master_id])
+
+      return render json: {
+        code: 404,
+        message: "Master not found"
+      } unless master_fetch
+
+      dealer_fetch = User.find_by(id: params[:dealer_id])
+
+      return render json: {
+        code: 404,
+        message: "Dealer not found"
+      } unless dealer_fetch
+
+      user = User.new(
+        user_params.merge(
+          role_id: params[:role_id],
+          parent_id: dealer_fetch.id,
+          aadhaar_image: aadhaar_url,
+          pan_card_image: pan_url,
+          store_shop_photo: shop_url
+        )
+      )
+    end
+
+    unless user.save
+      return render json: {
+        code: 422,
+        message: user.errors.full_messages.to_sentence
+      }
+    end
+
+    # Create services only for non-staff
+    service_ids.each do |sid|
+      UserService.create!(
+        assigner: current_user,
+        assignee: user,
+        service_id: sid
+      )
+    end
+
+    render json: {
+      code: 201,
+      message: "User created successfully",
+      user: user
+    }
+  end
+end
 
 
 

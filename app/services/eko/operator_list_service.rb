@@ -31,6 +31,11 @@ module Eko
 
       developer_key = ENV["EKO_DEV_KEY"]
       access_key    = ENV["EKO_SECRET_KEY"]
+ 
+
+   puts ENV["EKO_SECRET_KEY"].inspect
+puts ENV["EKO_DEV_KEY"].inspect
+
 
       timestamp = (Time.now.to_f * 1000).to_i.to_s
       encoded_key = Base64.strict_encode64(access_key)

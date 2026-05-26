@@ -61,6 +61,7 @@ Rails.application.routes.draw do
       namespace :auth do
         # LOGIN (Admin / Master / Dealer / Agent)
         post "login", to: "sessions#login"
+        post "logout", to: "sessions#logout"
 
         # VERIFY OTP
         post "verify_email", to: "sessions#verify_email"
@@ -166,6 +167,16 @@ Rails.application.routes.draw do
         resources :support_tickets, only: [ :create, :index, :show ] do
           patch :update_status, on: :member
         end
+
+        resources :departments
+       resources :tasks do
+          collection do
+            get :lead_list
+          end
+        end
+        resources :salaries
+        resources :leave_requests, only: [:index]
+
 
         # resources :refunds, only: [:index, :refund_transaction]
 
@@ -286,6 +297,8 @@ Rails.application.routes.draw do
         resources :support_tickets, only: [ :create, :index, :show ] do
           patch :update_status, on: :member
         end
+
+        resources :leave_requests
 
         # resources :refunds, only: [:index, :create]
 
