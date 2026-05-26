@@ -61,7 +61,7 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
       "postpaid" => "postpaid"
     }
 
-    type = type_mapping[company_name] || "postpaid"
+    type = type_mapping[company_name] || "prepaid"
 
     result = Eko::OperatorListService.fetch(type)
 
@@ -86,18 +86,25 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
         service_product_item_id: item.id,
         scheme_id: params[:scheme]
       ).select(:id, :from_role, :to_role, :value, :scheme_id, :commission_type, :commission_rate)
-
+       
+      p "==================item"
+      p item
+      p "==============current_user.scheme_id"
+      p current_user.scheme_id
       commissions_admin = Commission.where(
         service_product_item_id: item.id,
         scheme_id: current_user.scheme_id
       ).select(:id, :from_role, :to_role, :value, :scheme_id, :commission_type, :commission_rate)
+
+      p "=========commissions_admin========"
+      p commissions_admin
 
       {
         item_id: item.operator_id,
         item_name: item.name,
         commissions: (commissions + commissions_admin).uniq
       }
-    end
+  end
 
     render json: {
       code: 200,
@@ -215,6 +222,7 @@ class Api::V1::Admin::CommissionsController < Api::V1::Auth::BaseController
       commission = Commission.find_or_initialize_by(
         service_product_item_id: service_item.id,
         scheme_id: params[:scheme],
+
         commission_type: commission_type,
         to_role: role
       )
