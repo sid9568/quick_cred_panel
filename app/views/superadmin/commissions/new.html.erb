@@ -130,7 +130,21 @@
                   </li>
                 <% end %>
               </ul>
+
+               <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Commission Rate
+            </label>
+
+            <%= f.number_field :commission_rate,
+                  step: 0.01,
+                  class: "w-full rounded-lg border px-4 py-2.5" %>
+          </div>
+        </div>
+
             </div>
+
+
 
           </div>
         </div>

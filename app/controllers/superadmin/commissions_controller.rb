@@ -73,10 +73,10 @@ class Superadmin::CommissionsController < Superadmin::BaseController
     service_item = ServiceProductItem.find_or_create_by!(
       service_product_id: params[:service_product_id],
       name: params[:operator_name],
-      operator_id: params[:operator_id]
+      operator_id: params[:operator_id],
     )
 
-    @commission = Commission.new(commission_params.merge(value: params[:admin_commission]))
+    @commission = Commission.new(commission_params.merge(value: params[:admin_commission],  commission_rate: params[:commission_rate]))
     @commission.service_product_item_id = service_item.id
     @commission.from_role = current_superadmin.role.title # Assuming current_user is available
     @commission.to_role = "admin"
