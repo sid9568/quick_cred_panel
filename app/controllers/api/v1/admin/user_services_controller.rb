@@ -157,7 +157,7 @@ end
   p "======title==========="
   p params[:title]
 
-  # Staff → Auto role_id = 13
+  # Auto assign role for staff
   if params[:title].to_s.downcase == "staff"
     params[:role_id] = 13
 
@@ -179,6 +179,11 @@ end
       :service_ids,
       :scheme_id
     ]
+  end
+
+  # Extra required field for dealer
+  if params[:title].to_s.downcase == "dealer"
+    required_fields << :master_id
   end
 
   missing = required_fields.select do |field|
@@ -212,7 +217,7 @@ end
     }, status: :conflict
   end
 
-  unless params[:email].match?(/\A[^@\s]+@[^@\s]+\z/)
+  unless email.match?(/\A[^@\s]+@[^@\s]+\z/)
     return render json: {
       code: 422,
       message: "Invalid email format"
@@ -282,44 +287,46 @@ end
 
   ActiveRecord::Base.transaction do
 
-    if %w[master dealer staff].include?(params[:title].to_s.downcase)
+    # Parent Logic
+    parent_user_id =
+      case params[:title].to_s.downcase
 
-      user = User.new(
-        user_params.merge(
-          role_id: params[:role_id],
-          parent_id: current_user.id,
-          aadhaar_image: aadhaar_url,
-          pan_card_image: pan_url,
-          store_shop_photo: shop_url
-        )
+      when "master"
+        current_user.id
+
+      when "dealer"
+        master = User.find_by(id: params[:master_id])
+
+        return render json: {
+          code: 404,
+          message: "Master not found"
+        } unless master
+
+        master.id
+
+      when "staff"
+        current_user.id
+
+      else
+        dealer = User.find_by(id: params[:dealer_id])
+
+        return render json: {
+          code: 404,
+          message: "Dealer not found"
+        } unless dealer
+
+        dealer.id
+      end
+
+    user = User.new(
+      user_params.merge(
+        role_id: params[:role_id],
+        parent_id: parent_user_id,
+        aadhaar_image: aadhaar_url,
+        pan_card_image: pan_url,
+        store_shop_photo: shop_url
       )
-
-    else
-
-      master_fetch = User.find_by(id: params[:master_id])
-
-      return render json: {
-        code: 404,
-        message: "Master not found"
-      } unless master_fetch
-
-      dealer_fetch = User.find_by(id: params[:dealer_id])
-
-      return render json: {
-        code: 404,
-        message: "Dealer not found"
-      } unless dealer_fetch
-
-      user = User.new(
-        user_params.merge(
-          role_id: params[:role_id],
-          parent_id: dealer_fetch.id,
-          aadhaar_image: aadhaar_url,
-          pan_card_image: pan_url,
-          store_shop_photo: shop_url
-        )
-      )
-    end
+    )
 
     unless user.save
       return render json: {
@@ -328,7 +335,7 @@ end
       }
     end
 
-    # Create services only for non-staff
+    # Assign Services
     service_ids.each do |sid|
       UserService.create!(
         assigner: current_user,
@@ -341,7 +348,7 @@ end
       code: 201,
       message: "User created successfully",
       user: user
-    }
+    }, status: :created
   end
 end
 
