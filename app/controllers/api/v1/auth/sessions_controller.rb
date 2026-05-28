@@ -72,53 +72,73 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
     }
   end
 
-  def resend_otp
-    user = User.find_by(email: params[:email].to_s.strip)
+ def resend_otp
+  login_param = params[:email].to_s.strip.downcase
 
-    unless user
-      return render json: {
-        code: 404,
-        message: "User not found",
-        success: false
-      }
-    end
+  # Find by email OR username
+  user = User.find_by(
+    "LOWER(email) = ? OR LOWER(username) = ?",
+    login_param,
+    login_param
+  )
 
-    # Generate new OTP
-    otp = rand(100000..999999).to_s
-
-    # Reset old OTP & save new one
-    user.update!(
-      email_otp: otp,
-      email_otp_status: false,
-      email_otp_verified_at: 10.minutes.from_now
-    )
-
-    # Send OTP asynchronously (Rails way)
-    UserMailer.send_email_otp(user, otp).deliver_later
-
-    render json: {
-      code: 200,
-      message: "New OTP sent to your email",
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        email_otp_verified_at: user.email_otp_verified_at
-      }
+  unless user
+    return render json: {
+      code: 404,
+      message: "User not found",
+      success: false
     }
   end
 
-  # ------------------------------------
-  # VERIFY EMAIL OTP
-  # ------------------------------------
-  def verify_email
+  # Generate new OTP
+  otp = rand(100000..999999).to_s
+
+  user.update!(
+    email_otp: otp,
+    email_otp_status: false,
+    email_otp_verified_at: 10.minutes.from_now
+  )
+
+  # Send OTP
+  UserMailer.send_email_otp(user, otp).deliver_later
+
+  render json: {
+    code: 200,
+    message: "New OTP sent successfully",
+    success: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      email_otp_verified_at: user.email_otp_verified_at
+    }
+  }
+end
+
+
+# ------------------------------------
+# VERIFY EMAIL OTP
+# ------------------------------------
+def verify_email
   p "=========verify_email================"
-  user = User.find_by(email: params[:email].to_s.strip)
+
+  login_param = params[:email].to_s.strip.downcase
+
+  # Find user by email OR username
+  user = User.find_by(
+    "LOWER(email) = ? OR LOWER(username) = ?",
+    login_param,
+    login_param
+  )
+
   p "======user======"
   p user
-  
+
   unless user
-    return render json: { code: 404, message: "User not found" }
+    return render json: {
+      code: 404,
+      message: "User not found"
+    }
   end
 
   p "======OTP Debug======"
@@ -126,16 +146,22 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
   p "User OTP: #{user.email_otp}"
   p "OTP Expires At: #{user.email_otp_verified_at}"
   p "Current Time: #{Time.current}"
-  p "Is Expired: #{user.email_otp_verified_at.nil? || Time.current > user.email_otp_verified_at}"
 
   # OTP Expired
-  if user.email_otp_verified_at.nil? || Time.current > user.email_otp_verified_at
+  if user.email_otp_verified_at.nil? ||
+     Time.current > user.email_otp_verified_at
+
     p "❌ OTP Expired"
-    return render json: { code: 401, message: "OTP expired. Please request new." }
+
+    return render json: {
+      code: 401,
+      message: "OTP expired. Please request new OTP."
+    }
   end
 
-  # OTP match?
+  # OTP Match
   if user.email_otp == params[:otp].to_s.strip
+
     p "✅ OTP Matched"
 
     user.update!(
@@ -144,27 +170,27 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
       email_otp_verified_at: Time.current
     )
 
-    p "User Role Title: #{user.role.title}"
-    p "User Role Title Class: #{user.role.title.class}"
-
-    # Generate JWT Token
+    # Generate JWT token
     token = JsonWebToken.encode(
       user_id: user.id,
-      role: user.role.title.downcase  # <===== FIX: Send lowercase role
+      role: user.role.title.downcase
     )
 
     p "==========token==========="
     p token
 
-    # Decode token to verify (optional)
     decoded = JsonWebToken.decode(token)
-    p "Decoded Token Role: #{decoded['role']}"
+
+    p "Decoded Token:"
+    p decoded
 
     return render json: {
       code: 200,
       message: "Email verified successfully",
       token: token,
-      role: { title: user.role.title.downcase },  # <===== FIX: Send lowercase
+      role: {
+        title: user.role.title.downcase
+      },
       user: user.as_json.merge(
         role_title: user.role.title.downcase,
         status_mpin: user.status_mpin
@@ -173,7 +199,11 @@ class Api::V1::Auth::SessionsController < Api::V1::Auth::BaseController
   end
 
   p "❌ Invalid OTP"
-  render json: { code: 401, message: "Invalid OTP" }
+
+  render json: {
+    code: 401,
+    message: "Invalid OTP"
+  }
 end
 
 

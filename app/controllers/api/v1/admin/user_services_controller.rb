@@ -4,31 +4,32 @@ class Api::V1::Admin::UserServicesController < Api::V1::Auth::BaseController
   # -----------------------------------------
   # LIST RETAILERS/DEALERS CREATED BY ADMIN
   # -----------------------------------------
-def index
-  users = current_user.all_descendants
+  def index
+    users = current_user.all_descendants
 
-  if params[:title].present?
-    users = users.select do |user|
-      user.role&.title&.downcase == params[:title].downcase
+    if params[:title].present?
+      users = users.select do |user|
+        user.role.present? &&
+        user.role.title.to_s.downcase == params[:title].to_s.downcase
+      end
+    end
+
+    users = users.sort_by(&:created_at).reverse
+
+    if users.present?
+      render json: {
+        code: 200,
+        message: "Hierarchy users fetched successfully",
+        users: users
+      }
+    else
+      render json: {
+        code: 404,
+        message: "No hierarchy users found",
+        users: []
+      }
     end
   end
-
-  users = users.sort_by(&:created_at).reverse
-
-  if users.any?
-    render json: {
-      code: 200,
-      message: "Hierarchy users fetched successfully",
-      users: users
-    }
-  else
-    render json: {
-      code: 404,
-      message: "No hierarchy users found",
-      users: []
-    }
-  end
-end
 
 
   def role_count
