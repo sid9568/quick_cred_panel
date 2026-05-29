@@ -12,6 +12,40 @@ class Api::V1::Admin::AccountsController < Api::V1::Auth::BaseController
     }
   end
 
+  def user_name
+    users = current_user.all_descendants
+                        .map(&:username)
+                        .compact
+                        .uniq
+
+    render json: {
+      code: 200,
+      message: "Successfully list show",
+      users: users
+    }
+  end
+
+  def fetch_user
+    user = current_user.all_descendants.find { |u| u.username == params[:username] }
+
+    if user.present?
+      render json: {
+        code: 200,
+        message: "User found successfully",
+        user: {
+          username: user.username,
+          phone_number: user.phone_number,
+          role: user.role&.title
+        }
+      }
+    else
+      render json: {
+        code: 404,
+        message: "User not found"
+      }, status: :not_found
+    end
+  end
+
   # -------------------------
   # POST /api/v1/admin/accounts/add_credit
   # -------------------------

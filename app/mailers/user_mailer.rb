@@ -1,6 +1,6 @@
 # app/mailers/user_mailer.rb
 class UserMailer < ApplicationMailer
-  default from: "Bharatgrowbusiness"
+  default from: "support@quickcred.io"
   p "================UserMailer"
   def status_updated(user)
     p "=---------- user welcome"

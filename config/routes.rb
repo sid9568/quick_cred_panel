@@ -85,6 +85,9 @@ Rails.application.routes.draw do
         get  "accounts/credit_logs", to: "accounts#credit_logs"
         post "accounts/add_credit",  to: "accounts#add_credit"
 
+        get "accounts/user_name", to: "accounts#user_name"
+        post "accounts/fetch_user", to: "accounts#fetch_user"
+
         get  "accounts/debit_logs",  to: "accounts#debit_logs"
         post "accounts/add_debit",   to: "accounts#add_debit"
 

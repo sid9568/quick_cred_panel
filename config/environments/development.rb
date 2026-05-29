@@ -83,14 +83,13 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   config.action_mailer.delivery_method = :smtp
-    config.hosts << "19a3558d4f6e.ngrok-free.app"
 
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com",
+    address: "smtp.hostinger.com",
     port: 587,
-    domain: "gmail.com",
-    user_name: "Bharatgrowbusiness@gmail.com", # अपनी Gmail ID
-    password: "nvpv gfhm kdac kqwe",  # App Password
+    domain: "quickcred.io",
+    user_name: "support@quickcred.io", # अपनी Gmail ID
+    password: "9xzn-rgaq-9l6v-s5ze",  # App Password
     authentication: "plain",
     enable_starttls_auto: true
   }
