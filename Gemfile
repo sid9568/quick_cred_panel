@@ -70,3 +70,5 @@ gem "cloudinary"
 gem 'httparty'
 gem "dotenv-rails", groups: [:development, :test]
 gem "twilio-ruby"
+gem 'multipart-post'
+gem "net-http"

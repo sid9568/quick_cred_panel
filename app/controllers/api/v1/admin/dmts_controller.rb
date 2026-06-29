@@ -123,7 +123,7 @@ class Api::V1::Admin::DmtsController < Api::V1::Auth::BaseController
     role_map = {
       "admin"    => params[:admin_commission],
       "master"   => params[:master_commission],
-      "dealer"   => params[:dealer_commision],
+      "dealer"   => params[:dealer_commission],
       "retailer" => params[:retailer_commission]
     }
 

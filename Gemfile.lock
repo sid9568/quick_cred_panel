@@ -392,6 +392,8 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   jwt
+  multipart-post
+  net-http
   pg (~> 1.1)
   puma (>= 5.0)
   rack-cors

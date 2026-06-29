@@ -106,6 +106,14 @@ Rails.application.routes.draw do
           end
         end
 
+        resources :cibil_scores, only: [:index, :show, :create]
+        resources :profiles, only: [] do
+              collection do
+                get :index
+                patch :update
+                put :update
+              end
+            end        
         resources :schemes
         post :scheme_list, to: "schemes#scheme_list", as: :admin_scheme_list
         resources :banks
@@ -294,6 +302,29 @@ Rails.application.routes.draw do
           collection do
             post "send_otp"
             post "verify_otp"
+          end
+        end
+
+        namespace :aeps do
+          namespace :fingpay do
+
+            resources :service_activates, only: [:create]
+            
+            resources :fund_settlements, only: [:index] do
+             collection do
+                post :add_settlemetn_bank
+                post :settlements
+              end
+            end
+
+            resources :daily_kycs, only: [:create] do
+              collection do
+                post :otp
+                post :verify
+                post :kyc_service
+                post :transaction
+              end
+            end
           end
         end
 

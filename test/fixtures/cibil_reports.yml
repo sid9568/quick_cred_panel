@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  pan: MyString
+  mobile_number: MyString
+  name: MyString
+  credit_score: MyString
+  bureau: MyString
+  response_data: 
+  doc_id: MyString
+  status_code: 1
+  success: false
+
+two:
+  user: two
+  pan: MyString
+  mobile_number: MyString
+  name: MyString
+  credit_score: MyString
+  bureau: MyString
+  response_data: 
+  doc_id: MyString
+  status_code: 1
+  success: false
