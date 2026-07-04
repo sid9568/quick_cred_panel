@@ -308,7 +308,13 @@ Rails.application.routes.draw do
         namespace :aeps do
           namespace :fingpay do
 
-            resources :service_activates, only: [:create]
+            resources :service_activates, only: [:create] do 
+              collection  do
+                get :get_state
+                get :mcc_category_api
+              end
+              
+            end
             
             resources :fund_settlements, only: [:index] do
              collection do

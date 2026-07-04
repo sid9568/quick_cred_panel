@@ -6,6 +6,43 @@ module Api
           class ServiceActivatesController < ApplicationController
             protect_from_forgery with: :null_session
 
+            def get_state
+              result = ::Aeps::Fingpay::GetStatesService.new(
+                  initiator_id: "6268075916",
+                  user_code: "20500001"
+                ).call
+
+                if result[:success]
+                  render json: result[:body], status: :ok
+                else
+                  render json: {
+                    success: false,
+                    error: result[:error] || result[:body]
+                  }, status: result[:status] || :unprocessable_entity
+                end
+            end
+
+           def mcc_category_api
+            result = ::Aeps::Fingpay::GetMccCategoryService.new(
+              initiator_id: params[:initiator_id] || "6268075916",
+              user_code: params[:user_code] || "20500001"
+            ).call
+
+            if result[:success]
+              render json: {
+                success: true,
+                message: "MCC Categories fetched successfully",
+                data: result[:body]
+              }, status: :ok
+            else
+              render json: {
+                success: false,
+                message: result[:error] || "Unable to fetch MCC Categories",
+                data: result[:body]
+              }, status: result[:status] || :unprocessable_entity
+            end
+          end
+
             def create
               begin
                 address_as_per_proof =
@@ -63,18 +100,23 @@ module Api
                   aadhar_back: aadhar_back_file.tempfile.path
                 )
 
-                render json: {
-                  success: true,
-                  response: response
-                }
+                begin
+                  response_body = JSON.parse(response[:body])
 
-              rescue => e
-                render json: {
-                  success: false,
-                  error: e.message,
-                  backtrace: e.backtrace.first(5)
-                }, status: :unprocessable_entity
+                  if response_body["response_status_id"] == 0
+                    current_user.update!(aeps_service_activate: true, latitude: params[:latlong])
+                  end
+
+                  render json: response_body, status: :ok
+                rescue JSON::ParserError
+                  render json: {
+                    success: false,
+                    error: "Invalid response received from EKO"
+                  }, status: :unprocessable_entity
+                end
               end
+
+
             end
           end
         end

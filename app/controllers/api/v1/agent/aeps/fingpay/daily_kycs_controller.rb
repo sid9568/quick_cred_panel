@@ -3,32 +3,33 @@ module Api
     module Agent
       module Aeps
         module Fingpay
-          class DailyKycsController < ApplicationController
-           protect_from_forgery with: :null_session
+          class DailyKycsController < Api::V1::Auth::BaseController
+           # protect_from_forgery with: :null_session
 
           def otp
             result = ::Aeps::Fingpay::OtpService.new.call(
-              customer_id: params[:customer_id],
+              customer_id: current_user.phone_number,
               aadhar: params[:aadhar],
-              latlong: params[:latlong],
-              user_code: params[:user_code]
+              latlong: current_user.aeps_latlong,
+              user_code: current_user.user_code
             )
 
             render json: result, status: :ok
           end
 
           def verify
-            required_params = %i[
-              customer_id
-              aadhar
-              user_code
-              otp
-              otp_ref_id
-              reference_tid
-              latlong
-            ]
+            p "=================user"
+            p current_user
+            p "================current_user.latitude.to_s"
+            p current_user.aeps_latlong
+           required_params = %i[
+            aadhar
+            otp
+            otp_ref_id
+            reference_tid
+          ]
 
-            missing_params = required_params.select { |param| params[param].blank? }
+          missing_params = required_params.select { |param| params[param].blank? }
 
             if missing_params.any?
               return render json: {
@@ -38,13 +39,13 @@ module Api
             end
 
             response = ::Aeps::Fingpay::OtpVerifyService.new.call(
-              customer_id: params[:customer_id],
+              customer_id: current_user.phone_number,
               aadhar: params[:aadhar],
-              user_code: params[:user_code],
+              user_code: current_user.user_code,
               otp: params[:otp],
               otp_ref_id: params[:otp_ref_id],
               reference_tid: params[:reference_tid],
-              latlong: params[:latlong]
+              latlong: current_user.aeps_latlong
             )
 
             if response[:success]
@@ -66,21 +67,14 @@ module Api
             }, status: :internal_server_error
         end
 
-          # EKO_INITIATOR_ID = 6268075916
-          # EKO_USER_CODE = 20500001
-          # 38130024
 
-        def kyc_service
+          def kyc_service
+              p "=====================current_user"
+              p current_user
               required_params = %i[
-                initiator_id
-                user_code
-                customer_id
-                client_ref_id
-                latlong
                 reference_tid
                 otp_ref_id
                 bank_code
-                ekyc_flag
                 aadhar
                 piddata
               ]
@@ -94,16 +88,25 @@ module Api
                 }, status: :unprocessable_entity
               end
 
+              if current_user.aeps_latlong.blank?
+                return render json: {
+                  success: false,
+                  error: "AEPS latitude and longitude not found."
+                }, status: :unprocessable_entity
+              end
+
+              client_ref_id = SecureRandom.alphanumeric(16)
+
               response = ::Aeps::Fingpay::KycService.call(
-                initiator_id: params[:initiator_id],
-                user_code: params[:user_code],
-                customer_id: params[:customer_id],
-                client_ref_id: params[:client_ref_id],
-                latlong: params[:latlong],
+                initiator_id: "6268075916",
+                user_code: current_user.user_code,
+                customer_id: current_user.phone_number,
+                client_ref_id: client_ref_id,
+                latlong: current_user.aeps_latlong,
                 reference_tid: params[:reference_tid],
                 otp_ref_id: params[:otp_ref_id],
                 bank_code: params[:bank_code],
-                ekyc_flag: params[:ekyc_flag],
+                ekyc_flag: "0",
                 aadhar: params[:aadhar],
                 piddata: params[:piddata]
               )

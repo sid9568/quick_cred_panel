@@ -26,7 +26,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     #   bank = Bank.find_by(deposit_account_no: params[:deposit_account_no], deposit_ifsc_code: params[:deposit_ifsc_code])
     # end
     response = EkoDmt::UserOnboardService.new(
-      initiator_id: params[:initiator_id],
+      initiator_id: "6268075916",
       pan_number: params[:pan_number],
       mobile: params[:mobile],
       first_name: params[:first_name],
