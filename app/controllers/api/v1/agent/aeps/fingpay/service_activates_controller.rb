@@ -104,7 +104,7 @@ module Api
                   response_body = JSON.parse(response[:body])
 
                   if response_body["response_status_id"] == 0
-                    current_user.update!(aeps_service_activate: true, latitude: params[:latlong])
+                    current_user.update!(aeps_service_activate: true, aeps_latlong: params[:latlong])
                   end
 
                   render json: response_body, status: :ok
