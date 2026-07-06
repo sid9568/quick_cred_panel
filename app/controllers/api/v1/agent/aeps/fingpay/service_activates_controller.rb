@@ -4,7 +4,7 @@ module Api
       module Aeps
         module Fingpay
           class ServiceActivatesController < Api::V1::Auth::BaseController
-            protect_from_forgery with: :null_session
+            # protect_from_forgery with: :null_session
 
             def get_state
               result = ::Aeps::Fingpay::GetStatesService.new(
