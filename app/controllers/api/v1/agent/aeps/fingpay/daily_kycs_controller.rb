@@ -127,12 +127,12 @@ module Api
             def create
                 result = ::Aeps::Fingpay::DailyKycService.new.call(
                 initiator_id: "6268075916",
-                user_code: "38130024",
-                customer_id: "8512889672",
+                user_code: "205091004",
+                customer_id: "7846960035",
                 client_ref_id: "202105311125123456",
-                latlong: "25.340870,82.996858",
-                bank_code: "ICIC",
-                aadhar: "252262716014",
+                latlong: "20.229043,85.839995",
+                bank_code: "FDRL",
+                aadhar: "343807435791",
                 piddata: params[:piddata]
                 )
 
