@@ -128,6 +128,9 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
+    geocoder (1.8.6)
+      base64 (>= 0.1.0)
+      csv (>= 3.0.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
     groupdate (6.5.1)
@@ -387,6 +390,7 @@ DEPENDENCIES
   debug
   dotenv-rails
   error_highlight (>= 0.4.0)
+  geocoder
   groupdate
   httparty
   importmap-rails

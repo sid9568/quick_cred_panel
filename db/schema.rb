@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_04_084007) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_11_115411) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -637,6 +637,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_04_084007) do
     t.boolean "daily_aeps_kyc", default: false, null: false
     t.boolean "aeps_service_activate", default: false, null: false
     t.string "aeps_latlong"
+    t.datetime "login_in_time"
+    t.datetime "logout_time"
+    t.string "ip_city"
+    t.string "ip_location"
     t.index ["email"], name: "index_users_on_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["role_id"], name: "index_users_on_role_id"

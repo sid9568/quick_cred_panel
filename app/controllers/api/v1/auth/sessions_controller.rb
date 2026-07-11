@@ -134,6 +134,35 @@ def verify_email
   p "======user======"
   p user
 
+  client_ip = request.headers["X-Forwarded-For"]&.split(",")&.first&.strip.presence ||
+            request.headers["X-Real-IP"].presence ||
+            request.remote_ip
+
+Rails.logger.info "================= CLIENT IP"
+Rails.logger.info client_ip
+
+result =
+  if client_ip.present? && !["127.0.0.1", "::1"].include?(client_ip)
+    Geocoder.search(client_ip).first
+  end
+
+Rails.logger.info "================= IP LOCATION RESULT"
+Rails.logger.info result.inspect
+
+user.update!(
+  login_in_time: Time.current,
+  ip_address: client_ip,
+  ip_city: result&.city,
+  ip_location: [
+    result&.state,
+    result&.country
+  ].compact.join(", ").presence,
+  latitude: result&.latitude,
+  longitude: result&.longitude,
+  last_seen_at: Time.current
+)
+
+
   unless user
     return render json: {
       code: 404,

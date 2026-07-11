@@ -72,3 +72,4 @@ gem "dotenv-rails", groups: [:development, :test]
 gem "twilio-ruby"
 gem 'multipart-post'
 gem "net-http"
+gem 'geocoder'
