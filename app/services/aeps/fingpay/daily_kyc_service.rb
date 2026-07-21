@@ -46,7 +46,7 @@ module Aeps
           latlong: latlong,
           bank_code: bank_code,
           aadhar: encrypted_aadhar,
-          piddata: piddata.to_s.strip
+          piddata: piddata
         }
 
         json_payload = JSON.generate(payload)
@@ -171,24 +171,41 @@ module Aeps
       end
 
       def encrypt_aadhar(aadhar_number)
-        Rails.logger.info("PLAIN AADHAAR => #{aadhar_number}")
+      raise ArgumentError, "Aadhaar number is required" if aadhar_number.blank?
 
-        der_bytes  = Base64.decode64(PUBLIC_KEY)
-        asn1       = OpenSSL::ASN1.decode(der_bytes)
-        public_key = OpenSSL::PKey::RSA.new(asn1.to_der)
+      Rails.logger.info("=" * 80)
+      Rails.logger.info("AADHAAR ENCRYPTION START")
+      Rails.logger.info("=" * 80)
+      Rails.logger.info("PLAIN AADHAAR => #{aadhar_number}")
 
-        encrypted = public_key.public_encrypt(
-          aadhar_number.to_s,
+      begin
+        key_bytes = Base64.decode64(PUBLIC_KEY)
+
+        public_key = OpenSSL::PKey::RSA.new(key_bytes)
+
+        encrypted_bytes = public_key.public_encrypt(
+          aadhar_number.to_s.encode("UTF-8"),
           OpenSSL::PKey::RSA::PKCS1_PADDING
         )
 
-        encrypted_aadhar = Base64.strict_encode64(encrypted)
+        encrypted_aadhar = Base64.strict_encode64(encrypted_bytes)
 
         Rails.logger.info("ENCRYPTED AADHAAR => #{encrypted_aadhar}")
-        Rails.logger.info("AADHAAR LENGTH => #{encrypted_aadhar.length}")
+        Rails.logger.info("ENCRYPTED LENGTH => #{encrypted_aadhar.length}")
+        Rails.logger.info("=" * 80)
 
         encrypted_aadhar
+
+      rescue => e
+        Rails.logger.error("=" * 80)
+        Rails.logger.error("AADHAAR ENCRYPTION FAILED")
+        Rails.logger.error(e.class)
+        Rails.logger.error(e.message)
+        Rails.logger.error(e.backtrace.join("\n"))
+        Rails.logger.error("=" * 80)
+        raise
       end
+    end
 
       def generate_secret_key(timestamp)
         encoded_key = Base64.strict_encode64(@secret_key)

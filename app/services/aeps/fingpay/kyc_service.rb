@@ -25,6 +25,10 @@ module Aeps
         piddata:
       )
 
+        Rails.logger.info("=" * 100)
+        Rails.logger.info("KYC SERVICE STARTED")
+        Rails.logger.info("=" * 100)
+
         payload = {
           initiator_id: initiator_id,
           user_code: user_code,
@@ -36,10 +40,12 @@ module Aeps
           bank_code: bank_code,
           ekyc_flag: ekyc_flag,
           aadhar: aadhar,
-          piddata: piddata
+          piddata: piddata.to_s.strip
         }
 
-        current_timestamp    = timestamp
+        json_payload = JSON.generate(payload)
+
+        current_timestamp = timestamp
         generated_secret_key = generate_secret_key(current_timestamp)
 
         headers = {
@@ -50,17 +56,46 @@ module Aeps
         }
 
         Rails.logger.info("=" * 100)
-        Rails.logger.info("[EKO KYC REQUEST START]")
-        Rails.logger.info("[EKO KYC URL] #{BASE_URL}#{ENDPOINT}")
-        Rails.logger.info("[EKO KYC TIMESTAMP] #{current_timestamp}")
-        Rails.logger.info("[EKO KYC GENERATED SECRET KEY] #{generated_secret_key}")
-        Rails.logger.info("[EKO KYC DEVELOPER KEY] #{ENV.fetch('EKO_DEV_KEY')}")
-        Rails.logger.info("[EKO KYC HEADERS] #{headers.to_json}")
+        Rails.logger.info("REQUEST URL => #{BASE_URL}#{ENDPOINT}")
+        Rails.logger.info("CUSTOMER ID => #{customer_id}")
+        Rails.logger.info("USER CODE => #{user_code}")
+        Rails.logger.info("BANK CODE => #{bank_code}")
+        Rails.logger.info("LATLONG => #{latlong}")
+        Rails.logger.info("EKYC FLAG => #{ekyc_flag}")
+        Rails.logger.info("=" * 100)
 
-        masked_payload = payload.deep_dup
-        masked_payload[:aadhar] = "***MASKED***"
+        Rails.logger.info("PID XML START")
+        Rails.logger.info(piddata.to_s)
+        Rails.logger.info("PID XML END")
 
-        Rails.logger.info("[EKO KYC PAYLOAD] #{masked_payload.to_json}")
+        begin
+          Rails.logger.info("PIDDATA LENGTH => #{piddata.to_s.length}")
+
+          if piddata.to_s.include?("<Resp")
+            err_code = piddata[/errCode="([^"]+)"/, 1]
+            err_info = piddata[/errInfo="([^"]+)"/, 1]
+
+            Rails.logger.info("PID ERR CODE => #{err_code}")
+            Rails.logger.info("PID ERR INFO => #{err_info}")
+          end
+
+          if piddata.to_s.include?("<DeviceInfo")
+            dp_id = piddata[/dpId="([^"]+)"/, 1]
+            dc    = piddata[/dc="([^"]+)"/, 1]
+            mi    = piddata[/mi="([^"]+)"/, 1]
+
+            Rails.logger.info("DEVICE DPID => #{dp_id}")
+            Rails.logger.info("DEVICE DC => #{dc}")
+            Rails.logger.info("DEVICE MI => #{mi}")
+          end
+
+        rescue => e
+          Rails.logger.error("PIDDATA PARSE ERROR => #{e.message}")
+        end
+
+        Rails.logger.info("=" * 100)
+        Rails.logger.info("REQUEST PAYLOAD")
+        Rails.logger.info(json_payload)
         Rails.logger.info("=" * 100)
 
         connection = Faraday.new(
@@ -72,35 +107,45 @@ module Aeps
         end
 
         response = connection.post(ENDPOINT) do |req|
-          headers.each { |k, v| req.headers[k] = v }
-          req.body = payload.to_json
+          headers.each { |key, value| req.headers[key] = value }
+
+          req.headers["Content-Type"] = "application/json"
+          req.body = json_payload
         end
 
         Rails.logger.info("=" * 100)
-        Rails.logger.info("[EKO KYC RESPONSE STATUS] #{response.status}")
-        Rails.logger.info("[EKO KYC RESPONSE HEADERS] #{response.headers.inspect}")
-        Rails.logger.info("[EKO KYC RESPONSE BODY] #{response.body}")
-        Rails.logger.info("=" * 100)
+        Rails.logger.info("RESPONSE STATUS => #{response.status}")
+        Rails.logger.info("RESPONSE HEADERS => #{response.headers}")
+        Rails.logger.info("RESPONSE BODY => #{response.body}")
 
-        parsed_body =
-          begin
-            JSON.parse(response.body)
-          rescue JSON::ParserError
-            response.body
+        begin
+          parsed = JSON.parse(response.body)
+
+          Rails.logger.info("EKO RESPONSE STATUS => #{parsed['status']}")
+          Rails.logger.info("EKO RESPONSE TYPE => #{parsed['response_type_id']}")
+          Rails.logger.info("EKO RESPONSE MESSAGE => #{parsed['message']}")
+
+          if parsed["data"].present?
+            Rails.logger.info("EKO RESPONSE DATA => #{parsed['data'].inspect}")
           end
+
+        rescue => e
+          Rails.logger.error("RESPONSE PARSE ERROR => #{e.message}")
+        end
+
+        Rails.logger.info("=" * 100)
 
         {
           success: response.success?,
           status: response.status,
-          body: parsed_body
+          body: parse_response(response)
         }
 
-      rescue => e
+      rescue StandardError => e
 
         Rails.logger.error("=" * 100)
-        Rails.logger.error("[EKO KYC ERROR CLASS] #{e.class}")
-        Rails.logger.error("[EKO KYC ERROR MESSAGE] #{e.message}")
-        Rails.logger.error("[EKO KYC ERROR BACKTRACE]")
+        Rails.logger.error("ERROR CLASS => #{e.class}")
+        Rails.logger.error("ERROR MESSAGE => #{e.message}")
         Rails.logger.error(e.backtrace.first(20).join("\n"))
         Rails.logger.error("=" * 100)
 
@@ -128,6 +173,12 @@ module Aeps
 
       def self.timestamp
         (Time.now.to_f * 1000).to_i.to_s
+      end
+
+      def self.parse_response(response)
+        JSON.parse(response.body)
+      rescue JSON::ParserError
+        response.body
       end
     end
   end

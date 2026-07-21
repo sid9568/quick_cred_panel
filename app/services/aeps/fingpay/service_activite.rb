@@ -154,12 +154,13 @@ module Aeps
 
         Rails.logger.info "Attaching #{field_name}: #{filename} (#{content_type})"
 
-        body << "--#{boundary}\r\n"
-        body << "Content-Disposition: form-data; name=\"#{field_name}\"; filename=\"#{filename}\"\r\n"
-        body << "Content-Type: #{content_type}\r\n\r\n"
+        body << "--#{boundary}\r\n".b
+        body << "Content-Disposition: form-data; name=\"#{field_name}\"; filename=\"#{filename}\"\r\n".b
+        body << "Content-Type: #{content_type}\r\n\r\n".b
         body << File.binread(path)
-        body << "\r\n"
+        body << "\r\n".b
       end
+      
     end
   end
 end

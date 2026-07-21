@@ -5,25 +5,17 @@ module Api
         module Fingpay
           class TransactionsController < Api::V1::Auth::BaseController
 
-            def create
+            require "securerandom"
 
+            def create
               required_params = %i[
                 service_type
-                initiator_id
-                user_code
-                customer_id
                 bank_code
                 amount
-                client_ref_id
-                pipe
-                aadhar
-                notify_customer
                 piddata
               ]
 
-              missing_params = required_params.select do |param|
-                params[param].blank?
-              end
+              missing_params = required_params.select { |param| params[param].blank? }
 
               if missing_params.any?
                 return render json: {
@@ -32,17 +24,30 @@ module Api
                 }, status: :unprocessable_entity
               end
 
+              # user = User.find_by(phone_number: params[:phone_number])
+
+              # unless user
+              #   return render json: {
+              #     success: false,
+              #     error: "User not found"
+              #   }, status: :not_found
+              # end
+
+              # Generate unique client reference ID
+              client_ref_id = "#{Time.current.strftime('%Y%m%d%H%M%S')}#{SecureRandom.random_number(1000..9999)}"
+
               response = ::Aeps::Fingpay::TransactionService.new.call(
                 service_type: params[:service_type],
-                initiator_id: params[:initiator_id],
-                user_code: params[:user_code],
-                customer_id: params[:customer_id],
+                initiator_id: "6268075916",
+                user_code: current_user.user_code,
+                customer_id: params[:phone_number],
                 bank_code: params[:bank_code],
                 amount: params[:amount],
-                client_ref_id: params[:client_ref_id],
-                pipe: params[:pipe],
+                client_ref_id: client_ref_id,
+                pipe: "0",
                 aadhar: params[:aadhar],
-                notify_customer: params[:notify_customer],
+                notify_customer: "1",
+                latlong: current_user.aeps_latlong,
                 piddata: params[:piddata]
               )
 
@@ -53,12 +58,10 @@ module Api
               end
 
             rescue => e
-
               render json: {
                 success: false,
                 error: e.message
               }, status: :internal_server_error
-
             end
 
           end

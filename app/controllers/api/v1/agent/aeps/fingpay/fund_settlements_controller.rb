@@ -3,17 +3,14 @@ module Api
     module Agent
       module Aeps
         module Fingpay
-          class FundSettlementsController < ApplicationController
-            protect_from_forgery with: :null_session
+          class FundSettlementsController < Api::V1::Auth::BaseController
+            # protect_from_forgery with: :null_session
 
 			def add_settlemetn_bank
 
 			  required_params = %i[
-			    user_code
-			    initiator_id
-			    bank_id
+			   	bank_id
 			    ifsc
-			    service_code
 			    account
 			  ]
 
@@ -29,11 +26,11 @@ module Api
 			  end
 
 			  response = ::Aeps::Fingpay::UpdateSettlementAccountService.new.call(
-			    user_code: params[:user_code],
-			    initiator_id: params[:initiator_id],
+			    user_code: current_user.phone_number,
+			    initiator_id: "6268075916",
 			    bank_id: params[:bank_id],
 			    ifsc: params[:ifsc],
-			    service_code: params[:service_code],
+			    service_code: "39",
 			    account: params[:account]
 			  )
 

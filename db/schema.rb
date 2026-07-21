@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_11_115411) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_17_114052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -641,6 +641,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_11_115411) do
     t.datetime "logout_time"
     t.string "ip_city"
     t.string "ip_location"
+    t.string "bank_code"
     t.index ["email"], name: "index_users_on_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["role_id"], name: "index_users_on_role_id"
@@ -657,6 +658,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_11_115411) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "addhar_kyc_status", default: false
+    t.string "user_code"
+    t.string "sender_phone_number"
     t.index ["phone_number"], name: "index_vendor_users_on_phone_number", unique: true
   end
 

@@ -75,7 +75,6 @@ module Api
                 reference_tid
                 otp_ref_id
                 bank_code
-                aadhar
                 piddata
               ]
 
@@ -107,7 +106,7 @@ module Api
                 otp_ref_id: params[:otp_ref_id],
                 bank_code: params[:bank_code],
                 ekyc_flag: "0",
-                aadhar: params[:aadhar],
+                aadhar: current_user.aadhaar_number,
                 piddata: params[:piddata]
               )
 
@@ -124,20 +123,23 @@ module Api
               }, status: :internal_server_error
           end
 
-            def create
-                result = ::Aeps::Fingpay::DailyKycService.new.call(
-                initiator_id: "6268075916",
-                user_code: "205091004",
-                customer_id: "7846960035",
-                client_ref_id: "202105311125123456",
-                latlong: "20.229043,85.839995",
-                bank_code: "FDRL",
-                aadhar: "343807435791",
-                piddata: params[:piddata]
-                )
+          def create
+            client_ref_id = "#{Time.current.strftime('%Y%m%d%H%M%S')}#{SecureRandom.random_number(100000..999999)}"
+            p "===================current_user"
+            p current_user
+            result = ::Aeps::Fingpay::DailyKycService.new.call(
+              initiator_id: "6268075916",
+              user_code: current_user.user_code,
+              customer_id: current_user.phone_number,
+              client_ref_id: client_ref_id,
+              latlong: current_user.aeps_latlong,
+              bank_code: current_user.bank_code,
+              aadhar: current_user.aadhaar_number,
+              piddata: params[:piddata]
+            )
 
-              render json: result, status: :ok
-            end
+            render json: result, status: :ok
+          end
 
             # def transaction
             #    result = ::Aeps::Fingpay::TransactionService.new.call(

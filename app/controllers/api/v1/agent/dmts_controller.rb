@@ -1,20 +1,45 @@
 class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # protect_from_forgery with: :null_session
 
+  def get_customer
+    if params[:phone_number].blank?
+      return render json: {
+        status: 400,
+        message: "Phone number is required"
+      }, status: :bad_request
+    end
+
+    user = User.find_by(phone_number: params[:phone_number])
+
+    unless user
+      return render json: {
+        status: 404,
+        message: "User not found"
+      }, status: :not_found
+    end
+
+    render json: {
+      status: 200,
+      message: "Customer found",
+      data: user
+    }
+  end
+
   def user_onboard
     required_params = %i[
-    initiator_id
-    pan_number
-    mobile
-    first_name
-    last_name
-    email
-    dob
-    shop_name
-    residence_address
-  ]
+      pan_number
+      mobile
+      first_name
+      last_name
+      email
+      dob
+      shop_name
+      residence_address
+      adhaar_number
+    ]
 
     missing = required_params.select { |key| params[key].blank? }
+
     if missing.any?
       return render json: {
         status: 0,
