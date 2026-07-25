@@ -1,0 +1,57 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  transaction_type: MyString
+  client_ref_id: MyString
+  customer_id: MyString
+  user_code: MyString
+  bank_code: MyString
+  bank_name: MyString
+  aadhaar_number: MyString
+  aadhaar_last4: MyString
+  amount: 9.99
+  customer_balance: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
+  commission: 9.99
+  tds: 9.99
+  tx_status: MyString
+  status: MyString
+  message: MyString
+  comment: MyText
+  tid: MyString
+  bank_ref_num: MyString
+  merchant_name: MyString
+  sender_name: MyString
+  shop_name: MyString
+  transaction_date: 2026-07-23 16:57:45
+  provider_response: 
+
+two:
+  user: two
+  transaction_type: MyString
+  client_ref_id: MyString
+  customer_id: MyString
+  user_code: MyString
+  bank_code: MyString
+  bank_name: MyString
+  aadhaar_number: MyString
+  aadhaar_last4: MyString
+  amount: 9.99
+  customer_balance: 9.99
+  opening_balance: 9.99
+  closing_balance: 9.99
+  commission: 9.99
+  tds: 9.99
+  tx_status: MyString
+  status: MyString
+  message: MyString
+  comment: MyText
+  tid: MyString
+  bank_ref_num: MyString
+  merchant_name: MyString
+  sender_name: MyString
+  shop_name: MyString
+  transaction_date: 2026-07-23 16:57:45
+  provider_response: 

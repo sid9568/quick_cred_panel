@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_17_114052) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_25_092103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -60,6 +60,75 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_17_114052) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "aeps_commission_slab_ranges", force: :cascade do |t|
+    t.decimal "min_amount"
+    t.decimal "max_amount"
+    t.decimal "bank_fee_percent"
+    t.decimal "eko_fee"
+    t.decimal "surcharge"
+    t.decimal "tds_percent"
+    t.decimal "gst_percent"
+    t.string "from_role"
+    t.string "to_role"
+    t.decimal "value"
+    t.boolean "active"
+    t.bigint "scheme_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scheme_id"], name: "index_aeps_commission_slab_ranges_on_scheme_id"
+  end
+
+  create_table "aeps_commission_slabs", force: :cascade do |t|
+    t.decimal "min_amount"
+    t.decimal "max_amount"
+    t.decimal "bank_fee_percent"
+    t.decimal "eko_fee"
+    t.decimal "surcharge"
+    t.decimal "tds_percent"
+    t.decimal "gst_percent"
+    t.string "from_role"
+    t.string "to_role"
+    t.decimal "value"
+    t.boolean "active"
+    t.integer "scheme_id"
+    t.integer "aeps_commission_slab_range_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "aeps_transactions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "transaction_type"
+    t.string "client_ref_id"
+    t.string "customer_id"
+    t.string "user_code"
+    t.string "bank_code"
+    t.string "bank_name"
+    t.string "aadhaar_number"
+    t.string "aadhaar_last4"
+    t.decimal "amount", precision: 12, scale: 2
+    t.decimal "customer_balance", precision: 12, scale: 2
+    t.decimal "opening_balance", precision: 12, scale: 2
+    t.decimal "closing_balance", precision: 12, scale: 2
+    t.decimal "commission", precision: 12, scale: 2
+    t.decimal "tds", precision: 12, scale: 2
+    t.string "tx_status"
+    t.string "status"
+    t.string "message"
+    t.text "comment"
+    t.string "tid"
+    t.string "bank_ref_num"
+    t.string "merchant_name"
+    t.string "sender_name"
+    t.string "shop_name"
+    t.datetime "transaction_date"
+    t.jsonb "provider_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_ref_id"], name: "index_aeps_transactions_on_client_ref_id"
+    t.index ["user_id"], name: "index_aeps_transactions_on_user_id"
   end
 
   create_table "banks", force: :cascade do |t|
@@ -705,6 +774,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_17_114052) do
   add_foreign_key "account_transactions", "wallets"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "aeps_commission_slab_ranges", "schemes"
+  add_foreign_key "aeps_transactions", "users"
   add_foreign_key "banks", "users"
   add_foreign_key "categories", "services"
   add_foreign_key "cibil_reports", "users"

@@ -44,7 +44,7 @@ module Aeps
         }
 
         Rails.logger.info("=" * 100)
-        Rails.logger.info("OTP VERIFY URL => #{BASE_URL}/ekoicici/v1/aeps/otp/verify")
+        Rails.logger.info("OTP VERIFY URL => #{BASE_URL}/ekoicici/v3/user/collection/aeps-fingpay/kyc/otp/verify")
         Rails.logger.info("OTP VERIFY PAYLOAD => #{payload.except(:aadhar)}")
         Rails.logger.info("ENCRYPTED AADHAR => #{encrypted_aadhar}")
         Rails.logger.info("=" * 100)

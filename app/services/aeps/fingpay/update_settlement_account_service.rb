@@ -4,21 +4,23 @@ require "faraday"
 require "json"
 require "openssl"
 require "base64"
+require "securerandom"
 
 module Aeps
   module Fingpay
     class UpdateSettlementAccountService
 
       BASE_URL = "https://api.eko.in:25002".freeze
+      ENDPOINT = "/ekoicici/v3/user/payment/aeps/settlement/account".freeze
 
       def initialize
         @developer_key = ENV.fetch("EKO_DEV_KEY")
         @secret_key    = ENV.fetch("EKO_SECRET_KEY")
+        @initiator_id  = ENV.fetch("EKO_INITIATOR_ID")
       end
 
       def call(
         user_code:,
-        initiator_id:,
         bank_id:,
         ifsc:,
         service_code:,
@@ -27,12 +29,12 @@ module Aeps
 
         current_timestamp = timestamp
         generated_secret_key = generate_secret_key(current_timestamp)
+        client_ref_id = generate_client_ref_id
 
-        endpoint =
-          "/ekoicici/v1/agent/user_code:#{user_code}/settlementaccount"
-
-        request_body = {
-          initiator_id: initiator_id,
+        payload = {
+          initiator_id: @initiator_id,
+          client_ref_id: client_ref_id,
+          user_code: user_code,
           bank_id: bank_id,
           ifsc: ifsc,
           service_code: service_code,
@@ -41,90 +43,32 @@ module Aeps
 
         Rails.logger.info("=" * 100)
         Rails.logger.info("UPDATE SETTLEMENT ACCOUNT REQUEST")
-        Rails.logger.info("BASE URL => #{BASE_URL}")
-        Rails.logger.info("ENDPOINT => #{endpoint}")
-        Rails.logger.info("METHOD => PUT")
-        Rails.logger.info("DEVELOPER KEY => #{@developer_key}")
-        Rails.logger.info("TIMESTAMP => #{current_timestamp}")
-        Rails.logger.info("GENERATED SECRET KEY => #{generated_secret_key}")
-        Rails.logger.info("REQUEST BODY => #{request_body.to_json}")
+        Rails.logger.info("URL => #{BASE_URL}#{ENDPOINT}")
+        Rails.logger.info("PAYLOAD => #{payload}")
         Rails.logger.info("=" * 100)
 
-        connection = Faraday.new(
-          url: BASE_URL,
-          ssl: { verify: false }
-        ) do |f|
-
-          f.request :url_encoded
-
-          f.response :logger,
-                     Rails.logger,
-                     headers: true,
-                     bodies: true,
-                     log_level: :info
-
-          f.adapter Faraday.default_adapter
-        end
-
-        response = connection.put(endpoint) do |req|
-
-          req.headers["Content-Type"] = "application/x-www-form-urlencoded"
+        response = connection.post(ENDPOINT) do |req|
           req.headers["developer_key"] = @developer_key
           req.headers["secret-key"] = generated_secret_key
           req.headers["secret-key-timestamp"] = current_timestamp
-          req.headers["cache-control"] = "no-cache"
+          req.headers["Content-Type"] = "application/json"
 
-          req.body = request_body
+          req.body = payload.to_json
         end
 
         Rails.logger.info("=" * 100)
-        Rails.logger.info("UPDATE SETTLEMENT ACCOUNT RESPONSE")
         Rails.logger.info("STATUS => #{response.status}")
-        Rails.logger.info("HEADERS => #{response.headers.to_h}")
         Rails.logger.info("BODY => #{response.body}")
-        Rails.logger.info("=" * 100)
-
-        parsed_response =
-          begin
-            JSON.parse(response.body)
-          rescue JSON::ParserError
-            response.body
-          end
-
-        Rails.logger.info("=" * 100)
-        Rails.logger.info("PARSED RESPONSE => #{parsed_response}")
         Rails.logger.info("=" * 100)
 
         {
           success: response.success?,
           status: response.status,
-          data: parsed_response
+          data: parse_response(response)
         }
 
-      rescue Faraday::Error => e
-
-        Rails.logger.error("=" * 100)
-        Rails.logger.error("FARADAY ERROR")
-        Rails.logger.error("ERROR CLASS => #{e.class}")
-        Rails.logger.error("ERROR MESSAGE => #{e.message}")
-        Rails.logger.error("BACKTRACE =>")
-        Rails.logger.error(e.backtrace.join("\n"))
-        Rails.logger.error("=" * 100)
-
-        {
-          success: false,
-          error: e.message
-        }
-
-      rescue => e
-
-        Rails.logger.error("=" * 100)
-        Rails.logger.error("UPDATE SETTLEMENT ACCOUNT ERROR")
-        Rails.logger.error("ERROR CLASS => #{e.class}")
-        Rails.logger.error("ERROR MESSAGE => #{e.message}")
-        Rails.logger.error("BACKTRACE =>")
-        Rails.logger.error(e.backtrace.join("\n"))
-        Rails.logger.error("=" * 100)
+      rescue StandardError => e
+        Rails.logger.error(e.full_message)
 
         {
           success: false,
@@ -134,10 +78,18 @@ module Aeps
 
       private
 
-      def generate_secret_key(timestamp)
+      def connection
+        Faraday.new(
+          url: BASE_URL,
+          ssl: { verify: false }
+        ) do |f|
+          f.response :logger, Rails.logger, bodies: true
+          f.adapter Faraday.default_adapter
+        end
+      end
 
-        encoded_key =
-          Base64.strict_encode64(@secret_key)
+      def generate_secret_key(timestamp)
+        encoded_key = Base64.strict_encode64(@secret_key)
 
         digest = OpenSSL::HMAC.digest(
           "sha256",
@@ -148,8 +100,18 @@ module Aeps
         Base64.strict_encode64(digest)
       end
 
+      def generate_client_ref_id
+        "#{Time.current.strftime('%Y%m%d%H%M%S')}#{SecureRandom.random_number(100000).to_s.rjust(5, '0')}"
+      end
+
       def timestamp
         (Time.now.to_f * 1000).to_i.to_s
+      end
+
+      def parse_response(response)
+        JSON.parse(response.body)
+      rescue JSON::ParserError
+        response.body
       end
     end
   end

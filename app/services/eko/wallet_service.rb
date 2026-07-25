@@ -4,6 +4,7 @@ require "base64"
 
 module Eko
   class WalletService
+    p "==============yeee kam kar rha hai"
     include HTTParty
     base_uri "https://api.eko.in:25002/ekoicici" # ✅ REQUIRED
 

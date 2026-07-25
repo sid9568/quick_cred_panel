@@ -6,8 +6,110 @@ module Api
           class DailyKycsController < Api::V1::Auth::BaseController
            # protect_from_forgery with: :null_session
 
+
+          def aeps_user_onboard
+              required_params = %i[
+                pan_number
+                mobile
+                first_name
+                last_name
+                email
+                dob
+                shop_name
+                residence_address
+                adhaar_number
+              ]
+
+              missing = required_params.select { |key| params[key].blank? }
+
+              if missing.any?
+                return render json: {
+                  status: 0,
+                  message: "Missing params: #{missing.join(', ')}"
+                }, status: :bad_request
+              end
+
+              response = EkoDmt::UserOnboardService.new(
+                initiator_id: "6268075916",
+                pan_number: params[:pan_number],
+                mobile: params[:mobile],
+                first_name: params[:first_name],
+                last_name: params[:last_name],
+                email: params[:email],
+                dob: params[:dob],
+                shop_name: params[:shop_name],
+                residence_address: params[:residence_address]
+              ).call
+
+              Rails.logger.info "========== EKO USER ONBOARD RESPONSE =========="
+              Rails.logger.info response.inspect
+
+              user_code = response.dig("data", "user_code") ||
+                          response["user_code"] ||
+                          response.dig(:data, :user_code) ||
+                          response[:user_code]
+
+              Rails.logger.info "========== USER CODE =========="
+              Rails.logger.info user_code.inspect
+
+              if user_code.blank?
+                return render json: {
+                  status: 0,
+                  message: response["message"] ||
+                           response[:message] ||
+                           "User code not received from EKO",
+                  raw: response
+                }, status: :unprocessable_entity
+              end
+
+              user = User.find_or_initialize_by(
+                phone_number: params[:mobile],
+              )
+
+              p "=================useruser"
+
+              p user
+
+              user.assign_attributes(
+                user_code: user_code,
+                eko_onboard_first_step: true
+              )
+
+              user.save!
+
+              render json: {
+                status: 1,
+                message: response["message"].presence ||
+                         response[:message].presence ||
+                         "User onboarded / already exists",
+                user_id: user.id,
+                user_code: user.user_code,
+                eko_onboard_first_step: user.eko_onboard_first_step,
+                data: response
+              }, status: :ok
+
+            rescue ActiveRecord::RecordInvalid => e
+              render json: {
+                status: 0,
+                message: "User creation failed",
+                errors: e.record.errors.full_messages
+              }, status: :unprocessable_entity
+
+            rescue StandardError => e
+              Rails.logger.error "USER ONBOARD ERROR: #{e.message}"
+              Rails.logger.error e.backtrace.join("\n")
+
+              render json: {
+                status: 0,
+                message: e.message
+              }, status: :internal_server_error
+          end
+
           def otp
+            client_ref_id = SecureRandom.alphanumeric(16)
+
             result = ::Aeps::Fingpay::OtpService.new.call(
+              client_ref_id: client_ref_id,
               customer_id: current_user.phone_number,
               aadhar: params[:aadhar],
               latlong: current_user.aeps_latlong,
@@ -123,10 +225,9 @@ module Api
               }, status: :internal_server_error
           end
 
-          def create
+         def create
             client_ref_id = "#{Time.current.strftime('%Y%m%d%H%M%S')}#{SecureRandom.random_number(100000..999999)}"
-            p "===================current_user"
-            p current_user
+
             result = ::Aeps::Fingpay::DailyKycService.new.call(
               initiator_id: "6268075916",
               user_code: current_user.user_code,
@@ -137,6 +238,14 @@ module Api
               aadhar: current_user.aadhaar_number,
               piddata: params[:piddata]
             )
+
+            if result[:success]
+              response_data = result[:data]
+
+              if response_data["response_status_id"] == 0
+                current_user.update(daily_aeps_kyc: true)
+              end
+            end
 
             render json: result, status: :ok
           end

@@ -4,6 +4,8 @@ require "faraday"
 require "json"
 require "openssl"
 require "base64"
+require "rexml/document"
+
 
 module Aeps
   module Fingpay
@@ -14,6 +16,7 @@ module Aeps
       PUBLIC_KEY = <<~KEY.delete("\n")
         MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCaFyrzeDhMaFLx+LZUNOOO14Pj9aPfr+1WOanDgDHxo9NekENYcWUftM9Y17ul2pXr3bqw0GCh4uxNoTQ5cTH4buI42LI8ibMaf7Kppq9MzdzI9/7pOffgdSn+P8J64CJAk3VrVswVgfy8lABt7fL8R6XReI9x8ewwKHhCRTwBgQIDAQAB
       KEY
+      WADH_VALUE = ENV.fetch("EKO_WADH_VALUE").freeze
 
       def initialize
         @developer_key = ENV.fetch("EKO_DEV_KEY")
@@ -31,11 +34,8 @@ module Aeps
         piddata:
       )
 
-        Rails.logger.info("=" * 100)
-        Rails.logger.info("DAILY KYC SERVICE STARTED")
-        Rails.logger.info("=" * 100)
-
         encrypted_aadhar = encrypt_aadhar(aadhar)
+        fixed_piddata = inject_wadh(piddata.to_s.strip)
 
         payload = {
           initiator_id: initiator_id,
@@ -46,141 +46,110 @@ module Aeps
           latlong: latlong,
           bank_code: bank_code,
           aadhar: encrypted_aadhar,
-          piddata: piddata
+          piddata: fixed_piddata
         }
 
         json_payload = JSON.generate(payload)
 
-        Rails.logger.info("=" * 100)
-        Rails.logger.info("REQUEST URL => #{BASE_URL}/ekoicici/v2/aeps/dailyKyc")
-        Rails.logger.info("CUSTOMER ID => #{customer_id}")
-        Rails.logger.info("USER CODE => #{user_code}")
-        Rails.logger.info("BANK CODE => #{bank_code}")
-        Rails.logger.info("LATLONG => #{latlong}")
-        Rails.logger.info("SERVICE CODE => 43")
-        Rails.logger.info("AADHAAR ENCRYPTED LENGTH => #{encrypted_aadhar.length}")
-        Rails.logger.info("=" * 100)
+        current_timestamp = timestamp
+        generated_secret_key = generate_secret_key(current_timestamp)
 
-        Rails.logger.info("PID XML START")
-        Rails.logger.info(piddata.to_s)
-        Rails.logger.info("PID XML END")
+        Rails.logger.info("=" * 80)
+        Rails.logger.info("EKO DAILY KYC REQUEST")
+        Rails.logger.info("URL: #{BASE_URL}/ekoicici/v2/aeps/dailyKyc")
+        Rails.logger.info("Headers:")
+        Rails.logger.info({
+          developer_key: @developer_key,
+          secret_key: generated_secret_key,
+          secret_key_timestamp: current_timestamp,
+          content_type: "application/json"
+        }.to_json)
 
-        begin
-          Rails.logger.info("PIDDATA LENGTH => #{piddata.to_s.length}")
+        Rails.logger.info("Payload:")
+        Rails.logger.info(JSON.pretty_generate(payload))
+        Rails.logger.info("=" * 80)
 
-          if piddata.to_s.include?("<Resp")
-            err_code = piddata[/errCode="([^"]+)"/, 1]
-            err_info = piddata[/errInfo="([^"]+)"/, 1]
-
-            Rails.logger.info("PID ERR CODE => #{err_code}")
-            Rails.logger.info("PID ERR INFO => #{err_info}")
-          end
-
-          if piddata.to_s.include?("<DeviceInfo")
-            dp_id = piddata[/dpId="([^"]+)"/, 1]
-            dc    = piddata[/dc="([^"]+)"/, 1]
-            mi    = piddata[/mi="([^"]+)"/, 1]
-
-            Rails.logger.info("DEVICE DPID => #{dp_id}")
-            Rails.logger.info("DEVICE DC => #{dc}")
-            Rails.logger.info("DEVICE MI => #{mi}")
-          end
-
-        rescue => e
-          Rails.logger.error("PIDDATA PARSE ERROR => #{e.message}")
-        end
-
-        Rails.logger.info("=" * 100)
-        Rails.logger.info("REQUEST PAYLOAD")
-        Rails.logger.info(json_payload)
-        Rails.logger.info("=" * 100)
-
-        response = connection.post("/ekoicici/v2/aeps/dailyKyc") do |req|
+        response = connection(current_timestamp, generated_secret_key).put(
+          "/ekoicici/v3/user/collection/aeps-fingpay/kyc/biometric/daily"
+        ) do |req|
           req.headers["Content-Type"] = "application/json"
+          req.headers["Accept"] = "application/json"
           req.body = json_payload
         end
 
-        Rails.logger.info("=" * 100)
-        Rails.logger.info("RESPONSE STATUS => #{response.status}")
-        Rails.logger.info("RESPONSE HEADERS => #{response.headers}")
-        Rails.logger.info("RESPONSE BODY => #{response.body}")
-
-        begin
-          parsed = JSON.parse(response.body)
-
-          Rails.logger.info("EKO RESPONSE STATUS => #{parsed['status']}")
-          Rails.logger.info("EKO RESPONSE TYPE => #{parsed['response_type_id']}")
-          Rails.logger.info("EKO RESPONSE MESSAGE => #{parsed['message']}")
-
-          if parsed["data"].present?
-            Rails.logger.info("EKO RESPONSE DATA => #{parsed['data'].inspect}")
-          end
-
-        rescue => e
-          Rails.logger.error("RESPONSE PARSE ERROR => #{e.message}")
-        end
-
-        Rails.logger.info("=" * 100)
+        Rails.logger.info("=" * 80)
+        Rails.logger.info("EKO DAILY KYC RESPONSE")
+        Rails.logger.info("HTTP Status: #{response.status}")
+        Rails.logger.info("Headers: #{response.headers.to_h}")
+        Rails.logger.info("Body:")
+        Rails.logger.info(response.body)
+        Rails.logger.info("=" * 80)
 
         {
           success: response.success?,
           status: response.status,
           data: parse_response(response)
         }
-
-      rescue StandardError => e
-
-        Rails.logger.error("=" * 100)
-        Rails.logger.error("ERROR CLASS => #{e.class}")
-        Rails.logger.error("ERROR MESSAGE => #{e.message}")
-        Rails.logger.error(e.backtrace.first(20).join("\n"))
-        Rails.logger.error("=" * 100)
-
-        {
-          success: false,
-          message: e.message
-        }
       end
 
       private
 
-      def connection
-        current_timestamp = timestamp
-        generated_secret_key = generate_secret_key(current_timestamp)
+      def inject_wadh(piddata)
+        return piddata if piddata.blank?
 
-        Rails.logger.info("=" * 100)
-        Rails.logger.info("DEVELOPER KEY => #{@developer_key}")
-        Rails.logger.info("TIMESTAMP => #{current_timestamp}")
-        Rails.logger.info("SECRET KEY => #{generated_secret_key}")
-        Rails.logger.info("=" * 100)
+        begin
+          document = REXML::Document.new(piddata)
+          pid_data = document.root
+          return piddata unless pid_data
 
+          wadh = pid_data.elements["wadh"]
+
+          if wadh.nil?
+            wadh = pid_data.add_element("wadh")
+            wadh.text = WADH_VALUE
+          elsif wadh.text.to_s.strip.empty?
+            wadh.text = WADH_VALUE
+          end
+
+          xml_body = ""
+
+          formatter = REXML::Formatters::Default.new
+          # ✅ FIX: `document` (jisme XML declaration bhi shamil hota hai) ki jagah
+          # sirf `pid_data` (root <PidData> element) pass karo. Pehle `document`
+          # pass karne se REXML declaration + content dono serialize kar deta tha,
+          # aur neeche wala code phir se declaration prepend karta tha — resulting
+          # in a duplicated/malformed XML payload jo Eko ke server ko fail kara raha tha.
+          formatter.write(pid_data, xml_body)
+
+          if piddata.lstrip.start_with?("<?xml")
+            declaration = piddata.split("?>", 2).first + "?>"
+            "#{declaration}#{xml_body}"
+          else
+            xml_body
+          end
+
+        rescue REXML::ParseException
+          piddata
+        end
+      end
+
+      def connection(current_timestamp, generated_secret_key)
         Faraday.new(
           url: BASE_URL,
           ssl: { verify: false }
         ) do |f|
-
           f.headers["developer_key"] = @developer_key
           f.headers["secret-key"] = generated_secret_key
           f.headers["secret-key-timestamp"] = current_timestamp
           f.headers["Content-Type"] = "application/json"
-
-          f.response :logger, Rails.logger, bodies: true
-
           f.adapter Faraday.default_adapter
         end
       end
 
       def encrypt_aadhar(aadhar_number)
-      raise ArgumentError, "Aadhaar number is required" if aadhar_number.blank?
+        raise ArgumentError, "Aadhaar number is required" if aadhar_number.blank?
 
-      Rails.logger.info("=" * 80)
-      Rails.logger.info("AADHAAR ENCRYPTION START")
-      Rails.logger.info("=" * 80)
-      Rails.logger.info("PLAIN AADHAAR => #{aadhar_number}")
-
-      begin
         key_bytes = Base64.decode64(PUBLIC_KEY)
-
         public_key = OpenSSL::PKey::RSA.new(key_bytes)
 
         encrypted_bytes = public_key.public_encrypt(
@@ -188,34 +157,12 @@ module Aeps
           OpenSSL::PKey::RSA::PKCS1_PADDING
         )
 
-        encrypted_aadhar = Base64.strict_encode64(encrypted_bytes)
-
-        Rails.logger.info("ENCRYPTED AADHAAR => #{encrypted_aadhar}")
-        Rails.logger.info("ENCRYPTED LENGTH => #{encrypted_aadhar.length}")
-        Rails.logger.info("=" * 80)
-
-        encrypted_aadhar
-
-      rescue => e
-        Rails.logger.error("=" * 80)
-        Rails.logger.error("AADHAAR ENCRYPTION FAILED")
-        Rails.logger.error(e.class)
-        Rails.logger.error(e.message)
-        Rails.logger.error(e.backtrace.join("\n"))
-        Rails.logger.error("=" * 80)
-        raise
+        Base64.strict_encode64(encrypted_bytes)
       end
-    end
 
       def generate_secret_key(timestamp)
         encoded_key = Base64.strict_encode64(@secret_key)
-
-        digest = OpenSSL::HMAC.digest(
-          "sha256",
-          encoded_key,
-          timestamp.to_s
-        )
-
+        digest = OpenSSL::HMAC.digest("sha256", encoded_key, timestamp.to_s)
         Base64.strict_encode64(digest)
       end
 

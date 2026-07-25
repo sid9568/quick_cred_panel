@@ -6,104 +6,127 @@ module Api
           class FundSettlementsController < Api::V1::Auth::BaseController
             # protect_from_forgery with: :null_session
 
-			def add_settlemetn_bank
+          def balance_check
+					  response = ::Aeps::Fingpay::AccountBalanceService.new.call(
+						  customer_id_type: "mobile_number",
+						  customer_id: "6268075916",
+						  user_code: "20500001"
+						)
 
-			  required_params = %i[
-			   	bank_id
-			    ifsc
-			    account
-			  ]
+					  if response[:success]
+					    render json: response[:data], status: :ok
+					  else
+					    render json: response, status: :unprocessable_entity
+					  end
+					end
 
-			  missing_params = required_params.select do |param|
-			    params[param].blank?
-			  end
+          def settlement_accounts
+					  response = ::Aeps::Fingpay::SettlementAccountsService.new.call(
+					    user_code: current_user.user_code
+					  )
 
-			  if missing_params.any?
-			    return render json: {
-			      success: false,
-			      error: "#{missing_params.join(', ')} is required"
-			    }, status: :unprocessable_entity
-			  end
+					  if response[:success]
+					    render json: response, status: :ok
+					  else
+					    render json: response, status: :unprocessable_entity
+					  end
 
-			  response = ::Aeps::Fingpay::UpdateSettlementAccountService.new.call(
-			    user_code: current_user.phone_number,
-			    initiator_id: "6268075916",
-			    bank_id: params[:bank_id],
-			    ifsc: params[:ifsc],
-			    service_code: "39",
-			    account: params[:account]
-			  )
+					rescue StandardError => e
+					  Rails.logger.error(e.full_message)
 
-			  Rails.logger.info("=" * 100)
-			  Rails.logger.info("SETTLEMENT ACCOUNT RESPONSE => #{response}")
-			  Rails.logger.info("=" * 100)
+					  render json: {
+					    success: false,
+					    error: e.message
+					  }, status: :internal_server_error
+					end
 
-			  render json: response, status: :ok
+					def add_settlemetn_bank
 
-			rescue => e
+					  required_params = %i[
+					   	bank_id
+					    ifsc
+					    account
+					  ]
 
-			  Rails.logger.error("=" * 100)
-			  Rails.logger.error("SETTLEMENT ACCOUNT ERROR => #{e.message}")
-			  Rails.logger.error(e.backtrace.join("\n"))
-			  Rails.logger.error("=" * 100)
+					  missing_params = required_params.select do |param|
+					    params[param].blank?
+					  end
 
-			  render json: {
-			    success: false,
-			    error: e.message
-			  }, status: :unprocessable_entity
-			end
+					  if missing_params.any?
+					    return render json: {
+					      success: false,
+					      error: "#{missing_params.join(', ')} is required"
+					    }, status: :unprocessable_entity
+					  end
 
-			def settlements
-			  required_params = %i[
-			    user_code
-			    initiator_id
-			    service_code
-			    amount
-			    recipient_id
-			    payment_mode
-			    client_ref_id
-			  ]
+					  response = ::Aeps::Fingpay::UpdateSettlementAccountService.new.call(
+					    user_code: current_user.user_code,
+					    bank_id: params[:bank_id],
+					    ifsc: params[:ifsc],
+					    service_code: "39",
+					    account: params[:account]
+					  )
 
-			  missing_params = required_params.select do |param|
-			    params[param].blank?
-			  end
+					  Rails.logger.info("=" * 100)
+					  Rails.logger.info("SETTLEMENT ACCOUNT RESPONSE => #{response}")
+					  Rails.logger.info("=" * 100)
 
-			  if missing_params.any?
-			    return render json: {
-			      success: false,
-			      error: "#{missing_params.join(', ')} is required"
-			    }, status: :unprocessable_entity
-			  end
+					  render json: response, status: :ok
 
-			  response = ::Aeps::Fingpay::SettlementService.new.call(
-			    user_code: params[:user_code],
-			    initiator_id: params[:initiator_id],
-			    service_code: params[:service_code],
-			    amount: params[:amount],
-			    recipient_id: params[:recipient_id],
-			    payment_mode: params[:payment_mode],
-			    client_ref_id: params[:client_ref_id]
-			  )
+					rescue => e
 
-			  Rails.logger.info("=" * 100)
-			  Rails.logger.info("SETTLEMENT RESPONSE => #{response}")
-			  Rails.logger.info("=" * 100)
+					  Rails.logger.error("=" * 100)
+					  Rails.logger.error("SETTLEMENT ACCOUNT ERROR => #{e.message}")
+					  Rails.logger.error(e.backtrace.join("\n"))
+					  Rails.logger.error("=" * 100)
 
-			  render json: response,
-			         status: response[:success] ? :ok : :unprocessable_entity
+					  render json: {
+					    success: false,
+					    error: e.message
+					  }, status: :unprocessable_entity
+				end
 
-			rescue => e
+				  def settlements
+					  required_params = %i[
+					    amount
+					    recipient_id
+					  ]
 
-			  Rails.logger.error("=" * 100)
-			  Rails.logger.error("SETTLEMENT ERROR => #{e.message}")
-			  Rails.logger.error(e.backtrace.join("\n"))
-			  Rails.logger.error("=" * 100)
+					  missing_params = required_params.select { |param| params[param].blank? }
 
-			  render json: {
-			    success: false,
-			    error: e.message
-			  }, status: :internal_server_error
-		    end
+					  if missing_params.any?
+					    return render json: {
+					      success: false,
+					      error: "#{missing_params.join(', ')} is required"
+					    }, status: :unprocessable_entity
+					  end
+
+					  response = ::Aeps::Fingpay::SettlementService.new.call(
+					    user_code: current_user.user_code,
+					    amount: params[:amount],
+					    recipient_id: params[:recipient_id],
+					    payment_mode: 5
+					  )
+
+					  Rails.logger.info("=" * 100)
+					  Rails.logger.info("SETTLEMENT RESPONSE => #{response}")
+					  Rails.logger.info("=" * 100)
+
+					  render json: response,
+					         status: response[:success] ? :ok : :unprocessable_entity
+
+					rescue StandardError => e
+
+					  Rails.logger.error("=" * 100)
+					  Rails.logger.error("SETTLEMENT ERROR => #{e.message}")
+					  Rails.logger.error(e.backtrace.join("\n"))
+					  Rails.logger.error("=" * 100)
+
+					  render json: {
+					    success: false,
+					    error: e.message
+					  }, status: :internal_server_error
+					end
 
 
           end

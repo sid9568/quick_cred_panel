@@ -1,0 +1,2 @@
+class AepsCommissionSlab < ApplicationRecord
+end

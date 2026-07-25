@@ -1,78 +1,63 @@
-# app/services/aeps/fingpay/transaction_service.rb
+# app/services/aeps/fingpay/mini_statement_service.rb
 
 require "faraday"
 require "json"
 require "openssl"
 require "base64"
+require "securerandom"
 require "rexml/document"
 require "rexml/formatters/default"
 
-
 module Aeps
   module Fingpay
-    class TransactionService
+    class MiniStatementService
 
       BASE_URL = "https://api.eko.in:25002".freeze
-      ENDPOINT = "/ekoicici/v3/customer/collection/aeps-fingpay/cash-withdrawl".freeze
-      WADH_VALUE = ENV.fetch("EKO_WADH_VALUE").freeze
+      ENDPOINT = "/ekoicici/v3/customer/collection/aeps-fingpay/mini-statement".freeze
+
+      WADH_VALUE = ENV.fetch("EKO_WADH_VALUE")
 
       def initialize
         @developer_key = ENV.fetch("EKO_DEV_KEY")
         @secret_key    = ENV.fetch("EKO_SECRET_KEY")
+        @initiator_id  = ENV.fetch("EKO_INITIATOR_ID")
       end
 
       def call(
-        service_type:,
-        initiator_id:,
-        user_code:,
         customer_id:,
+        user_code:,
         bank_code:,
-        amount:,
-        client_ref_id:,
-        pipe:,
         aadhar:,
-        notify_customer:,
         piddata:,
         latlong:
       )
 
         current_timestamp = timestamp
+        client_ref_id     = generate_client_ref_id
 
-        encrypted_aadhar = encrypt_aadhaar(aadhar)
-        fixed_piddata = inject_wadh(piddata.to_s.strip)
+        encrypted_aadhar  = encrypt_aadhaar(aadhar)
+        processed_piddata = inject_wadh(piddata)
 
         payload = {
-          service_type: service_type,
-          initiator_id: initiator_id,
-          user_code: user_code,
-          customer_id: customer_id,
-          bank_code: bank_code,
-          amount: amount,
+          initiator_id: @initiator_id,
           client_ref_id: client_ref_id,
-          pipe: pipe,
+          user_code: user_code,
+          bank_code: bank_code,
           aadhar: encrypted_aadhar,
-          notify_customer: notify_customer,
-          piddata: fixed_piddata,
-          latlong: latlong
+          latlong: latlong,
+          piddata: processed_piddata
         }
 
-        Rails.logger.info("=" * 80)
-        Rails.logger.info("EKO AEPS TRANSACTION REQUEST")
-        Rails.logger.info("URL: #{BASE_URL}#{ENDPOINT}/#{customer_id}")
-        Rails.logger.info("Raw piddata (before wadh injection): #{piddata.to_s.strip}")
-        Rails.logger.info("Fixed piddata (after wadh injection): #{fixed_piddata}")
-        Rails.logger.info("Payload:")
-        Rails.logger.info(JSON.pretty_generate(payload))
-        Rails.logger.info("=" * 80)
+        Rails.logger.info("=" * 100)
+        Rails.logger.info("MINI STATEMENT REQUEST")
+        Rails.logger.info(payload)
+        Rails.logger.info("=" * 100)
 
         response = connection(
           timestamp: current_timestamp,
           plain_aadhar: aadhar,
-          amount: amount,
           user_code: user_code
         ).post("#{ENDPOINT}/#{customer_id}") do |req|
-          req.headers["Content-Type"] = "application/json"
-          req.headers["Accept"] = "application/json"
           # ⚠️ payload.to_json NAHI — Rails ka ActiveSupport::JSON encoder
           # <, >, & ko \u003c, \u003e, \u0026 mein escape kar deta hai
           # (HTML-safety ke liye), jo piddata ke andar wale XML tags
@@ -81,12 +66,6 @@ module Aeps
           req.body = JSON.generate(payload)
         end
 
-        Rails.logger.info("=" * 80)
-        Rails.logger.info("EKO AEPS TRANSACTION RESPONSE")
-        Rails.logger.info("HTTP Status: #{response.status}")
-        Rails.logger.info("Body: #{response.body}")
-        Rails.logger.info("=" * 80)
-
         {
           success: response.success?,
           status: response.status,
@@ -94,7 +73,12 @@ module Aeps
         }
 
       rescue StandardError => e
-        Rails.logger.error("EKO AEPS TRANSACTION ERROR => #{e.class}: #{e.message}")
+
+        Rails.logger.error("=" * 100)
+        Rails.logger.error("MINI STATEMENT ERROR => #{e.message}")
+        Rails.logger.error(e.backtrace.join("\n"))
+        Rails.logger.error("=" * 100)
+
         {
           success: false,
           error: e.message
@@ -103,14 +87,13 @@ module Aeps
 
       private
 
-      def connection(timestamp:, plain_aadhar:, amount:, user_code:)
+      def connection(timestamp:, plain_aadhar:, user_code:)
 
         secret_key = generate_secret_key(timestamp)
 
         request_hash = generate_request_hash(
           timestamp: timestamp,
           aadhar: plain_aadhar,
-          amount: amount,
           user_code: user_code
         )
 
@@ -130,21 +113,29 @@ module Aeps
         end
       end
 
-      # piddata mein <wadh> tag inject karta hai (agar missing ya empty ho).
-      # ⚠️ IMPORTANT: `pid_data` (root element) ko formatter mein pass karo,
-      # `document` (poora REXML::Document, jisme <?xml ...?> declaration bhi
-      # hota hai) NAHI — warna declaration do baar aa jayega aur XML malformed
-      # ho jayega. Ye already sahi tha, but rescue block ko broaden kiya hai
-      # kyunki REXML sirf ParseException nahi, kabhi kabhi generic RuntimeError
-      # bhi de sakta hai malformed/undefined-namespace input par — pehle wo
-      # unhandled exception bubble ho kar poore request ko silently fail kara
-      # deta tha bina kisi useful log ke.
+      def encrypt_aadhaar(aadhaar_number)
+
+        raw_public_key = ENV.fetch("EKO_PUBLIC_KEY")
+
+        der_bytes = Base64.decode64(raw_public_key)
+
+        public_key = OpenSSL::PKey::RSA.new(der_bytes)
+
+        encrypted = public_key.public_encrypt(
+          aadhaar_number.to_s,
+          OpenSSL::PKey::RSA::PKCS1_PADDING
+        )
+
+        Base64.strict_encode64(encrypted)
+      end
+
       def inject_wadh(piddata)
         return piddata if piddata.blank?
 
         begin
           document = REXML::Document.new(piddata)
           pid_data = document.root
+
           return piddata unless pid_data
 
           wadh = pid_data.elements["wadh"]
@@ -168,23 +159,9 @@ module Aeps
             xml_body
           end
 
-        rescue StandardError => e
-          Rails.logger.error("inject_wadh FAILED => #{e.class}: #{e.message} | raw piddata: #{piddata}")
+        rescue REXML::ParseException
           piddata
         end
-      end
-
-      def encrypt_aadhaar(aadhaar_number)
-        raw_public_key = ENV.fetch("EKO_PUBLIC_KEY")
-        der_bytes = Base64.decode64(raw_public_key)
-        public_key = OpenSSL::PKey::RSA.new(der_bytes)
-
-        encrypted = public_key.public_encrypt(
-          aadhaar_number.to_s.encode("UTF-8"),
-          OpenSSL::PKey::RSA::PKCS1_PADDING
-        )
-
-        Base64.strict_encode64(encrypted)
       end
 
       def generate_secret_key(timestamp)
@@ -200,14 +177,9 @@ module Aeps
         Base64.strict_encode64(digest)
       end
 
-      def generate_request_hash(
-        timestamp:,
-        aadhar:,
-        amount:,
-        user_code:
-      )
+      def generate_request_hash(timestamp:, aadhar:, user_code:)
 
-        data = "#{timestamp}#{aadhar}#{amount}#{user_code}"
+        data = "#{timestamp}#{aadhar}#{user_code}"
 
         encoded_key = Base64.strict_encode64(@secret_key)
 
@@ -218,6 +190,10 @@ module Aeps
         )
 
         Base64.strict_encode64(digest)
+      end
+
+      def generate_client_ref_id
+        "#{Time.current.strftime('%Y%m%d%H%M%S')}#{SecureRandom.random_number(100000).to_s.rjust(5, '0')}"
       end
 
       def timestamp

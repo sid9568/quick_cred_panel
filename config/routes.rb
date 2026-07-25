@@ -155,6 +155,12 @@ Rails.application.routes.draw do
           end
         end
 
+        resources :aeps_commissions do
+          collection do
+            post :show_aeps_commission
+          end
+        end
+
         resources :dmts do
           collection do
             get "scheme_list"
@@ -273,6 +279,7 @@ Rails.application.routes.draw do
         post "commission_reports/index"
         get "commission_reports/earn_commission"
 
+        post "dmts/get_customer"
         get "dmts/dmt_transactions_list"
         post "dmts/sender_details"
         post "dmts/verify_eko_otp"
@@ -318,6 +325,8 @@ Rails.application.routes.draw do
             
             resources :fund_settlements, only: [:index] do
              collection do
+                get :balance_check
+                get  :settlement_accounts
                 post :add_settlemetn_bank
                 post :settlements
               end
@@ -325,12 +334,23 @@ Rails.application.routes.draw do
 
             resources :daily_kycs, only: [:create] do
               collection do
+                post :aeps_user_onboard
                 post :otp
                 post :verify
                 post :kyc_service
                 post :transaction
               end
             end
+
+           resources :transactions, only: [:create] do
+              collection do
+                get :transaction_list
+                post :mini_statement
+                post :balance_enquiry
+              end              
+            end
+
+
           end
         end
 

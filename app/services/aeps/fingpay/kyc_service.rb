@@ -9,7 +9,7 @@ module Aeps
   module Fingpay
     class KycService
       BASE_URL = "https://api.eko.in:25002".freeze
-      ENDPOINT = "/ekoicici/v2/aeps/kyc".freeze
+      ENDPOINT = "/ekoicici/v3/user/collection/aeps-fingpay/kyc/biometric".freeze
 
       def self.call(
         initiator_id:,
