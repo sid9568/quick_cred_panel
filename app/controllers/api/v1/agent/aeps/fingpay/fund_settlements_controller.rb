@@ -6,18 +6,15 @@ module Api
           class FundSettlementsController < Api::V1::Auth::BaseController
             # protect_from_forgery with: :null_session
 
-          def balance_check
-					  response = ::Aeps::Fingpay::AccountBalanceService.new.call(
-						  customer_id_type: "mobile_number",
-						  customer_id: "6268075916",
-						  user_code: "20500001"
-						)
-
-					  if response[:success]
-					    render json: response[:data], status: :ok
-					  else
-					    render json: response, status: :unprocessable_entity
+           def balance_check
+					  aeps_wallet = AepsWallet.find_or_create_by!(user: current_user) do |wallet|
+					    wallet.balance = 0
 					  end
+
+					  render json: {
+					    success: true,
+					    balance: aeps_wallet.balance
+					  }, status: :ok
 					end
 
           def settlement_accounts

@@ -104,17 +104,6 @@ module Api
               end
 
               amount = params[:amount].to_d
-              wallet = current_user.wallet
-
-              # Check wallet balance
-              if wallet.blank? || wallet.balance.to_d < amount
-                return render json: {
-                  success: false,
-                  error: "Balance is low",
-                  current_balance: wallet&.balance.to_d || 0,
-                  requested_amount: amount
-                }, status: :unprocessable_entity
-              end
 
               client_ref_id = "#{Time.current.strftime('%Y%m%d%H%M%S')}#{SecureRandom.random_number(1000..9999)}"
 
@@ -154,6 +143,10 @@ module Api
 
               transaction = api_response["data"] || {}
 
+              aeps_wallet = AepsWallet.find_or_create_by!(user: current_user) do |wallet|
+                wallet.balance = 0
+              end
+
               transaction_date =
                 begin
                   Time.zone.parse(transaction["transaction_date"])
@@ -162,11 +155,12 @@ module Api
                 end
 
               ActiveRecord::Base.transaction do
-                opening_balance = wallet.balance
+                opening_balance = aeps_wallet.balance
+                  closing_balance = opening_balance + amount
 
-                wallet.update!(
-                  balance: opening_balance - amount
-                )
+                  aeps_wallet.update!(
+                    balance: closing_balance
+                  )
 
                 AepsTransaction.create!(
                   user: current_user,
@@ -181,7 +175,7 @@ module Api
                   amount: transaction["amount"],
                   customer_balance: transaction["customer_balance"],
                   opening_balance: opening_balance,
-                  closing_balance: wallet.reload.balance,
+                  closing_balance: closing_balance,
                   commission: transaction["commission"],
                   tds: transaction["tds"],
                   tx_status: transaction["tx_status"],
@@ -202,7 +196,7 @@ module Api
                 success: true,
                 message: api_response["message"],
                 data: api_response,
-                wallet_balance: wallet.reload.balance
+                wallet_balance: aeps_wallet.reload.balance
               }, status: :ok
 
             rescue StandardError => e

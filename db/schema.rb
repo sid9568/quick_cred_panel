@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_25_092103) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_27_110146) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -129,6 +129,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_25_092103) do
     t.datetime "updated_at", null: false
     t.index ["client_ref_id"], name: "index_aeps_transactions_on_client_ref_id"
     t.index ["user_id"], name: "index_aeps_transactions_on_user_id"
+  end
+
+  create_table "aeps_wallets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.decimal "balance", precision: 15, scale: 2, default: "0.0", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_aeps_wallets_on_user_id"
   end
 
   create_table "banks", force: :cascade do |t|
@@ -776,6 +785,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_25_092103) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aeps_commission_slab_ranges", "schemes"
   add_foreign_key "aeps_transactions", "users"
+  add_foreign_key "aeps_wallets", "users"
   add_foreign_key "banks", "users"
   add_foreign_key "categories", "services"
   add_foreign_key "cibil_reports", "users"
