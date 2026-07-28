@@ -76,6 +76,7 @@ module Aeps
           req.headers["Accept"] = "application/json"
           req.body = json_payload
         end
+        
 
         Rails.logger.info("=" * 80)
         Rails.logger.info("EKO DAILY KYC RESPONSE")
