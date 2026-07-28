@@ -214,7 +214,7 @@ module Api
 
               if response[:success]
                 render json: response, status: :ok
-                current_user.update(aeps_kyc: true)
+                current_user.update(aeps_kyc: true, bank_code: params[:bank_code])
               else
                 render json: response, status: :unprocessable_entity
               end
