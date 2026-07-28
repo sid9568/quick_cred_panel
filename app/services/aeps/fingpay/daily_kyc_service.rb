@@ -56,7 +56,7 @@ module Aeps
 
         Rails.logger.info("=" * 80)
         Rails.logger.info("EKO DAILY KYC REQUEST")
-        Rails.logger.info("URL: #{BASE_URL}/ekoicici/v2/aeps/dailyKyc")
+        Rails.logger.info("URL: #{BASE_URL}/ekoicici/v3/user/collection/aeps-fingpay/kyc/biometric/daily")
         Rails.logger.info("Headers:")
         Rails.logger.info({
           developer_key: @developer_key,
