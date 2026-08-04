@@ -165,10 +165,10 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     p current_user.aadhaar_number
 
     result = Eko::BiometricEkycService.new(
-      customer_id: current_user.phone_number,
+      customer_id: params[:customerMobile],
       user_code: current_user.user_code,
       initiator_id: "6268075916",
-      aadhar: current_user.aadhaar_number,
+      aadhar: params[:aadhaarNumber],
       piddata: params[:piddata] # RAW XML
     ).call
     render json: result
