@@ -347,6 +347,7 @@ Rails.application.routes.draw do
                 get :transaction_list
                 post :mini_statement
                 post :balance_enquiry
+                get :fund_initiate_list
               end              
             end
 

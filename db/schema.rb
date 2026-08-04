@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_27_110146) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_04_122844) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -129,6 +129,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_27_110146) do
     t.datetime "updated_at", null: false
     t.index ["client_ref_id"], name: "index_aeps_transactions_on_client_ref_id"
     t.index ["user_id"], name: "index_aeps_transactions_on_user_id"
+  end
+
+  create_table "aeps_wallet_transactions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "aeps_wallet_id", null: false
+    t.decimal "amount", precision: 15, scale: 2, null: false
+    t.string "transaction_type", null: false
+    t.string "reference_id"
+    t.text "remarks"
+    t.decimal "balance_before", precision: 15, scale: 2
+    t.decimal "balance_after", precision: 15, scale: 2
+    t.string "status", default: "success"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aeps_wallet_id"], name: "index_aeps_wallet_transactions_on_aeps_wallet_id"
+    t.index ["user_id"], name: "index_aeps_wallet_transactions_on_user_id"
   end
 
   create_table "aeps_wallets", force: :cascade do |t|
@@ -785,6 +801,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_27_110146) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aeps_commission_slab_ranges", "schemes"
   add_foreign_key "aeps_transactions", "users"
+  add_foreign_key "aeps_wallet_transactions", "aeps_wallets"
+  add_foreign_key "aeps_wallet_transactions", "users"
   add_foreign_key "aeps_wallets", "users"
   add_foreign_key "banks", "users"
   add_foreign_key "categories", "services"

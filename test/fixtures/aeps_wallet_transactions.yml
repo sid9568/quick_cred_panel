@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  aeps_wallet: one
+  amount: 9.99
+  transaction_type: MyString
+  reference_id: MyString
+  remarks: MyText
+  balance_before: 9.99
+  balance_after: 9.99
+  status: MyString
+
+two:
+  user: two
+  aeps_wallet: two
+  amount: 9.99
+  transaction_type: MyString
+  reference_id: MyString
+  remarks: MyText
+  balance_before: 9.99
+  balance_after: 9.99
+  status: MyString

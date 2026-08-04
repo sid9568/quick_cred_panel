@@ -42,6 +42,31 @@ module Api
               }, status: :ok
             end
 
+           def fund_initiate_list
+            transactions = AepsWalletTransaction
+                             .where(user_id: current_user.id)
+                             .order(created_at: :desc)
+
+            render json: {
+              success: true,
+              message: "Fund initiate list fetched successfully",
+              total_records: transactions.count,
+              data: transactions.as_json(
+                only: [
+                  :id,
+                  :amount,
+                  :status,
+                  :transaction_type,
+                  :remarks,
+                  :created_at
+                ],
+                methods: [
+                  :user_name
+                ]
+              )
+            }, status: :ok
+          end
+
             def balance_enquiry
               required_params = %i[
                 bank_code
@@ -133,7 +158,10 @@ module Api
               api_response = response[:data]
 
               # Wallet deduction tabhi hoga jab API success ho
-              unless api_response["response_status_id"] == 0
+              # api_response["response_status_id"]
+              p "==============response_status_idresponse_status_idresponse_status_id=============="
+              p api_response["response_status_id"]
+              unless api_response["response_status_id"] == 1
                 return render json: {
                   success: false,
                   message: api_response["message"],
