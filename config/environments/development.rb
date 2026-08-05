@@ -7,7 +7,7 @@ Rails.application.configure do
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
   config.enable_reloading = true
-
+config.hosts << "api.quickcred.io"
   # Do not eager load code on boot.
   config.eager_load = false
 
@@ -30,8 +30,6 @@ Rails.application.configure do
 
     config.cache_store = :null_store
   end
-  config.hosts << "2ad7cda9808f.ngrok-free.app"
-
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
@@ -44,8 +42,7 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
-    config.hosts << "6a9bd68a5cba.ngrok-free.app"
-
+   
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 

@@ -23,7 +23,7 @@ default: &default
 
 development:
   <<: *default
-  database: quick_cred_panel_01development
+  database: quick_cred_panel_development
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
