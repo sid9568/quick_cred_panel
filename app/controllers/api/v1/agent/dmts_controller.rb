@@ -650,19 +650,17 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         code: 200,
         success: true,
         message: "Beneficiary details fetched successfully.",
-        data: dmt.as_json(only: [:bank_name, :account_number, :confirm_account_number, :ifsc_code, :receiver_name])
+        data: dmt.as_json(only: [ :bank_name, :account_number, :confirm_account_number, :ifsc_code, :receiver_name ])
       }, status: :ok
     else
       render json: { success: false, message: "No beneficiary found for this mobile number." }, status: :not_found
     end
   end
 
-
   def bank_list
     eko_banks = EkoBank.all
-    render json: {code: 200, message: "bank list show", eko_bank: eko_banks}
+    render json: { code: 200, message: "bank list show", eko_bank: eko_banks }
   end
-
 
   # def dmt_transactions
   #   p "===========dmt_transactions============"
@@ -1216,56 +1214,45 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       # txstatus_desc: response.dig("data", "txstatus_desc"),
       # collectable_amount: response.dig("data", "collectable_amount")
     )
-    
-    Rails.logger.info "✅ DMT Transaction created: ID ##{dmt_transaction.id}"
-    
+    Rails.logger.info("[DMT] dmt_transaction created id=#{dmt_transaction.id} txn_id=#{txn_id}")
+
     # Update DMT record
     dmt.update(amount: main_amount, transaction_status: true)
-    Rails.logger.info "✅ DMT ##{dmt.id} updated - Amount: ₹#{main_amount}"
+    Rails.logger.info("[DMT] dmt id=#{dmt.id} updated amount=#{main_amount} transaction_status=true")
   end
-  Rails.logger.info "Database transaction completed successfully"
 
   # === Helper method to find or create wallet ===
   def find_or_create_wallet(user)
     wallet = Wallet.find_by(user_id: user.id)
     if wallet.nil?
-      Rails.logger.info "Wallet not found for user #{user.id}, creating new wallet..."
       wallet = Wallet.create!(
         user_id: user.id,
         balance: 0.0,
         currency: "INR"
       )
-      Rails.logger.info "✅ Wallet created for user #{user.id} with ID #{wallet.id}"
+      Rails.logger.info("[DMT] created new wallet for user_id=#{user.id}")
     end
     wallet
   end
 
   # === Distribute Flat Commission to all roles in hierarchy ===
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== DISTRIBUTING FLAT COMMISSIONS =========="
-  Rails.logger.info "=" * 60
-  
+
   commission_count = 0
   total_distributed = 0
-  
+
   commission_map.each do |role, commission_data|
     next if commission_data[:commission_amount] <= 0
-    
+
     user = commission_data[:user]
+    p "=============user================"
+    p user
     commission_amount = commission_data[:commission_amount]
-    
-    Rails.logger.info "-" * 40
-    Rails.logger.info "Crediting Commission to: #{role.upcase}"
-    Rails.logger.info "  User ID: #{user.id}"
-    Rails.logger.info "  Username: #{user.username}"
-    Rails.logger.info "  Role: #{user.role&.title}"
-    Rails.logger.info "  Flat Commission Amount: ₹#{commission_amount}"
-    
+
+    Rails.logger.info("[DMT] distributing commission role=#{role} user_id=#{user.id} amount=#{commission_amount}")
+
     # Find or create wallet for user
     user_wallet = find_or_create_wallet(user)
-    Rails.logger.info "  Wallet ID: #{user_wallet.id}"
-    Rails.logger.info "  Current Balance: ₹#{user_wallet.balance.to_f}"
-    
+
     # Credit commission using WalletService
     result = Wallets::WalletService.update_balance(
       wallet: user_wallet,
@@ -1274,10 +1261,10 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       remark: "DMT Flat Commission - #{role.to_s.upcase}",
       reference_id: "33232dsdd"
     )
-    
+
+    Rails.logger.info("[DMT] commission credit result for role=#{role} user_id=#{user.id} => #{result}")
+
     if result[:success]
-      Rails.logger.info "✅ SUCCESS: #{role.upcase} (User #{user.id}) credited ₹#{commission_amount}"
-      
       # Create commission record
       DmtCommission.create!(
         dmt_id: dmt.id,
@@ -1285,28 +1272,19 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         commission_amount: commission_amount,
         role: role.to_s,
       )
-      
+
       commission_count += 1
       total_distributed += commission_amount
     else
-      Rails.logger.error "❌ FAILED: Commission credit failed for #{role.upcase} (User #{user.id})"
-      Rails.logger.error "  Error: #{result[:error]}"
+      Rails.logger.warn("[DMT] commission credit FAILED for role=#{role} user_id=#{user.id} result=#{result}")
     end
   end
-  
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== FLAT COMMISSION DISTRIBUTION SUMMARY =========="
-  Rails.logger.info "Total Roles Credited: #{commission_count}"
-  Rails.logger.info "Total Commission Distributed: ₹#{total_distributed}"
-  Rails.logger.info "EKO Commission Available: ₹#{commission_eko}"
-  Rails.logger.info "Remaining EKO Commission: ₹{(commission_eko - total_distributed)}"
-  Rails.logger.info "=" * 60
+
+  Rails.logger.info("[DMT] commission distribution complete. commission_count=#{commission_count} total_distributed=#{total_distributed}")
 
   # Final response
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== TRANSACTION COMPLETED SUCCESSFULLY =========="
-  Rails.logger.info "=" * 60
-  
+  Rails.logger.info("[DMT] transaction completed successfully dmt_transaction_id=#{dmt_transaction.id} remaining_balance=#{wallet.reload.balance}")
+
   render json: {
     code: "200",
     success: true,
@@ -1319,7 +1297,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
         total: total_distributed,
         eko_commission: commission_eko,
         remaining: (commission_eko - total_distributed),
-        breakdown: commission_map.map { |role, data| 
+        breakdown: commission_map.map { |role, data|
           {
             role: role,
             user_id: data[:user_id],
@@ -1331,24 +1309,14 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   }, status: :ok
 
 rescue ActiveRecord::RecordInvalid => e
-  Rails.logger.error "=" * 60
-  Rails.logger.error "❌ TRANSACTION FAILED - RecordInvalid"
-  Rails.logger.error "Error: #{e.message}"
-  Rails.logger.error "Record: #{e.record.inspect}"
-  Rails.logger.error "Errors: #{e.record.errors.full_messages.join(', ')}"
-  Rails.logger.error "=" * 60
+  Rails.logger.error("[DMT] RecordInvalid: #{e.message}")
   render json: { success: false, message: "Transaction failed: #{e.message}" }, status: :unprocessable_entity
-  
+
 rescue => e
-  Rails.logger.error "=" * 60
-  Rails.logger.error "❌ UNEXPECTED ERROR"
-  Rails.logger.error "Error: #{e.message}"
-  Rails.logger.error "Error Class: #{e.class}"
-  Rails.logger.error "Backtrace:"
-  Rails.logger.error e.backtrace.join("\n")
-  Rails.logger.error "=" * 60
+  Rails.logger.error("[DMT] Unexpected error: #{e.class} - #{e.message}\n#{e.backtrace&.first(10)&.join("\n")}")
   render json: { success: false, message: "Something went wrong: #{e.message}" }, status: :internal_server_error
 end
+
 
 
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_04_122844) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_06_184955) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -77,6 +77,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_04_122844) do
     t.bigint "scheme_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "service_type", default: "transaction", null: false
+    t.index ["scheme_id", "service_type", "min_amount", "max_amount"], name: "idx_aeps_slab_ranges_scheme_service_amount"
     t.index ["scheme_id"], name: "index_aeps_commission_slab_ranges_on_scheme_id"
   end
 
@@ -96,6 +98,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_04_122844) do
     t.integer "aeps_commission_slab_range_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "service_type", default: "transaction", null: false
+    t.index ["scheme_id", "service_type", "to_role", "aeps_commission_slab_range_id"], name: "idx_aeps_slabs_scheme_service_role_range"
+  end
+
+  create_table "aeps_mini_statements", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "bank_code"
+    t.string "customer_id"
+    t.string "aadhaar_last4"
+    t.string "status"
+    t.jsonb "commission_data"
+    t.jsonb "provider_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_aeps_mini_statements_on_user_id"
   end
 
   create_table "aeps_transactions", force: :cascade do |t|
@@ -800,6 +817,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_04_122844) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aeps_commission_slab_ranges", "schemes"
+  add_foreign_key "aeps_mini_statements", "users"
   add_foreign_key "aeps_transactions", "users"
   add_foreign_key "aeps_wallet_transactions", "aeps_wallets"
   add_foreign_key "aeps_wallet_transactions", "users"

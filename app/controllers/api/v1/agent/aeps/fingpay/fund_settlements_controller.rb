@@ -6,7 +6,7 @@ module Api
           class FundSettlementsController < Api::V1::Auth::BaseController
             # protect_from_forgery with: :null_session
 
-           def balance_check
+          def balance_check
            	p "==========balance_checkbalance_check==========="
            	p current_user
 					  aeps_wallet = AepsWallet.find_or_create_by!(user: current_user) do |wallet|

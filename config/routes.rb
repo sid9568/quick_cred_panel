@@ -312,6 +312,8 @@ Rails.application.routes.draw do
           end
         end
 
+        resources :aeps_commissions 
+
         namespace :aeps do
           namespace :fingpay do
 
@@ -350,7 +352,6 @@ Rails.application.routes.draw do
                 get :fund_initiate_list
               end              
             end
-
 
           end
         end
