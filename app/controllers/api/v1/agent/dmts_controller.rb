@@ -541,13 +541,17 @@ end
       }, status: :bad_request
     end
 
+    vendor_user = User.where(phone_number: params[:customer_id], role_id: 11)
+    p "=======vendor_user==============="
+    user_check = vendor_user.last
+
     # 🔹 Call EKO DMT Transfer
     resp = EkoDmt::TransferService.call(
       initiator_id: "6268075916",
-      user_code: current_user.user_code,
+      user_code: user_check.user_code,
       recipient_id: params[:recipient_id],
       amount: params[:amount],
-      customer_id: current_user.phone_number
+      customer_id: params[:customer_id]
     )
 
     # 🔹 Safely extract status
@@ -871,38 +875,41 @@ end
 
   hierarchy = current_user.find_hierarchy
   Rails.logger.info("[DMT] hierarchy resolved: #{hierarchy.map { |h| "#{h.id}:#{h.role.title}" }.join(', ')}")
-
+  
+  vendor_user = User.where(phone_number: params[:customer_id], role_id: 11)
+  p "=======vendor_user==============="
+  user_check = vendor_user.last
   # EKO API CALL - DO NOT MODIFY
-  # response = EkoDmt::FinoTransferService.call(
-  #   initiator_id: "6268075916",
-  #   user_code: current_user.user_code,
-  #   recipient_id: params[:recipient_id],
-  #   amount: params[:amount],
-  #   customer_id: current_user.phone_number,
-  #   otp: params[:otp],
-  #   otp_ref_id: params[:otp_ref_id],
-  #   latlong: params[:latlong] || "28.6139,77.2090",
-  #   client_ref_id: params[:client_ref_id] || "TXN#{Time.current.to_i}"
-  # )
+  response = EkoDmt::FinoTransferService.call(
+    initiator_id: "6268075916",
+    user_code: user_check.user_code,
+    recipient_id: params[:recipient_id],
+    amount: params[:amount],
+    customer_id: user_check.phone_number,
+    otp: params[:otp],
+    otp_ref_id: params[:otp_ref_id],
+    latlong: params[:latlong] || "28.6139,77.2090",
+    client_ref_id: params[:client_ref_id] || "TXN#{Time.current.to_i}"
+  )
 
-  # eko_reason = response.dig("data", "reason") || response["reason"]
+  eko_reason = response.dig("data", "reason") || response["reason"]
 
-  # if eko_reason == "OTP Verification failed"
-  #   return render json: {
-  #     success: false,
-  #     message: response[:message] || "OTP Verification failed"
-  #   }, status: :unprocessable_entity
-  # end
+  if eko_reason == "OTP Verification failed"
+    return render json: {
+      success: false,
+      message: response["message"] || "OTP Verification failed"
+    }, status: :unprocessable_entity
+  end
 
-  # eko_status = response.dig("data", "status") || response["status"]
+  eko_status = response.dig("data", "status") || response["status"]
 
-  # # ❌ OTP / transfer failed
-  # if eko_status != 0
-  #   return render json: {
-  #     success: false,
-  #     message: response[:message] || "Amount Greater Than 100"
-  #   }, status: :unprocessable_entity
-  # end
+  # ❌ OTP / transfer failed
+  if eko_status != 0
+    return render json: {
+      success: false,
+      message: response["message"] || "Transaction failed"
+    }, status: :unprocessable_entity
+  end
 
   amount = params[:amount].to_f
   Rails.logger.info("[DMT] amount=#{amount}")
@@ -1107,13 +1114,13 @@ end
       account_number: params[:account_number],
       amount: amount,
       status: "success",
-      # fee: response.dig("data", "fee"),
-      # tid: response.dig("data", "tid"),
-      # tds: response.dig("data", "tds"),
-      # service_tax: response.dig("data", "service_tax"),
-      # commission: response.dig("data", "commission"),
-      # txstatus_desc: response.dig("data", "txstatus_desc"),
-      # collectable_amount: response.dig("data", "collectable_amount")
+      fee: response.dig("data", "fee"),
+      tid: response.dig("data", "tid"),
+      tds: response.dig("data", "tds"),
+      service_tax: response.dig("data", "service_tax"),
+      commission: response.dig("data", "commission"),
+      txstatus_desc: response.dig("data", "txstatus_desc"),
+      collectable_amount: response.dig("data", "collectable_amount")
     )
     Rails.logger.info("[DMT] dmt_transaction created id=#{dmt_transaction.id} txn_id=#{txn_id}")
 
@@ -1129,7 +1136,6 @@ end
       wallet = Wallet.create!(
         user_id: user.id,
         balance: 0.0,
-        currency: "INR"
       )
       Rails.logger.info("[DMT] created new wallet for user_id=#{user.id}")
     end
