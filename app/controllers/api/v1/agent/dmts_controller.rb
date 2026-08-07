@@ -47,9 +47,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
-    # if params[:deposit_ifsc_code] && params[:deposit_ifsc_code]
-    #   bank = Bank.find_by(deposit_account_no: params[:deposit_account_no], deposit_ifsc_code: params[:deposit_ifsc_code])
-    # end
     response = EkoDmt::UserOnboardService.new(
       initiator_id: "6268075916",
       pan_number: params[:pan_number],
@@ -62,36 +59,68 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       residence_address: params[:residence_address]
     ).call
 
-    p "==========response=========="
-    p response
+    user_code = response.dig("data", "user_code") ||
+                response["user_code"] ||
+                response.dig(:data, :user_code) ||
+                response[:user_code]
 
-    user_code = response.dig("data", "user_code") || response["user_code"]
-    p "=========user_code=============="
-    p user_code
-
-    # ❌ No user_code → hard fail
     if user_code.blank?
       return render json: {
         status: 0,
-        message: response[:message] || "User code not received from EKO",
+        message: response["message"] ||
+                 response[:message] ||
+                 "User code not received from EKO",
         raw: response
       }, status: :unprocessable_entity
     end
 
-    # ✅ SUCCESS OR ALREADY EXISTS → UPDATE USER
-    current_user.update!(
+    user = User.find_or_initialize_by(
+      phone_number: params[:mobile],
+      role_id: 11
+    )
+
+    user.assign_attributes(
+      first_name: params[:first_name],
+      last_name: params[:last_name],
+      email: params[:email],
+      phone_number: params[:mobile],
+      pan_number: params[:pan_number],
+      pan_card: params[:pan_number],
+      aadhaar_number: params[:adhaar_number],
+      date_of_birth: params[:dob],
+      business_name: params[:shop_name],
+      address: params[:residence_address],
+      role_id: 6,
       user_code: user_code,
       eko_onboard_first_step: true
     )
 
+    user.save!
+
     render json: {
       status: 1,
-      message: response[:message].presence || "User onboarded / already exists",
-      user_code: user_code,
-      eko_onboard_first_step: current_user.eko_onboard_first_step,
+      message: response["message"].presence ||
+               response[:message].presence ||
+               "User onboarded / already exists",
+      user_id: user.id,
+      user_code: user.user_code,
+      eko_onboard_first_step: user.eko_onboard_first_step,
       data: response
     }, status: :ok
-  end
+
+  rescue ActiveRecord::RecordInvalid => e
+    render json: {
+      status: 0,
+      message: "User creation failed",
+      errors: e.record.errors.full_messages
+    }, status: :unprocessable_entity
+
+  rescue StandardError => e
+    render json: {
+      status: 0,
+      message: e.message
+    }, status: :internal_server_error
+end
 
   def create_customer
     resp = EkoDmt::DmtCustomerCreateService.new(
@@ -103,16 +132,12 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       residence_address: params[:residence_address]
     ).call
 
-    p "=====resp========"
-    p resp
-
     render json: {
       status: resp["status"] || resp["response_status_id"],
       message: resp["message"],
       data: resp
     }
   end
-
 
   def check_profile
     customer_id  = params[:customer_id]
@@ -130,12 +155,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       user_code:    user_code
     ).call
 
-    p "==========response========"
-    p response
-
     status = response.dig("data", "status") || response["status"]
-    p "=========status=============="
-    p status
 
     if status == 0
       current_user.update(eko_profile_second_step: true)
@@ -148,21 +168,8 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     }
   end
 
-# EKO_INITIATOR_ID = 6268075916
-# EKO_USER_CODE = 20500001
-# EKO_INITIATOR_ID = 6268075916
-# EKO_USER_CODE = 38130001
   def biometric
-    p "===============customer_id"
     csss =current_user.phone_number
-    p "-----csss---------"
-    p csss
-
-    p "============current_user.user_code"
-    p current_user.user_code
-
-    p "======current_user.aadhaar_number======"
-    p current_user.aadhaar_number
 
     result = Eko::BiometricEkycService.new(
       customer_id: params[:customerMobile],
@@ -172,8 +179,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       piddata: params[:piddata] # RAW XML
     ).call
     render json: result
-    p "===========result"
-    p result
   end
 
   # def biometric
@@ -202,9 +207,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }, status: :bad_request
     end
 
-    Rails.logger.info "========phone_number======="
-    Rails.logger.info current_user.phone_number
-
     # ✅ WALLET CHECK (before API call)
     user_wallet = current_user.wallet
     unless user_wallet
@@ -230,9 +232,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       otp_ref_id:     params[:otp_ref_id],
       kyc_request_id: params[:kyc_request_id]
     ).call
-
-    Rails.logger.info "========EKO OTP VERIFY RESPONSE========"
-    Rails.logger.info resp.inspect
 
     status = resp.dig("data", "status") || resp["status"]
     # ✅ SUCCESS CASE
@@ -263,7 +262,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       }
     end
 
-
     render json: {
       status: status,
       message: resp["message"] || "OTP verification completed",
@@ -283,7 +281,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     render json: result
   end
 
-
   def biometric_kyc
     customer_id = params[:customer_id]
     aadhar      = params[:aadhar]
@@ -293,9 +290,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
     # ✅ filename only
     pid_filename = pidfile.filename
-    p "============pid_filename======"
-    p pid_filename
-    Rails.logger.info "PID Filename => #{pid_filename}"
 
     response = EkoBiometricKycService.biometric_kyc(
       customer_id,
@@ -333,8 +327,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # end
 
   def biometric_ekyc_otp_verify
-    p "-=============="
-    p biometric_ekyc_otp_verify
     response = Eko::EkoBiometricEkycService.call(otp_params)
 
     render json: {
@@ -343,8 +335,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       data: response
     }, status: :ok
   end
-
-
 
   def bank_verify
     required = %i[ifsc account_number]
@@ -363,9 +353,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       bank_verify_status: true,
       vendor_user_id: params[:id]
     )
-
-    p "======existing_dmt========"
-    p existing_dmt
 
     if existing_dmt.present?
       return render json: {
@@ -389,7 +376,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     ).call
 
     raw_body = response&.body.to_s
-    Rails.logger.error "RAW EKO RESPONSE => #{raw_body}"
 
     parsed = JSON.parse(raw_body) rescue nil
 
@@ -456,14 +442,10 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     }, status: :internal_server_error
   end
 
-
-
   def dmt_transactions_list
     dmt_transactions = DmtTransaction
     .where(user_id: current_user.id)
     .order(created_at: :desc)
-    p "-=------------"
-    p dmt_transactions
     render json: {
       code: 200,
       message: "Successfully fetched DMT transactions",
@@ -486,12 +468,11 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
           beneficiaries_status: dmt&.beneficiaries_status,
           parent_id: dmt&.parent_id,
           bank_name: dmt&.bank_name,
-          account_number: dmt&.account_number,
+          account_number: dmt&.account_number
         }
       end
     }, status: :ok
   end
-
 
   def all_beneficiary
     beneficiaries = Dmt.where(
@@ -514,10 +495,8 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     end
   end
 
-
   def beneficiary_list
     user = VendorUser.find_by(phone_number: params[:customer_id])
-    p "======user======"
     if user.present?
       beneficiaries = Dmt.where(
         vendor_user_id: user.id,
@@ -541,9 +520,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     }
   end
 
-
-
-
   def sender_details
     required = %i[recipient_id amount]
     missing = required.select { |p| params[p].blank? }
@@ -564,9 +540,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       customer_id: current_user.phone_number
     )
 
-    Rails.logger.info "========== EKO TRANSFER RESPONSE =========="
-    Rails.logger.info
-
     # 🔹 Safely extract status
     status = resp.dig("data", "status") || resp[:status] || resp["status"]
 
@@ -585,7 +558,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       transaction: resp[:data] || resp["data"]
     }, status: :ok
   end
-
 
   def verify_eko_otp
     required = %i[
@@ -616,9 +588,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       client_ref_id: params[:client_ref_id] || "TXN#{Time.current.to_i}"
     )
 
-    Rails.logger.info "========== EKO OTP VERIFY RESPONSE =========="
-    Rails.logger.info resp
-
     if resp[:status] != 0
       return render json: {
         success: false,
@@ -633,7 +602,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       transaction: resp[:data]
     }, status: :ok
   end
-
 
   def beneficiary_fetch
     if params[:mobile].blank?
@@ -716,18 +684,14 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   #       bank_id: params[:bank_id],
   #       account_type: 1
   #     )
-  #     Rails.logger.info "========== EKO RESPONSE =========="
-  #     Rails.logger.info response
 
   #     # ❗ Fail transaction if EKO failed
-
 
   #     status = response.dig("data", "status") || response["status"]
   #     p "=========status=============="
   #     p status
 
   #     recipient_id = response.dig("data", "recipient_id") || response["recipient_id"]
-
 
   #     if status != 0
   #       raise ActiveRecord::Rollback, "EKO recipient creation failed"
@@ -768,9 +732,8 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # end
 
   def dmt_transactions
-    p "========quick cred"
     required = %i[
-    receiver_mobile_number account_number 
+    receiver_mobile_number account_number
     ifsc_code bank_name id
   ]
 
@@ -783,9 +746,6 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     end
 
     bank = EkoBank.find_by(name: params[:bank_name])
-    p "===========bank============="
-    p bank
-
 
     amount = params[:amount].to_f
 
@@ -810,13 +770,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       account_type: 1
     )
 
-    Rails.logger.info "========== EKO RESPONSE =========="
-    Rails.logger.info response
-
     status = response.dig("data", "status") || response["status"]
-
-    p "=========status=========="
-    p status
 
     # ❌ 2️⃣ STOP EXECUTION IF EKO FAILED
     if status != 0
@@ -873,20 +827,12 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
     }, status: :unprocessable_entity
   end
 
-
-
   def send_otp
-
   end
 
-
   def dmt_transaction_verify
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== DMT TRANSACTION VERIFY START =========="
-  Rails.logger.info "=" * 60
-  Rails.logger.info "Params: #{params.inspect}"
-  Rails.logger.info "Current User: #{current_user.id} - #{current_user.username} - Role: #{current_user.role&.title}"
-  
+  Rails.logger.info("[DMT] dmt_transaction_verify called by user_id=#{current_user&.id} params=#{params.slice(:recipient_id, :amount, :customer_id, :otp_ref_id, :id).to_unsafe_h}")
+
   # if params[:otp].blank?
   #   return render json: { success: false, message: "otp is required" }, status: :bad_request
   # end
@@ -897,7 +843,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
 
   missing = required.select { |p| params[p].blank? }
   if missing.any?
-    Rails.logger.warn "Missing params: #{missing.join(', ')}"
+    Rails.logger.warn("[DMT] Missing params: #{missing.join(', ')}")
     return render json: {
       success: false,
       message: "Missing params: #{missing.join(', ')}"
@@ -905,16 +851,9 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   end
 
   hierarchy = current_user.find_hierarchy
-  Rails.logger.info "=" * 60
-  Rails.logger.info "====== HIERARCHY ======"
-  Rails.logger.info "Hierarchy IDs: #{hierarchy.pluck(:id).inspect}"
-  hierarchy.each_with_index do |user, idx|
-    Rails.logger.info "Hierarchy[#{idx}]: User##{user.id} - #{user.role&.title} - #{user.username} (Parent: #{user.parent_id})"
-  end
-  Rails.logger.info "=" * 60
+  Rails.logger.info("[DMT] hierarchy resolved: #{hierarchy.map { |h| "#{h.id}:#{h.role.title}" }.join(', ')}")
 
   # EKO API CALL - DO NOT MODIFY
-  # Rails.logger.info "Calling EKO API for transaction verification..."
   # response = EkoDmt::FinoTransferService.call(
   #   initiator_id: "6268075916",
   #   user_code: current_user.user_code,
@@ -927,16 +866,9 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   #   client_ref_id: params[:client_ref_id] || "TXN#{Time.current.to_i}"
   # )
 
-  # Rails.logger.info "=" * 60
-  # Rails.logger.info "========== EKO OTP VERIFY RESPONSE =========="
-  # Rails.logger.info "Response: #{response.inspect}"
-  # Rails.logger.info "=" * 60
-
   # eko_reason = response.dig("data", "reason") || response["reason"]
-  # Rails.logger.info "EKO Reason: #{eko_reason}"
-  
+
   # if eko_reason == "OTP Verification failed"
-  #   Rails.logger.error "OTP Verification failed!"
   #   return render json: {
   #     success: false,
   #     message: response[:message] || "OTP Verification failed"
@@ -944,11 +876,9 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # end
 
   # eko_status = response.dig("data", "status") || response["status"]
-  # Rails.logger.info "EKO Status: #{eko_status}"
-  
+
   # # ❌ OTP / transfer failed
   # if eko_status != 0
-  #   Rails.logger.error "EKO transaction failed with status: #{eko_status}"
   #   return render json: {
   #     success: false,
   #     message: response[:message] || "Amount Greater Than 100"
@@ -956,60 +886,48 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
   # end
 
   amount = params[:amount].to_f
-  Rails.logger.info "Transaction Amount: ₹#{amount}"
+  Rails.logger.info("[DMT] amount=#{amount}")
 
   #======================Dmt===============
   dmt = Dmt.find_by(id: params[:id])
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== DMT RECORD =========="
-  Rails.logger.info "DMT ID: #{dmt&.id}"
-  Rails.logger.info "DMT Status: #{dmt&.status}"
-  
+
   if dmt.nil?
-    Rails.logger.error "DMT not found with ID: #{params[:id]}"
+    Rails.logger.error("[DMT] DMT record not found for id=#{params[:id]}")
     return render json: { success: false, message: "DMT record not found" }, status: :not_found
   end
-  
+
   dmt.update!(status: "Success")
-  Rails.logger.info "DMT ##{dmt.id} status updated to Success"
+  Rails.logger.info("[DMT] dmt id=#{dmt.id} status set to Success")
   #======================Dmt===============
 
   # 🔥 STEP 1: FETCH COMMISSION SLAB
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== FETCHING COMMISSION SLAB =========="
   dmt_surcharge = DmtCommissionSlabRange.find_by(
     "min_amount <= ? AND max_amount >= ?",
     amount, amount
   )
-  
+
+  p "==========================dmt_surcharge  ye hi check karna hai==============================="
+  p dmt_surcharge
+
   if dmt_surcharge.nil?
-    Rails.logger.error "No commission slab found for amount: #{amount}"
+    Rails.logger.error("[DMT] No commission slab range found for amount=#{amount}")
     return render json: { success: false, message: "Commission slab not found" }, status: :unprocessable_entity
   end
-  
-  Rails.logger.info "Commission Slab Found:"
-  Rails.logger.info "  Min Amount: ₹#{dmt_surcharge.min_amount}"
-  Rails.logger.info "  Max Amount: ₹#{dmt_surcharge.max_amount}"
-  Rails.logger.info "  Surcharge: ₹#{dmt_surcharge.surcharge}"
-  Rails.logger.info "  TDS Percent: #{dmt_surcharge.tds_percent}%"
-  Rails.logger.info "  GST Percent: #{dmt_surcharge.gst_percent}%"
+
+  Rails.logger.info("[DMT] slab range matched id=#{dmt_surcharge.id} surcharge=#{dmt_surcharge.surcharge} tds=#{dmt_surcharge.tds_percent} gst=#{dmt_surcharge.gst_percent}")
 
   commission_eko = dmt_surcharge.surcharge.to_f
-  Rails.logger.info "EKO Commission Available: ₹#{commission_eko}"
 
   # Build role hierarchy chain from current_user up to top
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== BUILDING ROLE CHAIN =========="
   role_chain = []
-  
+
   # Start with current user (retailer)
   role_chain << {
     role: "retailer",
     user: current_user,
     scheme_id: current_user.scheme_id
   }
-  Rails.logger.info "Added to chain: RETAILER - User##{current_user.id} (Scheme: #{current_user.scheme_id})"
-  
+
   # Add parent users from hierarchy
   hierarchy.each_with_index do |parent, idx|
     role = parent.role.title.downcase
@@ -1018,65 +936,52 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       user: parent,
       scheme_id: parent.scheme_id
     }
-    Rails.logger.info "Added to chain: #{role.upcase} - User##{parent.id} (Scheme: #{parent.scheme_id})"
   end
-  
-  Rails.logger.info "Total roles in chain: #{role_chain.length}"
-  Rails.logger.info "Role Chain Order: #{role_chain.map { |r| r[:role].upcase }.join(' → ')}"
+
+  Rails.logger.info("[DMT] role_chain built: #{role_chain.map { |r| "#{r[:role]}(user_id=#{r[:user].id}, scheme_id=#{r[:scheme_id]})" }.join(' -> ')}")
 
   # Fetch FLAT commission amounts for each role
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== FETCHING FLAT COMMISSION AMOUNTS =========="
   role_chain.each do |item|
     commission_flat = DmtCommissionSlab.find_by(
       scheme_id: item[:scheme_id],
       to_role: item[:role]
     )&.value.to_f
-    
+
     item[:commission_flat] = commission_flat
-    Rails.logger.info "#{item[:role].upcase} (User##{item[:user].id}): Flat Commission = ₹#{commission_flat}"
+
+    Rails.logger.info("[DMT] flat commission for role=#{item[:role]} scheme_id=#{item[:scheme_id]} => #{commission_flat}")
   end
 
   # Calculate total flat commission required
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== CALCULATING FLAT COMMISSIONS =========="
   commission_map = {}
   total_flat_commission = 0
-  
+
   role_chain.each_with_index do |current, index|
     current_role = current[:role].upcase
     flat_amount = current[:commission_flat]
-    
-    Rails.logger.info "Processing #{current_role}: Flat Commission = ₹#{flat_amount}"
-    
+
     commission_map[current[:role].to_sym] = {
       user_id: current[:user].id,
       user: current[:user],
       role: current[:role],
       commission_amount: flat_amount
     }
-    
+
     total_flat_commission += flat_amount
-    Rails.logger.info "  ✅ #{current_role} will get: ₹#{flat_amount}"
-    Rails.logger.info "-" * 40
   end
 
+  Rails.logger.info("[DMT] total_flat_commission=#{total_flat_commission} commission_eko=#{commission_eko}")
+
   # Distribute remaining EKO commission to ADMIN
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== DISTRIBUTING REMAINING COMMISSION TO ADMIN =========="
-  Rails.logger.info "Total Flat Commission Required: ₹#{total_flat_commission}"
-  Rails.logger.info "EKO Commission Available: ₹#{commission_eko}"
-  
+
   remaining_commission = commission_eko - total_flat_commission
-  
+
   if remaining_commission > 0
-    Rails.logger.info "Remaining Commission: ₹#{remaining_commission}"
-    Rails.logger.info "Adding remaining commission to ADMIN"
-    
+
     if commission_map[:admin]
       old_admin_commission = commission_map[:admin][:commission_amount]
       commission_map[:admin][:commission_amount] += remaining_commission
-      Rails.logger.info "Admin commission updated: ₹#{old_admin_commission} → ₹#{commission_map[:admin][:commission_amount]}"
+      Rails.logger.info("[DMT] remaining_commission=#{remaining_commission} added to existing admin commission (#{old_admin_commission} -> #{commission_map[:admin][:commission_amount]})")
     else
       admin_user = role_chain.find { |r| r[:role] == "admin" }
       if admin_user
@@ -1086,66 +991,43 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
           role: "admin",
           commission_amount: remaining_commission
         }
-        Rails.logger.info "Admin added to commission map with ₹#{remaining_commission}"
+        Rails.logger.info("[DMT] remaining_commission=#{remaining_commission} assigned to new admin entry user_id=#{admin_user[:user].id}")
+      else
+        Rails.logger.warn("[DMT] remaining_commission=#{remaining_commission} could not be assigned, no admin found in role_chain")
       end
     end
   elsif remaining_commission < 0
-    Rails.logger.warn "⚠️ Commission exceeds EKO limit by ₹#{-remaining_commission}"
     excess = -remaining_commission
     old_retailer_commission = commission_map[:retailer][:commission_amount]
-    commission_map[:retailer][:commission_amount] = [commission_map[:retailer][:commission_amount] - excess, 0].max
-    Rails.logger.info "Retailer commission adjusted: ₹#{old_retailer_commission} → ₹#{commission_map[:retailer][:commission_amount]}"
-  else
-    Rails.logger.info "✅ Perfect match! No remaining commission"
+    commission_map[:retailer][:commission_amount] = [ commission_map[:retailer][:commission_amount] - excess, 0 ].max
+    Rails.logger.info("[DMT] negative remaining_commission, excess=#{excess} deducted from retailer (#{old_retailer_commission} -> #{commission_map[:retailer][:commission_amount]})")
   end
 
   # Recalculate total after adjustments
   new_total = commission_map.values.sum { |v| v[:commission_amount] }
-  Rails.logger.info "New Total Commission: ₹#{new_total}"
-  Rails.logger.info "EKO Commission Used: ₹#{new_total}"
-  Rails.logger.info "Remaining with EKO: ₹#{commission_eko - new_total}"
-
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== FINAL COMMISSION MAP =========="
-  commission_map.each do |role, data|
-    Rails.logger.info "#{role.upcase}: ₹#{data[:commission_amount]} (User #{data[:user_id]})"
-  end
-  Rails.logger.info "=" * 60
+  Rails.logger.info("[DMT] new_total commission after adjustment=#{new_total}")
 
   # 🔥 STEP 2: Process Wallet Transaction - ONLY USING WalletService
-  Rails.logger.info "=" * 60
-  Rails.logger.info "========== PROCESSING WALLET TRANSACTION =========="
   wallet = Wallet.find_by(user_id: current_user.id)
   unless wallet
-    Rails.logger.error "Wallet not found for user: #{current_user.id}"
+    Rails.logger.error("[DMT] Wallet not found for user_id=#{current_user.id}")
     return render json: { success: false, message: "Wallet not found" }, status: :not_found
   end
 
-  Rails.logger.info "Current User Wallet:"
-  Rails.logger.info "  Wallet ID: #{wallet.id}"
-  Rails.logger.info "  Balance: ₹#{wallet.balance.to_f}"
-  Rails.logger.info "  Amount to Debit: ₹#{params[:amount].to_f}"
-
   # Check sufficient balance
   if wallet.balance.to_f < params[:amount].to_f
-    Rails.logger.warn "Insufficient balance! Available: ₹#{wallet.balance.to_f}, Required: ₹#{params[:amount].to_f}"
+    Rails.logger.warn("[DMT] Insufficient wallet balance for user_id=#{current_user.id} balance=#{wallet.balance} required=#{params[:amount]}")
     return render json: { success: false, message: "Insufficient wallet balance" }, status: :unprocessable_entity
   end
 
   # Perform transaction safely - ONLY using WalletService
   dmt_transaction = nil
 
-  Rails.logger.info "Starting database transaction..."
   ActiveRecord::Base.transaction do
     # Calculate main amount to debit
     main_amount = params[:amount].to_f + dmt_surcharge.surcharge + dmt_surcharge.tds_percent + dmt_surcharge.gst_percent
-    Rails.logger.info "Main Amount to Debit: ₹#{main_amount}"
-    Rails.logger.info "  Breakdown:"
-    Rails.logger.info "    Base Amount: ₹#{params[:amount]}"
-    Rails.logger.info "    Surcharge: ₹#{dmt_surcharge.surcharge}"
-    Rails.logger.info "    TDS: ₹#{dmt_surcharge.tds_percent}"
-    Rails.logger.info "    GST: ₹#{dmt_surcharge.gst_percent}"
-    
+    Rails.logger.info("[DMT] main_amount to debit=#{main_amount}")
+
     # 1. First debit the main amount from retailer's wallet
     debit_result = Wallets::WalletService.update_balance(
       wallet: wallet,
@@ -1154,17 +1036,17 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       remark: "DMT Main Amount Debit",
       reference_id: "MAIN_#{params[:id]}"
     )
-    
+
+    Rails.logger.info("[DMT] main debit result=#{debit_result}")
+
     unless debit_result[:success]
-      Rails.logger.error "Main debit failed: #{debit_result[:error]}"
+      Rails.logger.error("[DMT] Main debit failed: #{debit_result[:error]}")
       raise ActiveRecord::Rollback, "Main debit failed: #{debit_result[:error]}"
     end
-    Rails.logger.info "  ✅ Main amount debited: ₹#{main_amount}"
-    Rails.logger.info "  New Balance: ₹#{wallet.reload.balance.to_f}"
 
     # Generate transaction ID
     txn_id = "TXN#{rand(100000..999999)}"
-    Rails.logger.info "Generated Transaction ID: #{txn_id}"
+    Rails.logger.info("[DMT] generated txn_id=#{txn_id}")
 
     # 2. Process surcharge credit back to retailer
     surcharge_result = Wallets::WalletService.update_balance(
@@ -1174,7 +1056,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       remark: "DMT Commission Credit",
       reference_id: txn_id
     )
-    Rails.logger.info "  ✅ Surcharge credit: ₹#{params[:amount]}"
+    Rails.logger.info("[DMT] surcharge credit result=#{surcharge_result}")
 
     # 3. Process TDS debit
     tds_result = Wallets::WalletService.update_balance(
@@ -1184,7 +1066,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       remark: "DMT TDS",
       reference_id: "hjhd8789798"
     )
-    Rails.logger.info "  ✅ TDS debit: ₹#{dmt_surcharge.tds_percent}"
+    Rails.logger.info("[DMT] tds debit result=#{tds_result}")
 
     # 4. Process GST debit
     gst_result = Wallets::WalletService.update_balance(
@@ -1194,7 +1076,7 @@ class Api::V1::Agent::DmtsController < Api::V1::Auth::BaseController
       remark: "Dmt Gst",
       reference_id: "707dds8"
     )
-    Rails.logger.info "  ✅ GST debit: ₹#{dmt_surcharge.gst_percent}"
+    Rails.logger.info("[DMT] gst debit result=#{gst_result}")
 
     # 5. Create DMT transaction record
     dmt_transaction = DmtTransaction.create!(
