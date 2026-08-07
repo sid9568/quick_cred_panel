@@ -497,11 +497,15 @@ end
 
   def beneficiary_list
     user = VendorUser.find_by(phone_number: params[:customer_id])
+    p "==================user"
+    p user
     if user.present?
       beneficiaries = Dmt.where(
         vendor_user_id: user.id,
         beneficiaries_status: true
       )
+      p "===========beneficiaries============="
+      p beneficiaries
     else
       resp = EkoDmt::ListRecipientsService.call(
         sender_mobile: current_user.phone_number,
@@ -509,8 +513,14 @@ end
         user_code: current_user.user_code
       )
 
+      p "===========resp==============="
+
+      p resp
+
       # 👇 assume EKO response me beneficiaries yahan mil rahe hain
       beneficiaries = resp[:beneficiaries] || resp["beneficiaries"]
+      p "==========beneficiaries============"
+      p beneficiaries
     end
 
     render json: {
@@ -733,10 +743,9 @@ end
 
   def dmt_transactions
     required = %i[
-    receiver_mobile_number account_number
-    ifsc_code bank_name id
-  ]
-
+      receiver_mobile_number account_number
+      ifsc_code bank_name
+    ]
     missing = required.select { |p| params[p].blank? }
     if missing.any?
       return render json: {
@@ -746,7 +755,6 @@ end
     end
 
     bank = EkoBank.find_by(name: params[:bank_name])
-
     amount = params[:amount].to_f
 
     if current_user.user_code.blank?
@@ -755,6 +763,20 @@ end
         message: "User code not found. Please contact support."
       }, status: :unprocessable_entity
     end
+
+    # ✅ Sender ke phone_number se VendorUser find_or_create karo
+    sender_mobile = params[:sender_mobile_number]
+    if sender_mobile.blank?
+      return render json: {
+        success: false,
+        message: "sender_mobile_number is required"
+      }, status: :bad_request
+    end
+
+    vendor_user = VendorUser.find_or_initialize_by(phone_number: sender_mobile)
+    vendor_user.full_name = params[:sender_full_name] if params[:sender_full_name].present?
+    vendor_user.full_name ||= params[:receiver_name] # fallback agar sender name alag param se nahi aa raha
+    vendor_user.save!
 
     # 🔹 1️⃣ CALL EKO FIRST
     response = EkoDmt::AddRecipientService.call(
@@ -780,10 +802,7 @@ end
       }, status: :unprocessable_entity
     end
 
-    vendor_user = VendorUser.find_by(id: params[:id])
-
     recipient_id = response.dig("data", "recipient_id") || response["recipient_id"]
-
     bank_verify_status = params[:bank_verify].to_s == "true"
     txn_id = "TXN#{rand(100000..999999)}"
 
@@ -815,11 +834,11 @@ end
         message: "Beneficiary added & DMT transaction created successfully",
         data: {
           dmt: dmt,
-          dmt_transaction: dmt
+          dmt_transaction: dmt,
+          vendor_user: vendor_user
         }
       }, status: :created
     end
-
   rescue => e
     render json: {
       success: false,
