@@ -361,49 +361,53 @@ module Api
               # ================= MINI STATEMENT COMMISSION START =================
               commission_map = {}
 
-              slab_range = AepsCommissionSlabRange
-                .where(service_type: "mini_statement")
-                .first
+              transaction_success = response_data["response_status_id"] == 0
 
-              Rails.logger.info "=========mini_statement slab_range========= #{slab_range.inspect}"
+              if transaction_success
+                slab_range = AepsCommissionSlabRange
+                  .where(service_type: "mini_statement")
+                  .first
 
-              if slab_range.present?
-                scheme_id = current_user.scheme_id
-                commission_slabs = AepsCommissionSlab.where(
-                  aeps_commission_slab_range_id: slab_range.id,
-                  scheme_id: scheme_id,
-                  service_type: "mini_statement",
-                  active: true
-                ).index_by(&:to_role)
+                Rails.logger.info "=========mini_statement slab_range========= #{slab_range.inspect}"
 
-                master_amount = commission_slabs["master"]&.value.to_f
-                dealer_amount = commission_slabs["dealer"]&.value.to_f
+                if slab_range.present?
+                  scheme_id = current_user.scheme_id
+                  commission_slabs = AepsCommissionSlab.where(
+                    aeps_commission_slab_range_id: slab_range.id,
+                    scheme_id: scheme_id,
+                    service_type: "mini_statement",
+                    active: true
+                  ).index_by(&:to_role)
 
-                admin_pool_amount = slab_range.value.to_f
+                  master_amount = commission_slabs["master"]&.value.to_f
+                  dealer_amount = commission_slabs["dealer"]&.value.to_f
 
-                distributed_below_admin = master_amount + dealer_amount
-                admin_amount = admin_pool_amount - distributed_below_admin
-                admin_amount = 0 if admin_amount.negative?
+                  admin_pool_amount = slab_range.value.to_f
 
-                commission_eko = admin_pool_amount
+                  distributed_below_admin = master_amount + dealer_amount
+                  admin_amount = admin_pool_amount - distributed_below_admin
+                  admin_amount = 0 if admin_amount.negative?
 
-                superadmin_amount = commission_eko - admin_pool_amount
-                superadmin_amount = 0 if superadmin_amount.negative?
+                  commission_eko = admin_pool_amount
 
-                commission_map[:superadmin] = superadmin_amount
-                commission_map[:admin]      = admin_amount
-                commission_map[:master]     = master_amount
-                commission_map[:dealer]     = dealer_amount
+                  superadmin_amount = commission_eko - admin_pool_amount
+                  superadmin_amount = 0 if superadmin_amount.negative?
 
-                commission_map = commission_map.transform_values { |v| v.to_f.round(2) }
+                  commission_map[:superadmin] = superadmin_amount
+                  commission_map[:admin]      = admin_amount
+                  commission_map[:master]     = master_amount
+                  commission_map[:dealer]     = dealer_amount
 
-                Rails.logger.info "Mini Statement Commission Breakdown: #{commission_map}"
+                  commission_map = commission_map.transform_values { |v| v.to_f.round(2) }
 
-                total_commission = commission_map.values.sum
-                if total_commission > commission_eko
-                  excess = total_commission - commission_eko
-                  commission_map[:admin] = [commission_map[:admin] - excess, 0].max
-                  Rails.logger.info "Adjusted Mini Statement Commission Breakdown: #{commission_map}"
+                  Rails.logger.info "Mini Statement Commission Breakdown: #{commission_map}"
+
+                  total_commission = commission_map.values.sum
+                  if total_commission > commission_eko
+                    excess = total_commission - commission_eko
+                    commission_map[:admin] = [commission_map[:admin] - excess, 0].max
+                    Rails.logger.info "Adjusted Mini Statement Commission Breakdown: #{commission_map}"
+                  end
                 end
               end
               # ================= MINI STATEMENT COMMISSION END =================
