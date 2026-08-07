@@ -57,7 +57,7 @@ def create
   } if parent_slab.nil?
 
   role_map =
-    if service_type == "fund_settlement" || service_type == "mini_statement"
+    if service_type == "fund_settlement" || service_type == "mini_statement" || service_type = "balance_enquiry"
       { "master" => params[:master_commission], "dealer" => params[:dealer_commission], "retailer" => params[:retailer_commission] }
     else
       { "master" => params[:master_commission], "dealer" => params[:dealer_commission], "retailer" => params[:retailer_commission] }

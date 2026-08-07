@@ -784,9 +784,9 @@ end
 
     # 🔹 1️⃣ CALL EKO FIRST
     response = EkoDmt::AddRecipientService.call(
-      sender_mobile: current_user.phone_number,
+      sender_mobile: vendor_user.phone_number,
       initiator_id: "6268075916",
-      user_code: current_user.user_code,
+      user_code: vendor_user.user_code,
       recipient_mobile: params[:receiver_mobile_number],
       recipient_type: 3,
       recipient_name: params[:receiver_name],
