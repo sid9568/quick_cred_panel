@@ -58,7 +58,7 @@ def create
 
   role_map =
     if service_type == "fund_settlement" || service_type == "mini_statement"
-      { "master" => params[:master_commission], "master" => params[:dealer_commission], "retailer" => params[:retailer_commission] }
+      { "master" => params[:master_commission], "dealer" => params[:dealer_commission], "retailer" => params[:retailer_commission] }
     else
       { "master" => params[:master_commission], "dealer" => params[:dealer_commission], "retailer" => params[:retailer_commission] }
     end
