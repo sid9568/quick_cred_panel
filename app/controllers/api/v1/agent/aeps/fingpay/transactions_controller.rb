@@ -163,7 +163,7 @@ module Api
 
             api_response = response[:data]
 
-            unless api_response["response_status_id"] == 1
+            unless api_response["response_status_id"] == 0
               return render json: {
                 success: false,
                 message: api_response["message"],
@@ -186,6 +186,7 @@ module Api
 
             # ================= COMMISSION START =================
            transaction_success = api_response.dig("data", "tx_status") == "0"
+
             commission_map = {}
 
             if transaction_success
@@ -276,7 +277,7 @@ module Api
                 commission: transaction["commission"],
                 tds: transaction["tds"],
                 tx_status: transaction["tx_status"],
-                status: "success",
+                status: transaction_success ? "success" : "failed",
                 message: api_response["message"],
                 comment: transaction["comment"],
                 tid: transaction["tid"],
@@ -358,6 +359,9 @@ module Api
 
               response_data = response[:data] || {}
 
+              p "===========response_data==========="
+              p response_data
+
               # ================= MINI STATEMENT COMMISSION START =================
               commission_map = {}
 
@@ -403,10 +407,12 @@ module Api
                   Rails.logger.info "Mini Statement Commission Breakdown: #{commission_map}"
 
                   total_commission = commission_map.values.sum
-                  if total_commission > commission_eko
+                  if total_commission >= commission_eko
                     excess = total_commission - commission_eko
                     commission_map[:admin] = [commission_map[:admin] - excess, 0].max
                     Rails.logger.info "Adjusted Mini Statement Commission Breakdown: #{commission_map}"
+                    p "=========================commission_map"
+                    p commission_map
                   end
                 end
               end
