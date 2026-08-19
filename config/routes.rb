@@ -161,6 +161,8 @@ Rails.application.routes.draw do
           end
         end
 
+        resources :aeps_transactions, only: [:index]
+
         resources :dmts do
           collection do
             get "scheme_list"
